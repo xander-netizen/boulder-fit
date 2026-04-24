@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0f1115" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Boulder Fit" />
+<title>Boulder Fit — Your Training Dashboard</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #161a22;
+    --panel-2: #1d2230;
+    --border: #272c38;
+    --text: #e7ecf3;
+    --muted: #9aa4b2;
+    --accent: #ff7a45;
+    --accent-2: #4cc9f0;
+    --success: #4ade80;
+    --warn: #facc15;
+    --danger: #f87171;
+    --climb: #8b5cf6;
+    --gym: #ff7a45;
+    --rest: #475569;
+    --cardio: #4cc9f0;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; }
+  a { color: var(--accent-2); }
+  header {
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(180deg, rgba(255,122,69,0.08), transparent);
+  }
+  header h1 { margin: 0; font-size: 20px; letter-spacing: 0.2px; }
+  header .tagline { color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .wrap { padding: 24px 28px 80px; max-width: 1320px; margin: 0 auto; }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 24px; }
+  .tab {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.15s ease;
+  }
+  .tab:hover { background: var(--panel-2); }
+  .tab.active { background: var(--accent); border-color: var(--accent); color: #14110d; font-weight: 600; }
+  .view { display: none; }
+  .view.active { display: block; }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 18px;
+  }
+  .card h2 { margin: 0 0 12px; font-size: 17px; }
+  .card h3 { margin: 18px 0 8px; font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; }
+  .grid { display: grid; gap: 16px; }
+  .grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .grid-3 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  .grid-4 { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+
+  /* Week view */
+  .week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+  .day {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: relative;
+    overflow: hidden;
+  }
+  .day::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+  }
+  .day.gym::before { background: var(--gym); }
+  .day.climb::before { background: var(--climb); }
+  .day.rest::before { background: var(--rest); }
+  .day.cardio::before { background: var(--cardio); }
+  .day .dow { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .day .label { font-size: 14px; font-weight: 700; }
+  .day .type { font-size: 12px; color: var(--muted); }
+  .day .focus { font-size: 12px; color: var(--text); margin-top: auto; padding-top: 8px; border-top: 1px dashed var(--border); }
+  .chip { display: inline-block; padding: 3px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+  .chip.gym { background: rgba(255,122,69,0.15); color: var(--gym); }
+  .chip.climb { background: rgba(139,92,246,0.15); color: var(--climb); }
+  .chip.rest { background: rgba(71,85,105,0.25); color: #94a3b8; }
+  .chip.cardio { background: rgba(76,201,240,0.15); color: var(--cardio); }
+
+  /* Workout tables */
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 14px; }
+  th, td { padding: 10px 10px; border-bottom: 1px solid var(--border); text-align: left; }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  td.right, th.right { text-align: right; }
+  td input[type="text"], td input[type="number"] {
+    width: 100%;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 13px;
+  }
+  .exercise-name { font-weight: 600; }
+  .exercise-why { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .mobile-meta { display: none; color: var(--muted); font-size: 12px; margin-top: 6px; gap: 6px; flex-wrap: wrap; }
+  .mobile-meta strong { color: var(--text); }
+
+  /* Metrics */
+  .metric {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+  }
+  .metric .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; }
+  .metric .value { font-size: 24px; font-weight: 700; margin-top: 6px; }
+  .metric .sub { color: var(--muted); font-size: 12px; margin-top: 4px; }
+
+  /* Inputs */
+  input[type="number"], input[type="text"], input[type="date"], select, textarea {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: inherit;
+  }
+  textarea { width: 100%; min-height: 80px; resize: vertical; }
+  button {
+    background: var(--accent);
+    border: none;
+    color: #14110d;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  button.secondary { background: var(--panel-2); color: var(--text); border: 1px solid var(--border); }
+  button.ghost { background: transparent; color: var(--muted); border: 1px dashed var(--border); }
+  button:hover { filter: brightness(1.08); }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .pill { display: inline-block; padding: 4px 10px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 999px; font-size: 12px; color: var(--muted); }
+
+  /* Progress log list */
+  .log-item { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .log-item:last-child { border-bottom: none; }
+  .log-item .when { color: var(--muted); font-size: 12px; }
+
+  .callout {
+    background: linear-gradient(135deg, rgba(255,122,69,0.08), rgba(76,201,240,0.06));
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  .callout strong { color: var(--accent); }
+  .tip { color: var(--muted); font-size: 13px; line-height: 1.55; }
+  details { background: var(--panel-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; margin-bottom: 10px; }
+  details summary { cursor: pointer; font-weight: 600; }
+  details p { margin: 8px 0 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+
+  /* Completion toggle */
+  .done-toggle {
+    width: 22px; height: 22px; border-radius: 6px; border: 1.5px solid var(--border);
+    background: var(--panel-2); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; color: transparent;
+  }
+  .done-toggle.done { background: var(--success); border-color: var(--success); color: #0f1115; }
+
+  @media (max-width: 900px) {
+    .week { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ==================== MOBILE ==================== */
+  @media (max-width: 720px) {
+    header {
+      padding: 14px 16px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    header h1 { font-size: 17px; }
+    header .tagline { font-size: 12px; }
+    header .row { width: 100%; justify-content: space-between; }
+    .wrap { padding: 14px 14px 110px; }
+
+    /* Tabs: horizontal scroll strip that feels native */
+    .tabs {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 6px;
+      margin-left: -14px;
+      margin-right: -14px;
+      padding-left: 14px;
+      padding-right: 14px;
+      gap: 8px;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      flex: 0 0 auto;
+      scroll-snap-align: start;
+      padding: 10px 14px;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .card { padding: 16px; border-radius: 12px; margin-bottom: 14px; }
+    .card h2 { font-size: 16px; }
+    .grid { gap: 12px; }
+    .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr 1fr; }
+    .metric { padding: 12px; }
+    .metric .value { font-size: 20px; }
+
+    /* Week: 1 column on small screens so each day is legible */
+    .week { grid-template-columns: 1fr; gap: 8px; }
+    .day { min-height: 0; padding: 12px 14px; }
+
+    /* Convert workout tables to stacked cards */
+    table.workout { border: none; }
+    table.workout thead { display: none; }
+    table.workout tbody { display: block; }
+    table.workout tr {
+      display: block;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+    table.workout td {
+      display: block;
+      border: none;
+      padding: 4px 0;
+    }
+    table.workout td[data-label]::before {
+      content: attr(data-label);
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+      margin-bottom: 2px;
+      font-weight: 600;
+    }
+    table.workout td.done-cell {
+      position: absolute;
+      right: 14px;
+      top: 14px;
+    }
+    table.workout td.done-cell::before { display: none; }
+    table.workout tr { position: relative; padding-right: 48px; }
+    table.workout td.name-cell { margin-bottom: 8px; }
+    table.workout td.name-cell::before { display: none; }
+    table.workout td.desk-only { display: none; }
+    table.workout .mobile-meta { display: flex; }
+    table.workout td input[type="text"],
+    table.workout td input[type="number"] {
+      font-size: 16px; /* prevent iOS zoom */
+      padding: 10px 12px;
+    }
+
+    /* Bigger touch targets */
+    button {
+      padding: 12px 16px;
+      font-size: 15px;
+      min-height: 44px;
+    }
+    button.full-mobile { width: 100%; }
+    .row button { flex: 1 1 auto; }
+
+    .done-toggle {
+      width: 32px; height: 32px; border-radius: 8px;
+    }
+
+    input[type="number"], input[type="text"], input[type="date"], select, textarea {
+      font-size: 16px; /* prevents iOS zoom */
+      padding: 12px 14px;
+      min-height: 44px;
+    }
+    textarea { min-height: 100px; }
+
+    /* PR cards larger touch area */
+    #prGrid .metric input { font-size: 18px !important; min-height: 36px; }
+
+    /* Sticky bottom action bar on workout views */
+    .mobile-actions {
+      position: sticky;
+      bottom: 0;
+      background: linear-gradient(180deg, transparent, var(--bg) 30%);
+      padding: 16px 0 4px;
+      margin-top: 10px;
+      z-index: 5;
+    }
+    .mobile-actions .row { gap: 8px; }
+
+    /* Callouts stack */
+    .grid-2 .callout { font-size: 13px; }
+
+    /* Make overview KPIs single row scroll */
+    #overview .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+  }
+
+  @media (max-width: 400px) {
+    .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+    #overview .grid-4 { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* iOS safe area */
+  @supports (padding: max(0px)) {
+    header { padding-top: max(20px, env(safe-area-inset-top)); }
+    .wrap { padding-bottom: max(80px, env(safe-area-inset-bottom)); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🧗 Boulder Fit — Your Training Dashboard</h1>
+    <div class="tagline">Climb stronger · Build muscle where it counts · Lose fat · Stay injury-free</div>
+  </div>
+  <div class="row">
+    <span class="pill" id="todayPill">Today: —</span>
+    <button class="secondary" onclick="resetAll()" title="Reset all tracked data">Reset data</button>
+  </div>
+</header>
+
+<div class="wrap">
+
+<div class="tabs">
+  <button class="tab active" data-view="overview">Overview</button>
+  <button class="tab" data-view="schedule">Weekly schedule</button>
+  <button class="tab" data-view="gymA">Gym A — Push & Core</button>
+  <button class="tab" data-view="gymB">Gym B — Legs & Pull</button>
+  <button class="tab" data-view="climb">Climbing sessions</button>
+  <button class="tab" data-view="progress">Progress & weight</button>
+  <button class="tab" data-view="nutrition">Fat loss & nutrition</button>
+  <button class="tab" data-view="principles">Principles & tips</button>
+</div>
+
+<!-- ===================== OVERVIEW ===================== -->
+<section class="view active" id="overview">
+  <div class="grid grid-4">
+    <div class="metric">
+      <div class="label">This week</div>
+      <div class="value" id="overviewCompleted">0/4</div>
+      <div class="sub">Sessions completed</div>
+    </div>
+    <div class="metric">
+      <div class="label">Streak</div>
+      <div class="value" id="overviewStreak">0</div>
+      <div class="sub">Weeks hitting ≥ 3 sessions</div>
+    </div>
+    <div class="metric">
+      <div class="label">Weight trend</div>
+      <div class="value" id="overviewWeight">—</div>
+      <div class="sub">Latest logged</div>
+    </div>
+    <div class="metric">
+      <div class="label">Hardest send</div>
+      <div class="value" id="overviewGrade">—</div>
+      <div class="sub">Recent climbing grade</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Your program at a glance</h2>
+    <p class="tip">A 2-gym + 2-to-3-climb week is the sweet spot for bouldering + fat loss. The gym work is built around <strong>antagonists</strong> (push, rear delts, core), <strong>lower body strength</strong> (mostly ignored by climbers), and <strong>finger/grip conditioning</strong> — exactly the gaps that climbing alone won't fill.</p>
+    <div class="grid grid-2" style="margin-top: 14px;">
+      <div>
+        <h3>Weekly template</h3>
+        <ul style="padding-left: 18px; line-height: 1.8; margin: 0;">
+          <li><strong>Mon</strong> — Gym A (Push & Core)</li>
+          <li><strong>Tue</strong> — Climb (technique + hard attempts)</li>
+          <li><strong>Wed</strong> — Rest or 30 min zone-2 walk</li>
+          <li><strong>Thu</strong> — Gym B (Legs & Pull)</li>
+          <li><strong>Fri</strong> — Rest</li>
+          <li><strong>Sat</strong> — Climb (volume / projects)</li>
+          <li><strong>Sun</strong> — Optional climb (easy) or rest</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Why this works for you</h3>
+        <ul style="padding-left: 18px; line-height: 1.8; margin: 0;">
+          <li>Climbing handles your pulling strength — gym fills push/leg gaps.</li>
+          <li>48 hours between climb and gym = better recovery for fingers and forearms.</li>
+          <li>Core + anti-rotation carries over directly to harder boulders.</li>
+          <li>2 strength days keeps fat-loss deficit tolerable without wrecking climbs.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Jump back in</h2>
+    <div class="row">
+      <button onclick="switchView('gymA')">Start Gym A</button>
+      <button onclick="switchView('gymB')">Start Gym B</button>
+      <button class="secondary" onclick="switchView('climb')">Log a climb session</button>
+      <button class="secondary" onclick="switchView('progress')">Log body weight</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== WEEKLY SCHEDULE ===================== -->
+<section class="view" id="schedule">
+  <div class="card">
+    <h2>Your week</h2>
+    <p class="tip">Tap a day to jump to the workout. This is the default split — shift it to match your life (e.g. climb Wed/Sat, gym Mon/Thu).</p>
+    <div class="week" id="weekGrid"></div>
+  </div>
+
+  <div class="card">
+    <h2>Alternative splits</h2>
+    <details open>
+      <summary>If you only climb twice a week</summary>
+      <p>Mon Gym A · Tue Climb · Wed Rest · Thu Gym B · Fri Climb · Sat Zone-2 cardio (30–45 min) · Sun rest. You can optionally add a 3rd short gym day (20 min conditioning + core) on Saturday.</p>
+    </details>
+    <details>
+      <summary>If you climb three times a week</summary>
+      <p>Mon Gym A · Tue Climb · Wed Rest · Thu Climb · Fri Gym B · Sat Climb · Sun rest. Keep intensity high only 1–2 climb days per week; the third should be volume/technique.</p>
+    </details>
+    <details>
+      <summary>Deload every 4th week</summary>
+      <p>Every fourth week, drop gym volume by ~40% (fewer sets, not lighter weight) and climb at 70% intensity. You'll come back stronger and injury-free.</p>
+    </details>
+  </div>
+</section>
+
+<!-- ===================== GYM A ===================== -->
+<section class="view" id="gymA">
+  <div class="card">
+    <h2>Gym A — Push, Antagonists & Core</h2>
+    <p class="tip">Goal: balance all the pulling you do climbing. Strong push, rear-delt, and core make you injury-proof and shoulder-stable on hard moves. ~60 min.</p>
+    <div id="gymAExercises"></div>
+    <div class="row" style="margin-top: 14px;">
+      <button onclick="completeSession('gymA')">Mark session complete</button>
+      <button class="secondary" onclick="resetSession('gymA')">Clear today's log</button>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Warm-up (5–8 min)</h3>
+    <ul class="tip" style="line-height:1.8;">
+      <li>3 min easy row or bike</li>
+      <li>Band pull-aparts × 20</li>
+      <li>Scap push-ups × 10</li>
+      <li>Wall slides × 10</li>
+      <li>Cat-cow + thoracic rotations × 8/side</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===================== GYM B ===================== -->
+<section class="view" id="gymB">
+  <div class="card">
+    <h2>Gym B — Legs, Pull Power & Grip</h2>
+    <p class="tip">Goal: heavy lower-body (climbers neglect this and miss out on explosive heel hooks + metabolism), weighted pulls for finger-independent pulling power, grip/core carries. ~60 min.</p>
+    <div id="gymBExercises"></div>
+    <div class="row" style="margin-top: 14px;">
+      <button onclick="completeSession('gymB')">Mark session complete</button>
+      <button class="secondary" onclick="resetSession('gymB')">Clear today's log</button>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Warm-up (5–8 min)</h3>
+    <ul class="tip" style="line-height:1.8;">
+      <li>3 min easy bike</li>
+      <li>Bodyweight squats × 15</li>
+      <li>Walking lunges × 10/side</li>
+      <li>Glute bridges × 15</li>
+      <li>Dead bugs × 8/side</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===================== CLIMBING ===================== -->
+<section class="view" id="climb">
+  <div class="card">
+    <h2>Log a climbing session</h2>
+    <div class="grid grid-3">
+      <div>
+        <label class="tip">Session type</label>
+        <select id="climbType">
+          <option value="Technique">Technique / Easy volume</option>
+          <option value="Projects">Projects / Hard attempts</option>
+          <option value="Endurance">Endurance / ARC</option>
+          <option value="Session">Regular session</option>
+        </select>
+      </div>
+      <div>
+        <label class="tip">Hardest grade sent</label>
+        <input id="climbGrade" type="text" placeholder="e.g. V4 / 6C" />
+      </div>
+      <div>
+        <label class="tip">Duration (min)</label>
+        <input id="climbDuration" type="number" inputmode="numeric" placeholder="90" />
+      </div>
+    </div>
+    <div style="margin-top: 12px;">
+      <label class="tip">Notes (style worked on, projects, how you felt)</label>
+      <textarea id="climbNotes" placeholder="Overhang project on purple — got to move 5. Fingers tired."></textarea>
+    </div>
+    <div class="row" style="margin-top: 12px;">
+      <button onclick="logClimb()">Log session</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Climb day guidelines</h2>
+    <div class="grid grid-2">
+      <div>
+        <h3>Intensity day (hard)</h3>
+        <ul class="tip" style="line-height: 1.8;">
+          <li>Thorough warm-up: 15 min on easy climbs</li>
+          <li>4–6 hard attempts on 2–3 projects</li>
+          <li>Long rests (3–5 min) between attempts</li>
+          <li>Stop before form collapses (~90 min total)</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Volume / technique day</h3>
+        <ul class="tip" style="line-height: 1.8;">
+          <li>Warm up, then 20–30 boulders at 2–3 grades below max</li>
+          <li>Focus on footwork, flagging, precise movement</li>
+          <li>Flash or 2nd-go rule — don't grind sessions</li>
+          <li>60–75 min total</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Recent climbs</h2>
+    <div id="climbLog"></div>
+  </div>
+</section>
+
+<!-- ===================== PROGRESS ===================== -->
+<section class="view" id="progress">
+  <div class="grid grid-2">
+    <div class="card">
+      <h2>Body weight log</h2>
+      <div class="row">
+        <input id="bwDate" type="date" style="flex:1 1 140px;" />
+        <input id="bwValue" type="number" inputmode="decimal" step="0.1" placeholder="weight (kg)" style="flex:1 1 140px;" />
+        <button onclick="logBodyweight()" class="full-mobile">Log</button>
+      </div>
+      <canvas id="bwChart" height="180" style="margin-top: 12px; background: var(--panel-2); border-radius: 10px;"></canvas>
+      <div id="bwLog" style="margin-top: 10px;"></div>
+    </div>
+    <div class="card">
+      <h2>Weekly summary</h2>
+      <div id="weeklySummary"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Personal records</h2>
+    <p class="tip">Key lifts and climbing milestones — edit anytime as you progress.</p>
+    <div class="grid grid-3" id="prGrid"></div>
+  </div>
+</section>
+
+<!-- ===================== NUTRITION ===================== -->
+<section class="view" id="nutrition">
+  <div class="card">
+    <h2>Fat loss: the 80/20 playbook</h2>
+    <p class="tip">You don't need to count every calorie. Nail these five habits and fat loss happens without crashing your climbing.</p>
+    <div class="grid grid-2">
+      <div>
+        <h3>The 5 habits</h3>
+        <ol style="padding-left: 18px; line-height: 1.9;">
+          <li><strong>Protein first</strong>: 1.6–2.2 g per kg bodyweight, daily. Preserves muscle in a deficit and helps you feel full.</li>
+          <li><strong>~500 kcal deficit</strong>: aim for ~0.5 kg/week loss. Faster kills climbing performance.</li>
+          <li><strong>Carbs around climbing</strong>: eat most carbs in the 2–3 hours before/after climbs. Low-carb on rest days if you want.</li>
+          <li><strong>Hydrate + sleep 7–8h</strong>: under-slept lifters lose more muscle and perform worse. Non-negotiable.</li>
+          <li><strong>Alcohol ≤ 2–3 units/week</strong>: it torpedoes sleep, recovery, and body composition.</li>
+        </ol>
+      </div>
+      <div>
+        <h3>Climb-day fuel</h3>
+        <ul class="tip" style="line-height: 1.8;">
+          <li>2–3h before: 40–60g carbs + 20–30g protein (oats + yogurt, rice + chicken, etc.)</li>
+          <li>During: water + small handful of dried fruit if session is long</li>
+          <li>After: 30–40g protein within 1h (shake, eggs, cottage cheese)</li>
+          <li>Rest day: drop 200–400 kcal vs training day, mostly from carbs</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Simple daily template</h2>
+    <table>
+      <thead><tr><th>Meal</th><th>What</th><th class="right">Approx kcal</th></tr></thead>
+      <tbody>
+        <tr><td>Breakfast</td><td>Greek yogurt + oats + berries + honey</td><td class="right">400</td></tr>
+        <tr><td>Lunch</td><td>Chicken / tofu + rice + veg + olive oil</td><td class="right">550</td></tr>
+        <tr><td>Pre-climb snack</td><td>Banana + peanut butter</td><td class="right">250</td></tr>
+        <tr><td>Dinner</td><td>Salmon / beans + potato + salad</td><td class="right">600</td></tr>
+        <tr><td>Optional</td><td>Cottage cheese + fruit</td><td class="right">200</td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="2"><strong>Total</strong></td><td class="right"><strong>~2000 kcal</strong></td></tr></tfoot>
+    </table>
+    <p class="tip" style="margin-top: 8px;">Adjust ±300 kcal based on your current maintenance. For most adults a deficit lands around 1800–2200 kcal.</p>
+  </div>
+
+  <div class="card">
+    <h2>Cardio for fat loss (without killing climbing)</h2>
+    <div class="grid grid-2">
+      <div>
+        <h3>Do this</h3>
+        <ul class="tip" style="line-height: 1.8;">
+          <li>2–4× per week, 30–45 min zone-2 (brisk walk, easy bike, slow jog) — on rest days or after gym</li>
+          <li>10,000 steps/day target — low-hanging fruit</li>
+          <li>One optional 15-min HIIT finisher after Gym B (bike intervals)</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Avoid this</h3>
+        <ul class="tip" style="line-height: 1.8;">
+          <li>Heavy running the day before climbing — trashes legs</li>
+          <li>HIIT on climb days — cuts into recovery</li>
+          <li>Fasted hard sessions — lowers intensity and muscle retention</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PRINCIPLES ===================== -->
+<section class="view" id="principles">
+  <div class="card">
+    <h2>Core principles</h2>
+    <div class="grid grid-2">
+      <div class="callout">
+        <strong>1. Climbing is the goal — gym supports it.</strong><br />
+        Never sacrifice climbing recovery for a gym PR. If forearms are cooked, skip the gym pull work that day and do legs only.
+      </div>
+      <div class="callout">
+        <strong>2. Train antagonists.</strong><br />
+        Climbers get hunched, internally rotated, and tight. Push, rear-delt, and external-rotation work keep your shoulders healthy for years.
+      </div>
+      <div class="callout">
+        <strong>3. Progressive overload — slowly.</strong><br />
+        Add weight or 1 rep only when the current weight feels "7/10 hard". Chasing PRs in a deficit = injury.
+      </div>
+      <div class="callout">
+        <strong>4. Protect your fingers.</strong><br />
+        No hangboarding while you're still building a base. Climbing twice a week IS finger training right now.
+      </div>
+      <div class="callout">
+        <strong>5. Sleep &gt; supplements.</strong><br />
+        Sleep 7–8h. Creatine (5g/day) is the one supplement worth it. Protein powder if you can't hit protein otherwise.
+      </div>
+      <div class="callout">
+        <strong>6. Track honestly.</strong><br />
+        Weigh yourself 3× per week, same time, same conditions. Track the trend, not the day.
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Exercise reference</h2>
+    <details>
+      <summary>Barbell bench press</summary>
+      <p>Lie flat, retract shoulder blades, bar touches mid-sternum, drive up. Elbows at ~45° (not flared).</p>
+    </details>
+    <details>
+      <summary>Overhead press</summary>
+      <p>Standing, bar at collarbone. Brace hard, press overhead, bar path slightly back as head comes through.</p>
+    </details>
+    <details>
+      <summary>Weighted dip</summary>
+      <p>Chest slightly forward for chest emphasis; more upright for triceps. Lower until shoulders level with elbows.</p>
+    </details>
+    <details>
+      <summary>Face pull</summary>
+      <p>Cable + rope at face height. Pull to forehead with external rotation — thumbs point back at the end.</p>
+    </details>
+    <details>
+      <summary>Back squat</summary>
+      <p>Bar on upper traps, feet shoulder-width, knees track over toes. Break parallel if mobility allows.</p>
+    </details>
+    <details>
+      <summary>Romanian deadlift (RDL)</summary>
+      <p>Hinge at hips, slight knee bend, bar close to legs, back flat. Feel stretch in hamstrings at bottom.</p>
+    </details>
+    <details>
+      <summary>Bulgarian split squat</summary>
+      <p>Rear foot on bench, front foot far enough forward that knee tracks over midfoot. Drive through heel.</p>
+    </details>
+    <details>
+      <summary>Weighted pull-up</summary>
+      <p>Belt with plate or dumbbell between feet. Full hang to chin over bar. Add weight before reps.</p>
+    </details>
+    <details>
+      <summary>Pallof press</summary>
+      <p>Cable at chest height, side-on. Press straight out and resist rotation. Key anti-rotation core drill.</p>
+    </details>
+    <details>
+      <summary>Farmer carry</summary>
+      <p>Heavy DB or trap bar. Walk tall, shoulders packed, 30–40m. Builds grip, core, and traps.</p>
+    </details>
+  </div>
+
+  <div class="card">
+    <h2>Red flags — stop and reassess</h2>
+    <ul class="tip" style="line-height: 1.8;">
+      <li>Finger joint pain that persists more than 48h — skip climbing for a week, no hangs.</li>
+      <li>Elbow pain on the inside (medial epicondyle) — common climber's elbow; do wrist extensor work and reduce volume.</li>
+      <li>Shoulder pinching overhead — check if you're skipping face pulls / rear delt work.</li>
+      <li>Weight loss &gt; 1 kg/week for more than 2 weeks — you're in too steep a deficit, eat more.</li>
+      <li>Climbing grades dropping consistently — almost always under-recovery or under-eating.</li>
+    </ul>
+  </div>
+</section>
+
+</div>
+
+<script>
+// ==================== DATA ====================
+const PROGRAM = {
+  gymA: {
+    title: "Gym A — Push, Antagonists & Core",
+    exercises: [
+      { name: "Barbell bench press", sets: "4 × 6–8", rest: "2–3 min", why: "Main antagonist to all that pulling", target: "Chest, triceps, front delts" },
+      { name: "Seated dumbbell shoulder press", sets: "3 × 8–10", rest: "90 s", why: "Overhead pressing strength & shoulder stability", target: "Delts, triceps" },
+      { name: "Weighted dip (or push-up)", sets: "3 × 8–12", rest: "90 s", why: "Locked-off pressing strength for mantling", target: "Chest, triceps" },
+      { name: "Cable face pull", sets: "3 × 12–15", rest: "60 s", why: "Most important antagonist drill — shoulder health", target: "Rear delts, external rotators" },
+      { name: "Cable chest fly", sets: "3 × 12", rest: "60 s", why: "Opens up chest; counters climber's hunch", target: "Chest" },
+      { name: "Hanging leg raise", sets: "3 × 10–15", rest: "60 s", why: "Direct carryover to overhang climbing", target: "Core, hip flexors" },
+      { name: "Pallof press", sets: "3 × 10/side", rest: "45 s", why: "Anti-rotation core — massive climbing carryover", target: "Deep core" },
+      { name: "Wrist extensor curls (band/DB)", sets: "2 × 15–20", rest: "45 s", why: "Prevents climber's elbow", target: "Forearm extensors" }
+    ]
+  },
+  gymB: {
+    title: "Gym B — Legs, Pull Power & Grip",
+    exercises: [
+      { name: "Back squat", sets: "4 × 6–8", rest: "2–3 min", why: "Climbers skip legs and miss huge metabolism + power gains", target: "Quads, glutes" },
+      { name: "Romanian deadlift", sets: "3 × 8–10", rest: "2 min", why: "Posterior chain — heel hooks, high steps", target: "Hamstrings, glutes" },
+      { name: "Bulgarian split squat", sets: "3 × 10/leg", rest: "90 s", why: "Single-leg power & stability for precise footwork", target: "Quads, glutes" },
+      { name: "Weighted pull-up", sets: "4 × 5–8", rest: "2 min", why: "Pure pulling strength — the #1 gym lift for bouldering", target: "Lats, biceps, grip" },
+      { name: "Single-arm dumbbell row", sets: "3 × 8–10/side", rest: "90 s", why: "Unilateral pulling strength, fixes L/R imbalances", target: "Lats, rhomboids" },
+      { name: "Farmer carry (heavy DB)", sets: "3 × 30–40 m", rest: "90 s", why: "Grip endurance + standing core", target: "Grip, traps, core" },
+      { name: "Standing calf raise", sets: "3 × 12–15", rest: "60 s", why: "Calves matter for standing on tiny footholds", target: "Calves" },
+      { name: "Zone-2 cardio finisher", sets: "10–15 min easy bike/row", rest: "—", why: "Fat-loss support without trashing recovery", target: "Aerobic base" }
+    ]
+  }
+};
+
+const DEFAULT_SCHEDULE = [
+  { dow: "Mon", type: "gym", label: "Gym A", focus: "Push & Core", view: "gymA" },
+  { dow: "Tue", type: "climb", label: "Climb", focus: "Technique / projects", view: "climb" },
+  { dow: "Wed", type: "rest", label: "Rest", focus: "30 min walk optional", view: "nutrition" },
+  { dow: "Thu", type: "gym", label: "Gym B", focus: "Legs & Pull", view: "gymB" },
+  { dow: "Fri", type: "rest", label: "Rest", focus: "Full recovery", view: "nutrition" },
+  { dow: "Sat", type: "climb", label: "Climb", focus: "Volume / projects", view: "climb" },
+  { dow: "Sun", type: "cardio", label: "Optional", focus: "Climb easy or zone-2 cardio", view: "climb" }
+];
+
+const DEFAULT_PRS = [
+  { label: "Back squat", value: "—", unit: "kg" },
+  { label: "Bench press", value: "—", unit: "kg" },
+  { label: "Deadlift / RDL", value: "—", unit: "kg" },
+  { label: "Weighted pull-up", value: "—", unit: "kg added" },
+  { label: "Overhead press", value: "—", unit: "kg" },
+  { label: "Hardest boulder", value: "—", unit: "grade" }
+];
+
+// ==================== STATE ====================
+const STORAGE_KEY = "boulderFitDashboard.v1";
+let state = loadState();
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return {
+    gymALog: {},   // date -> { completed, sets: [{weight, reps}, ...] per exercise }
+    gymBLog: {},
+    climbLog: [],  // { date, type, grade, duration, notes }
+    bodyweight: [],// { date, value }
+    prs: DEFAULT_PRS
+  };
+}
+
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+}
+
+function resetAll() {
+  if (!confirm("Reset all tracked data? This cannot be undone.")) return;
+  localStorage.removeItem(STORAGE_KEY);
+  state = loadState();
+  renderAll();
+}
+
+// ==================== TABS ====================
+document.querySelectorAll(".tab").forEach(t => {
+  t.addEventListener("click", () => switchView(t.dataset.view));
+});
+function switchView(v) {
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.view === v));
+  document.querySelectorAll(".view").forEach(s => s.classList.toggle("active", s.id === v));
+}
+
+// ==================== WEEK GRID ====================
+function renderWeek() {
+  const grid = document.getElementById("weekGrid");
+  const today = new Date().toLocaleDateString("en-US", { weekday: "short" });
+  grid.innerHTML = "";
+  DEFAULT_SCHEDULE.forEach(day => {
+    const el = document.createElement("div");
+    el.className = "day " + day.type;
+    el.innerHTML = `
+      <div class="dow">${day.dow}${day.dow === today ? " • today" : ""}</div>
+      <div class="label">${day.label}</div>
+      <div class="type"><span class="chip ${day.type}">${day.type}</span></div>
+      <div class="focus">${day.focus}</div>
+    `;
+    el.addEventListener("click", () => switchView(day.view));
+    el.style.cursor = "pointer";
+    grid.appendChild(el);
+  });
+}
+
+// ==================== WORKOUT RENDER ====================
+function todayKey() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function renderWorkout(key) {
+  const prog = PROGRAM[key];
+  const container = document.getElementById(key + "Exercises");
+  const log = state[key + "Log"][todayKey()] || {};
+  container.innerHTML = "";
+  const table = document.createElement("table");
+  table.className = "workout";
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th style="width:30px;">✓</th>
+        <th>Exercise</th>
+        <th>Sets × reps</th>
+        <th>Rest</th>
+        <th>Weight (kg) — last</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody></tbody>`;
+  const tbody = table.querySelector("tbody");
+  prog.exercises.forEach((ex, i) => {
+    const entry = log[i] || {};
+    const last = lastWeight(key, i);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="done-cell"><button class="done-toggle ${entry.done ? 'done' : ''}" data-key="${key}" data-i="${i}" aria-label="Mark ${ex.name} done">✓</button></td>
+      <td class="name-cell">
+        <div class="exercise-name">${ex.name}</div>
+        <div class="exercise-why">${ex.why}</div>
+        <div class="mobile-meta">
+          <span><strong>${ex.sets}</strong></span>
+          <span>·</span>
+          <span>${ex.rest} rest</span>
+          ${last ? `<span>·</span><span>last: <strong>${last} kg</strong></span>` : ''}
+        </div>
+      </td>
+      <td class="desk-only" data-label="Sets × reps">${ex.sets}</td>
+      <td class="desk-only" data-label="Rest">${ex.rest}</td>
+      <td data-label="Weight (kg)"><input type="text" inputmode="decimal" data-key="${key}" data-i="${i}" data-field="weight" value="${entry.weight || ''}" placeholder="${last || '—'}"/></td>
+      <td data-label="Notes"><input type="text" data-key="${key}" data-i="${i}" data-field="notes" value="${entry.notes || ''}" placeholder="felt good / add 2.5kg next"/></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  container.appendChild(table);
+
+  // Handlers
+  container.querySelectorAll(".done-toggle").forEach(b => {
+    b.addEventListener("click", () => {
+      const k = b.dataset.key, i = +b.dataset.i;
+      const today = todayKey();
+      state[k+"Log"][today] = state[k+"Log"][today] || {};
+      state[k+"Log"][today][i] = state[k+"Log"][today][i] || {};
+      state[k+"Log"][today][i].done = !state[k+"Log"][today][i].done;
+      b.classList.toggle("done", state[k+"Log"][today][i].done);
+      saveState();
+    });
+  });
+  container.querySelectorAll("input").forEach(inp => {
+    inp.addEventListener("change", () => {
+      const k = inp.dataset.key, i = +inp.dataset.i, f = inp.dataset.field;
+      const today = todayKey();
+      state[k+"Log"][today] = state[k+"Log"][today] || {};
+      state[k+"Log"][today][i] = state[k+"Log"][today][i] || {};
+      state[k+"Log"][today][i][f] = inp.value;
+      saveState();
+    });
+  });
+}
+
+function lastWeight(key, i) {
+  const log = state[key + "Log"];
+  const dates = Object.keys(log).sort().reverse();
+  for (const d of dates) {
+    if (d === todayKey()) continue;
+    if (log[d][i] && log[d][i].weight) return log[d][i].weight;
+  }
+  return "";
+}
+
+function completeSession(key) {
+  const today = todayKey();
+  state[key+"Log"][today] = state[key+"Log"][today] || {};
+  state[key+"Log"][today]._completed = true;
+  saveState();
+  renderOverview();
+  alert("Nice work — session logged.");
+}
+function resetSession(key) {
+  if (!confirm("Clear today's log for this session?")) return;
+  delete state[key+"Log"][todayKey()];
+  saveState();
+  renderWorkout(key);
+  renderOverview();
+}
+
+// ==================== CLIMB LOG ====================
+function logClimb() {
+  const entry = {
+    date: todayKey(),
+    type: document.getElementById("climbType").value,
+    grade: document.getElementById("climbGrade").value || "—",
+    duration: document.getElementById("climbDuration").value || "—",
+    notes: document.getElementById("climbNotes").value || ""
+  };
+  if (!entry.grade && !entry.notes && !entry.duration) { alert("Add at least one field."); return; }
+  state.climbLog.unshift(entry);
+  saveState();
+  document.getElementById("climbGrade").value = "";
+  document.getElementById("climbDuration").value = "";
+  document.getElementById("climbNotes").value = "";
+  renderClimbLog();
+  renderOverview();
+}
+
+function renderClimbLog() {
+  const c = document.getElementById("climbLog");
+  if (!state.climbLog.length) { c.innerHTML = '<p class="tip">No sessions logged yet.</p>'; return; }
+  c.innerHTML = state.climbLog.slice(0, 20).map(e => `
+    <div class="log-item">
+      <div>
+        <strong>${e.type}</strong> — ${e.grade}
+        <div class="tip" style="font-size:12px;">${e.notes || ""}</div>
+      </div>
+      <div class="when">${e.date} · ${e.duration} min</div>
+    </div>
+  `).join("");
+}
+
+// ==================== BODYWEIGHT ====================
+function logBodyweight() {
+  const d = document.getElementById("bwDate").value || todayKey();
+  const v = parseFloat(document.getElementById("bwValue").value);
+  if (!v) { alert("Enter a weight."); return; }
+  state.bodyweight = state.bodyweight.filter(x => x.date !== d);
+  state.bodyweight.push({ date: d, value: v });
+  state.bodyweight.sort((a,b) => a.date.localeCompare(b.date));
+  saveState();
+  document.getElementById("bwValue").value = "";
+  renderBodyweight();
+  renderOverview();
+}
+
+function renderBodyweight() {
+  const log = state.bodyweight;
+  const logEl = document.getElementById("bwLog");
+  if (!log.length) logEl.innerHTML = '<p class="tip">No weigh-ins yet.</p>';
+  else logEl.innerHTML = log.slice(-10).reverse().map(e => `<div class="log-item"><div>${e.value.toFixed(1)} kg</div><div class="when">${e.date}</div></div>`).join("");
+
+  // Chart
+  const c = document.getElementById("bwChart");
+  const ctx = c.getContext("2d");
+  const W = c.width = c.clientWidth * devicePixelRatio;
+  const H = c.height = 180 * devicePixelRatio;
+  ctx.clearRect(0, 0, W, H);
+  if (log.length < 2) {
+    ctx.fillStyle = "#9aa4b2"; ctx.font = `${14*devicePixelRatio}px sans-serif`; ctx.textAlign = "center";
+    ctx.fillText("Log 2+ weigh-ins to see your trend", W/2, H/2);
+    return;
+  }
+  const min = Math.min(...log.map(e=>e.value)) - 1;
+  const max = Math.max(...log.map(e=>e.value)) + 1;
+  const pad = 30 * devicePixelRatio;
+  ctx.strokeStyle = "#ff7a45";
+  ctx.lineWidth = 2 * devicePixelRatio;
+  ctx.beginPath();
+  log.forEach((e, i) => {
+    const x = pad + (W - pad*2) * (i / (log.length - 1));
+    const y = pad + (H - pad*2) * (1 - (e.value - min) / (max - min));
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+  // dots
+  log.forEach((e, i) => {
+    const x = pad + (W - pad*2) * (i / (log.length - 1));
+    const y = pad + (H - pad*2) * (1 - (e.value - min) / (max - min));
+    ctx.fillStyle = "#ff7a45";
+    ctx.beginPath(); ctx.arc(x, y, 4 * devicePixelRatio, 0, Math.PI*2); ctx.fill();
+  });
+  ctx.fillStyle = "#9aa4b2";
+  ctx.font = `${11 * devicePixelRatio}px sans-serif`;
+  ctx.textAlign = "left";
+  ctx.fillText(max.toFixed(1) + " kg", 4, 14*devicePixelRatio);
+  ctx.fillText(min.toFixed(1) + " kg", 4, H - 8);
+}
+
+// ==================== PRs ====================
+function renderPRs() {
+  const g = document.getElementById("prGrid");
+  g.innerHTML = "";
+  state.prs.forEach((pr, i) => {
+    const el = document.createElement("div");
+    el.className = "metric";
+    el.innerHTML = `
+      <div class="label">${pr.label}</div>
+      <input type="text" style="font-size:20px;font-weight:700;background:transparent;border:none;padding:6px 0;color:var(--text);" value="${pr.value}" data-i="${i}" />
+      <div class="sub">${pr.unit}</div>
+    `;
+    g.appendChild(el);
+  });
+  g.querySelectorAll("input").forEach(inp => {
+    inp.addEventListener("change", () => {
+      state.prs[+inp.dataset.i].value = inp.value;
+      saveState();
+    });
+  });
+}
+
+// ==================== OVERVIEW ====================
+function renderOverview() {
+  // Sessions this week
+  const now = new Date();
+  const monday = new Date(now);
+  const diff = (now.getDay() + 6) % 7;
+  monday.setDate(now.getDate() - diff);
+  const mondayStr = monday.toISOString().slice(0,10);
+
+  let completed = 0;
+  Object.entries(state.gymALog).forEach(([d, v]) => { if (d >= mondayStr && v._completed) completed++; });
+  Object.entries(state.gymBLog).forEach(([d, v]) => { if (d >= mondayStr && v._completed) completed++; });
+  state.climbLog.forEach(e => { if (e.date >= mondayStr) completed++; });
+  document.getElementById("overviewCompleted").textContent = `${completed}/4`;
+
+  // Weight
+  if (state.bodyweight.length) {
+    const last = state.bodyweight[state.bodyweight.length - 1];
+    document.getElementById("overviewWeight").textContent = last.value.toFixed(1) + " kg";
+  } else {
+    document.getElementById("overviewWeight").textContent = "—";
+  }
+
+  // Grade
+  const climbs = state.climbLog.filter(e => e.grade && e.grade !== "—");
+  document.getElementById("overviewGrade").textContent = climbs[0]?.grade || "—";
+
+  document.getElementById("overviewStreak").textContent = computeStreak();
+
+  // Today pill
+  const names = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const today = names[new Date().getDay()];
+  const match = DEFAULT_SCHEDULE.find(d => d.dow === today);
+  document.getElementById("todayPill").textContent = "Today: " + (match ? match.label + " — " + match.focus : today);
+
+  // Weekly summary
+  const ws = document.getElementById("weeklySummary");
+  if (ws) {
+    ws.innerHTML = `
+      <div class="log-item"><div>Gym A sessions</div><div>${Object.values(state.gymALog).filter(v=>v._completed).length}</div></div>
+      <div class="log-item"><div>Gym B sessions</div><div>${Object.values(state.gymBLog).filter(v=>v._completed).length}</div></div>
+      <div class="log-item"><div>Climbing sessions</div><div>${state.climbLog.length}</div></div>
+      <div class="log-item"><div>Body-weight entries</div><div>${state.bodyweight.length}</div></div>
+    `;
+  }
+}
+
+function computeStreak() {
+  // count consecutive past weeks (inc. this one) with ≥ 3 total sessions
+  const weeks = {};
+  const addToWeek = d => {
+    const dt = new Date(d); const day = (dt.getDay()+6)%7; dt.setDate(dt.getDate()-day);
+    const k = dt.toISOString().slice(0,10);
+    weeks[k] = (weeks[k]||0) + 1;
+  };
+  Object.entries(state.gymALog).forEach(([d,v]) => { if (v._completed) addToWeek(d); });
+  Object.entries(state.gymBLog).forEach(([d,v]) => { if (v._completed) addToWeek(d); });
+  state.climbLog.forEach(e => addToWeek(e.date));
+
+  const sorted = Object.keys(weeks).sort().reverse();
+  let streak = 0;
+  for (const w of sorted) {
+    if (weeks[w] >= 3) streak++; else break;
+  }
+  return streak;
+}
+
+// ==================== RENDER ALL ====================
+function renderAll() {
+  renderWeek();
+  renderWorkout("gymA");
+  renderWorkout("gymB");
+  renderClimbLog();
+  renderBodyweight();
+  renderPRs();
+  renderOverview();
+}
+document.getElementById("bwDate").value = todayKey();
+renderAll();
+window.addEventListener("resize", renderBodyweight);
+</script>
+
+</body>
+</html>
