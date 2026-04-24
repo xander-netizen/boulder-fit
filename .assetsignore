@@ -1,0 +1,8 @@
+node_modules
+.git
+wrangler.toml
+package.json
+package-lock.json
+README.md
+fitness-dashboard.html
+public
