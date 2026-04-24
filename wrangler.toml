@@ -2,5 +2,5 @@ name = "boulder-fit"
 compatibility_date = "2026-04-24"
 
 [assets]
-directory = "./"
+directory = "./public"
 not_found_handling = "single-page-application"
