@@ -121,6 +121,20 @@
   }
   .exercise-name { font-weight: 600; }
   .exercise-why { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .how-to {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(76,201,240,0.12);
+    color: var(--accent-2);
+    text-decoration: none;
+    border: 1px solid rgba(76,201,240,0.25);
+    vertical-align: middle;
+  }
+  .how-to:hover { background: rgba(76,201,240,0.2); }
   .mobile-meta { display: none; color: var(--muted); font-size: 12px; margin-top: 6px; gap: 6px; flex-wrap: wrap; }
   .mobile-meta strong { color: var(--text); }
 
@@ -691,43 +705,43 @@
     <h2>Exercise reference</h2>
     <details>
       <summary>Barbell bench press</summary>
-      <p>Lie flat, retract shoulder blades, bar touches mid-sternum, drive up. Elbows at ~45° (not flared).</p>
+      <p>Lie flat, retract shoulder blades, bar touches mid-sternum, drive up. Elbows at ~45° (not flared). <a href="https://www.youtube.com/results?search_query=barbell+bench+press+form+jeff+nippard" target="_blank" rel="noopener">Watch tutorial ▶</a></p>
     </details>
     <details>
       <summary>Overhead press</summary>
-      <p>Standing, bar at collarbone. Brace hard, press overhead, bar path slightly back as head comes through.</p>
+      <p>Standing, bar at collarbone. Brace hard, press overhead, bar path slightly back as head comes through. <a href="https://www.youtube.com/results?search_query=overhead+press+barbell+form" target="_blank" rel="noopener">Watch tutorial ▶</a></p>
     </details>
     <details>
       <summary>Weighted dip</summary>
-      <p>Chest slightly forward for chest emphasis; more upright for triceps. Lower until shoulders level with elbows.</p>
+      <p>Chest slightly forward for chest emphasis; more upright for triceps. Lower until shoulders level with elbows. <a href="https://www.youtube.com/results?search_query=weighted+dip+form+tutorial" target="_blank" rel="noopener">Watch tutorial ▶</a></p>
     </details>
     <details>
       <summary>Face pull</summary>
-      <p>Cable + rope at face height. Pull to forehead with external rotation — thumbs point back at the end.</p>
+      <p>Cable + rope at face height. Pull to forehead with external rotation — thumbs point back at the end. <a href="https://www.youtube.com/results?search_query=cable+face+pull+proper+form" target="_blank" rel="noopener">Watch tutorial ▶</a></p>
     </details>
     <details>
       <summary>Back squat</summary>
-      <p>Bar on upper traps, feet shoulder-width, knees track over toes. Break parallel if mobility allows.</p>
+      <p>Bar on upper traps, feet shoulder-width, knees track over toes. Break parallel if mobility allows. <a href="https://www.youtube.com/results?search_query=barbell+back+squat+form+jeff+nippard" target="_blank" rel="noopener">Watch tutorial ▶</a></p>
     </details>
     <details>
       <summary>Romanian deadlift (RDL)</summary>
-      <p>Hinge at hips, slight knee bend, bar close to legs, back flat. Feel stretch in hamstrings at bottom.</p>
+      <p>Hinge at hips, slight knee bend, bar close to legs, back flat. Feel stretch in hamstrings at bottom. <a href="https://www.youtube.com/results?search_query=romanian+deadlift+form+tutorial" target="_blank" rel="noopener">Watch tutorial ▶</a></p>
     </details>
     <details>
       <summary>Bulgarian split squat</summary>
-      <p>Rear foot on bench, front foot far enough forward that knee tracks over midfoot. Drive through heel.</p>
+      <p>Rear foot on bench, front foot far enough forward that knee tracks over midfoot. Drive through heel. <a href="https://www.youtube.com/results?search_query=bulgarian+split+squat+form" target="_blank" rel="noopener">Watch tutorial ▶</a></p>
     </details>
     <details>
       <summary>Weighted pull-up</summary>
-      <p>Belt with plate or dumbbell between feet. Full hang to chin over bar. Add weight before reps.</p>
+      <p>Belt with plate or dumbbell between feet. Full hang to chin over bar. Add weight before reps. <a href="https://www.youtube.com/results?search_query=weighted+pull+up+form+climbers" target="_blank" rel="noopener">Watch tutorial ▶</a></p>
     </details>
     <details>
       <summary>Pallof press</summary>
-      <p>Cable at chest height, side-on. Press straight out and resist rotation. Key anti-rotation core drill.</p>
+      <p>Cable at chest height, side-on. Press straight out and resist rotation. Key anti-rotation core drill. <a href="https://www.youtube.com/results?search_query=pallof+press+cable+form" target="_blank" rel="noopener">Watch tutorial ▶</a></p>
     </details>
     <details>
       <summary>Farmer carry</summary>
-      <p>Heavy DB or trap bar. Walk tall, shoulders packed, 30–40m. Builds grip, core, and traps.</p>
+      <p>Heavy DB or trap bar. Walk tall, shoulders packed, 30–40m. Builds grip, core, and traps. <a href="https://www.youtube.com/results?search_query=farmer+carry+form+technique" target="_blank" rel="noopener">Watch tutorial ▶</a></p>
     </details>
   </div>
 
@@ -751,27 +765,27 @@ const PROGRAM = {
   gymA: {
     title: "Gym A — Push, Antagonists & Core",
     exercises: [
-      { name: "Barbell bench press", sets: "4 × 6–8", rest: "2–3 min", why: "Main antagonist to all that pulling", target: "Chest, triceps, front delts" },
-      { name: "Seated dumbbell shoulder press", sets: "3 × 8–10", rest: "90 s", why: "Overhead pressing strength & shoulder stability", target: "Delts, triceps" },
-      { name: "Weighted dip (or push-up)", sets: "3 × 8–12", rest: "90 s", why: "Locked-off pressing strength for mantling", target: "Chest, triceps" },
-      { name: "Cable face pull", sets: "3 × 12–15", rest: "60 s", why: "Most important antagonist drill — shoulder health", target: "Rear delts, external rotators" },
-      { name: "Cable chest fly", sets: "3 × 12", rest: "60 s", why: "Opens up chest; counters climber's hunch", target: "Chest" },
-      { name: "Hanging leg raise", sets: "3 × 10–15", rest: "60 s", why: "Direct carryover to overhang climbing", target: "Core, hip flexors" },
-      { name: "Pallof press", sets: "3 × 10/side", rest: "45 s", why: "Anti-rotation core — massive climbing carryover", target: "Deep core" },
-      { name: "Wrist extensor curls (band/DB)", sets: "2 × 15–20", rest: "45 s", why: "Prevents climber's elbow", target: "Forearm extensors" }
+      { name: "Barbell bench press", sets: "4 × 6–8", rest: "2–3 min", why: "Main antagonist to all that pulling", target: "Chest, triceps, front delts", link: "https://www.youtube.com/results?search_query=barbell+bench+press+form+jeff+nippard" },
+      { name: "Seated dumbbell shoulder press", sets: "3 × 8–10", rest: "90 s", why: "Overhead pressing strength & shoulder stability", target: "Delts, triceps", link: "https://www.youtube.com/results?search_query=seated+dumbbell+shoulder+press+form" },
+      { name: "Weighted dip (or push-up)", sets: "3 × 8–12", rest: "90 s", why: "Locked-off pressing strength for mantling", target: "Chest, triceps", link: "https://www.youtube.com/results?search_query=weighted+dip+form+tutorial" },
+      { name: "Cable face pull", sets: "3 × 12–15", rest: "60 s", why: "Most important antagonist drill — shoulder health", target: "Rear delts, external rotators", link: "https://www.youtube.com/results?search_query=cable+face+pull+proper+form" },
+      { name: "Cable chest fly", sets: "3 × 12", rest: "60 s", why: "Opens up chest; counters climber's hunch", target: "Chest", link: "https://www.youtube.com/results?search_query=cable+chest+fly+form+tutorial" },
+      { name: "Hanging leg raise", sets: "3 × 10–15", rest: "60 s", why: "Direct carryover to overhang climbing", target: "Core, hip flexors", link: "https://www.youtube.com/results?search_query=hanging+leg+raise+form+climbers" },
+      { name: "Pallof press", sets: "3 × 10/side", rest: "45 s", why: "Anti-rotation core — massive climbing carryover", target: "Deep core", link: "https://www.youtube.com/results?search_query=pallof+press+cable+form" },
+      { name: "Wrist extensor curls (band/DB)", sets: "2 × 15–20", rest: "45 s", why: "Prevents climber's elbow", target: "Forearm extensors", link: "https://www.youtube.com/results?search_query=wrist+extensor+curl+climbers+elbow+prevention" }
     ]
   },
   gymB: {
     title: "Gym B — Legs, Pull Power & Grip",
     exercises: [
-      { name: "Back squat", sets: "4 × 6–8", rest: "2–3 min", why: "Climbers skip legs and miss huge metabolism + power gains", target: "Quads, glutes" },
-      { name: "Romanian deadlift", sets: "3 × 8–10", rest: "2 min", why: "Posterior chain — heel hooks, high steps", target: "Hamstrings, glutes" },
-      { name: "Bulgarian split squat", sets: "3 × 10/leg", rest: "90 s", why: "Single-leg power & stability for precise footwork", target: "Quads, glutes" },
-      { name: "Weighted pull-up", sets: "4 × 5–8", rest: "2 min", why: "Pure pulling strength — the #1 gym lift for bouldering", target: "Lats, biceps, grip" },
-      { name: "Single-arm dumbbell row", sets: "3 × 8–10/side", rest: "90 s", why: "Unilateral pulling strength, fixes L/R imbalances", target: "Lats, rhomboids" },
-      { name: "Farmer carry (heavy DB)", sets: "3 × 30–40 m", rest: "90 s", why: "Grip endurance + standing core", target: "Grip, traps, core" },
-      { name: "Standing calf raise", sets: "3 × 12–15", rest: "60 s", why: "Calves matter for standing on tiny footholds", target: "Calves" },
-      { name: "Zone-2 cardio finisher", sets: "10–15 min easy bike/row", rest: "—", why: "Fat-loss support without trashing recovery", target: "Aerobic base" }
+      { name: "Back squat", sets: "4 × 6–8", rest: "2–3 min", why: "Climbers skip legs and miss huge metabolism + power gains", target: "Quads, glutes", link: "https://www.youtube.com/results?search_query=barbell+back+squat+form+jeff+nippard" },
+      { name: "Romanian deadlift", sets: "3 × 8–10", rest: "2 min", why: "Posterior chain — heel hooks, high steps", target: "Hamstrings, glutes", link: "https://www.youtube.com/results?search_query=romanian+deadlift+form+tutorial" },
+      { name: "Bulgarian split squat", sets: "3 × 10/leg", rest: "90 s", why: "Single-leg power & stability for precise footwork", target: "Quads, glutes", link: "https://www.youtube.com/results?search_query=bulgarian+split+squat+form" },
+      { name: "Weighted pull-up", sets: "4 × 5–8", rest: "2 min", why: "Pure pulling strength — the #1 gym lift for bouldering", target: "Lats, biceps, grip", link: "https://www.youtube.com/results?search_query=weighted+pull+up+form+climbers" },
+      { name: "Single-arm dumbbell row", sets: "3 × 8–10/side", rest: "90 s", why: "Unilateral pulling strength, fixes L/R imbalances", target: "Lats, rhomboids", link: "https://www.youtube.com/results?search_query=single+arm+dumbbell+row+form" },
+      { name: "Farmer carry (heavy DB)", sets: "3 × 30–40 m", rest: "90 s", why: "Grip endurance + standing core", target: "Grip, traps, core", link: "https://www.youtube.com/results?search_query=farmer+carry+form+technique" },
+      { name: "Standing calf raise", sets: "3 × 12–15", rest: "60 s", why: "Calves matter for standing on tiny footholds", target: "Calves", link: "https://www.youtube.com/results?search_query=standing+calf+raise+form" },
+      { name: "Zone-2 cardio finisher", sets: "10–15 min easy bike/row", rest: "—", why: "Fat-loss support without trashing recovery", target: "Aerobic base", link: "https://www.youtube.com/results?search_query=zone+2+cardio+explained" }
     ]
   }
 };
@@ -885,7 +899,7 @@ function renderWorkout(key) {
     tr.innerHTML = `
       <td class="done-cell"><button class="done-toggle ${entry.done ? 'done' : ''}" data-key="${key}" data-i="${i}" aria-label="Mark ${ex.name} done">✓</button></td>
       <td class="name-cell">
-        <div class="exercise-name">${ex.name}</div>
+        <div class="exercise-name">${ex.name}${ex.link ? ` <a href="${ex.link}" target="_blank" rel="noopener" class="how-to" title="Watch a video tutorial">▶ How-to</a>` : ''}</div>
         <div class="exercise-why">${ex.why}</div>
         <div class="mobile-meta">
           <span><strong>${ex.sets}</strong></span>

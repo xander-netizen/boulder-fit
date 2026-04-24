@@ -1,9 +1,9 @@
 {
-    "name": "boulder-fit",
-    "version": "1.0.0",
-    "description": "Personal bouldering + fitness dashboard",
-    "private": true,
-    "devDependencies": {
-          "wrangler": "^3.78.0"
-    }
+  "name": "boulder-fit",
+  "version": "1.0.0",
+  "description": "Personal bouldering + fitness dashboard",
+  "private": true,
+  "devDependencies": {
+    "wrangler": "^3.78.0"
+  }
 }
