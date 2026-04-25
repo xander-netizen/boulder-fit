@@ -135,6 +135,30 @@
     vertical-align: middle;
   }
   .how-to:hover { background: rgba(76,201,240,0.2); }
+  .gowod-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #8b5cf6, #6366f1);
+    color: #fff !important;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: filter 0.15s ease;
+  }
+  .gowod-btn:hover { filter: brightness(1.1); }
+  .gowod-btn-secondary {
+    display: inline-block;
+    padding: 10px 16px;
+    background: var(--panel-2);
+    color: var(--text) !important;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 13px;
+    text-decoration: none;
+  }
+  .gowod-btn-secondary:hover { background: var(--panel); }
+  .chip.mobility { background: rgba(139,92,246,0.15); color: #8b5cf6; }
   .mobile-meta { display: none; color: var(--muted); font-size: 12px; margin-top: 6px; gap: 6px; flex-wrap: wrap; }
   .mobile-meta strong { color: var(--text); }
 
@@ -374,6 +398,7 @@
   <button class="tab" data-view="gymA">Gym A — Push & Core</button>
   <button class="tab" data-view="gymB">Gym B — Legs & Pull</button>
   <button class="tab" data-view="climb">Climbing sessions</button>
+  <button class="tab" data-view="mobility">Mobility (GOWOD)</button>
   <button class="tab" data-view="progress">Progress & weight</button>
   <button class="tab" data-view="nutrition">Fat loss & nutrition</button>
   <button class="tab" data-view="principles">Principles & tips</button>
@@ -488,6 +513,7 @@
       <li>Wall slides × 10</li>
       <li>Cat-cow + thoracic rotations × 8/side</li>
     </ul>
+    <p class="tip" style="margin-top: 10px;">Optional upgrade: swap this for a <a href="https://www.gowod.app/sports/climbing" target="_blank" rel="noopener" class="how-to">▶ GOWOD ACTIVATE</a> routine — more targeted for climbers.</p>
   </div>
 </section>
 
@@ -511,6 +537,7 @@
       <li>Glute bridges × 15</li>
       <li>Dead bugs × 8/side</li>
     </ul>
+    <p class="tip" style="margin-top: 10px;">Optional upgrade: swap this for a <a href="https://www.gowod.app/sports/climbing" target="_blank" rel="noopener" class="how-to">▶ GOWOD ACTIVATE</a> routine — more targeted for climbers.</p>
   </div>
 </section>
 
@@ -573,6 +600,86 @@
   <div class="card">
     <h2>Recent climbs</h2>
     <div id="climbLog"></div>
+  </div>
+</section>
+
+<!-- ===================== MOBILITY ===================== -->
+<section class="view" id="mobility">
+  <div class="card">
+    <h2>🧘 Mobility (powered by GOWOD)</h2>
+    <p class="tip">Mobility is the biggest hidden bottleneck for climbers. Stiff hips kill high-steps, poor shoulder flexion limits reach, tight ankles make precision foot placement unstable. <strong>GOWOD tests your mobility, then gives you targeted routines for your weak spots</strong> — which is exactly where climbers' gains hide.</p>
+    <div class="row" style="margin-top: 14px;">
+      <a href="https://www.gowod.app/sports/climbing" target="_blank" rel="noopener" class="gowod-btn">Open GOWOD ▸</a>
+      <a href="https://apps.apple.com/us/app/gowod-mobility-stretching/id1227834875" target="_blank" rel="noopener" class="gowod-btn-secondary">Install iOS app</a>
+      <a href="https://play.google.com/store/apps/details?id=eu.gowod" target="_blank" rel="noopener" class="gowod-btn-secondary">Install Android app</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>When to do what</h2>
+    <div class="grid grid-3">
+      <div>
+        <h3>⚡ Before climbing</h3>
+        <p class="tip">GOWOD <strong>ACTIVATE</strong> (5–10 min) — wakes up shoulders, hips, and wrists before you hit the wall. Replaces your usual easy-grade warm-up with something much more targeted.</p>
+      </div>
+      <div>
+        <h3>🧊 After climbing</h3>
+        <p class="tip">GOWOD <strong>RECOVER</strong> (10 min) — speeds recovery, reduces next-day stiffness. Do this before you leave the gym or within 30 min of getting home.</p>
+      </div>
+      <div>
+        <h3>📆 Rest days</h3>
+        <p class="tip">GOWOD <strong>DAILY FLOW</strong> (10–15 min) — the long-term game. Consistency &gt; duration. 3–5×/week of this and your mobility score climbs month over month.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Focus areas for climbers</h2>
+    <div class="grid grid-2">
+      <div>
+        <h3>Upper body</h3>
+        <ul class="tip" style="line-height: 1.8;">
+          <li><strong>Shoulder flexion &amp; external rotation</strong> — for overhangs, long reaches, mantles</li>
+          <li><strong>Thoracic spine rotation</strong> — for twisting moves, drop-knees</li>
+          <li><strong>Wrist extension/flexion</strong> — prevents climber's elbow downstream</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Lower body</h3>
+        <ul class="tip" style="line-height: 1.8;">
+          <li><strong>Hip flexion &amp; external rotation</strong> — the #1 gain for bouldering: high-steps, heel hooks, frog positions</li>
+          <li><strong>Ankle dorsiflexion</strong> — precision footwork, drop-knees</li>
+          <li><strong>Adductor length</strong> — for wide stem positions and bridging</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Weekly target</h2>
+    <p class="tip">3–5 short GOWOD sessions per week is the sweet spot. Better to do 10 min five times than 50 min once.</p>
+    <table>
+      <thead><tr><th>Day</th><th>Session</th><th>Duration</th></tr></thead>
+      <tbody>
+        <tr><td>Mon (Gym A)</td><td>Optional RECOVER after gym</td><td>5 min</td></tr>
+        <tr><td>Tue (Climb)</td><td>ACTIVATE before + RECOVER after</td><td>5 + 10 min</td></tr>
+        <tr><td>Wed (Rest)</td><td>DAILY FLOW</td><td>15 min</td></tr>
+        <tr><td>Thu (Gym B)</td><td>Optional RECOVER after gym</td><td>5 min</td></tr>
+        <tr><td>Sat (Climb)</td><td>ACTIVATE before + RECOVER after</td><td>5 + 10 min</td></tr>
+      </tbody>
+    </table>
+    <p class="tip" style="margin-top: 12px;"><strong>Minimum viable version:</strong> If you only do GOWOD once per week, make it DAILY FLOW on Wednesday. You'll still see measurable gains in 6 weeks.</p>
+  </div>
+
+  <div class="card">
+    <h2>Tips for getting the most out of GOWOD</h2>
+    <ul class="tip" style="line-height: 1.8;">
+      <li><strong>Do the full assessment first.</strong> It takes 15 min. Without it GOWOD can't personalize — which is the whole point.</li>
+      <li><strong>Re-test mobility every 6 weeks</strong> to see progress and adjust focus areas.</li>
+      <li><strong>Pair with climbing prep</strong>: open GOWOD on the way to the gym, do ACTIVATE in the car or locker room, hit the wall ready.</li>
+      <li><strong>Don't skip the breathing cues</strong>. Deep breath in, long exhale while pushing deeper into a stretch — that's where the mobility unlocks happen.</li>
+      <li><strong>Track in this dashboard</strong>: use the notes field on climb days to log "did ACTIVATE" so you can see the correlation with how sessions feel.</li>
+    </ul>
   </div>
 </section>
 
@@ -792,11 +899,11 @@ const PROGRAM = {
 
 const DEFAULT_SCHEDULE = [
   { dow: "Mon", type: "gym", label: "Gym A", focus: "Push & Core", view: "gymA" },
-  { dow: "Tue", type: "climb", label: "Climb", focus: "Technique / projects", view: "climb" },
-  { dow: "Wed", type: "rest", label: "Rest", focus: "30 min walk optional", view: "nutrition" },
+  { dow: "Tue", type: "climb", label: "Climb + GOWOD", focus: "Project day · ACTIVATE before, RECOVER after", view: "climb" },
+  { dow: "Wed", type: "rest", label: "Rest + GOWOD", focus: "DAILY FLOW 15 min", view: "mobility" },
   { dow: "Thu", type: "gym", label: "Gym B", focus: "Legs & Pull", view: "gymB" },
   { dow: "Fri", type: "rest", label: "Rest", focus: "Full recovery", view: "nutrition" },
-  { dow: "Sat", type: "climb", label: "Climb", focus: "Volume / projects", view: "climb" },
+  { dow: "Sat", type: "climb", label: "Climb + GOWOD", focus: "Volume · ACTIVATE + RECOVER", view: "climb" },
   { dow: "Sun", type: "cardio", label: "Optional", focus: "Climb easy or zone-2 cardio", view: "climb" }
 ];
 
