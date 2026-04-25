@@ -84,7 +84,11 @@
     gap: 6px;
     position: relative;
     overflow: hidden;
+    cursor: grab;
+    user-select: none;
   }
+  .day.dragging { opacity: 0.5; cursor: grabbing; }
+  .day.drag-over { border-color: var(--accent); background: var(--panel); }
   .day::before {
     content: "";
     position: absolute;
@@ -99,68 +103,99 @@
   .day .label { font-size: 14px; font-weight: 700; }
   .day .type { font-size: 12px; color: var(--muted); }
   .day .focus { font-size: 12px; color: var(--text); margin-top: auto; padding-top: 8px; border-top: 1px dashed var(--border); }
+  .day .drag-handle { position: absolute; top: 10px; right: 10px; color: var(--muted); font-size: 14px; opacity: 0.6; }
   .chip { display: inline-block; padding: 3px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
   .chip.gym { background: rgba(255,122,69,0.15); color: var(--gym); }
   .chip.climb { background: rgba(139,92,246,0.15); color: var(--climb); }
   .chip.rest { background: rgba(71,85,105,0.25); color: #94a3b8; }
   .chip.cardio { background: rgba(76,201,240,0.15); color: var(--cardio); }
+  .chip.mobility { background: rgba(139,92,246,0.15); color: #8b5cf6; }
 
-  /* Workout tables */
-  table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 14px; }
-  th, td { padding: 10px 10px; border-bottom: 1px solid var(--border); text-align: left; }
-  th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
-  td.right, th.right { text-align: right; }
-  td input[type="text"], td input[type="number"] {
-    width: 100%;
+  /* Exercise card layout (replaces table) */
+  .exercise-list { display: flex; flex-direction: column; gap: 14px; margin-top: 12px; }
+  .exercise {
     background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    position: relative;
+  }
+  .exercise-header { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+  .exercise-title { flex: 1; }
+  .exercise-name { font-weight: 600; font-size: 15px; }
+  .exercise-why { color: var(--muted); font-size: 12px; margin-top: 4px; line-height: 1.4; }
+  .exercise-meta { display: flex; gap: 14px; font-size: 12px; color: var(--muted); margin-top: 10px; flex-wrap: wrap; }
+  .exercise-meta strong { color: var(--text); }
+  .done-toggle {
+    width: 28px; height: 28px; border-radius: 8px; border: 1.5px solid var(--border);
+    background: var(--panel); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; color: transparent; flex-shrink: 0;
+  }
+  .done-toggle.done { background: var(--success); border-color: var(--success); color: #0f1115; }
+
+  .exercise-actions { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+  .pill-btn {
+    display: inline-block;
+    padding: 5px 11px;
+    font-size: 11px;
+    font-weight: 500;
+    border-radius: 999px;
+    background: var(--panel);
+    color: var(--accent-2);
+    text-decoration: none;
+    border: 1px solid rgba(76,201,240,0.25);
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .pill-btn:hover { background: rgba(76,201,240,0.12); }
+  .pill-btn.alt { color: var(--warn); border-color: rgba(250,204,21,0.3); }
+  .pill-btn.alt:hover { background: rgba(250,204,21,0.1); }
+
+  .sets-section { margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--border); }
+  .sets-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .set-row {
+    display: grid;
+    grid-template-columns: 26px 1fr 1fr 30px 30px;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .set-num { font-size: 11px; color: var(--muted); text-align: center; font-weight: 600; }
+  .set-num.warmup { color: var(--warn); }
+  .set-row input {
+    width: 100%;
+    background: var(--panel);
     border: 1px solid var(--border);
     color: var(--text);
     border-radius: 6px;
     padding: 6px 8px;
     font-size: 13px;
   }
-  .exercise-name { font-weight: 600; }
-  .exercise-why { color: var(--muted); font-size: 12px; margin-top: 2px; }
-  .how-to {
-    display: inline-block;
-    margin-left: 6px;
-    font-size: 11px;
-    font-weight: 500;
-    padding: 2px 8px;
-    border-radius: 999px;
-    background: rgba(76,201,240,0.12);
-    color: var(--accent-2);
-    text-decoration: none;
-    border: 1px solid rgba(76,201,240,0.25);
-    vertical-align: middle;
-  }
-  .how-to:hover { background: rgba(76,201,240,0.2); }
-  .gowod-btn {
-    display: inline-block;
-    padding: 12px 20px;
-    background: linear-gradient(135deg, #8b5cf6, #6366f1);
-    color: #fff !important;
-    border-radius: 10px;
-    font-weight: 600;
-    font-size: 14px;
-    text-decoration: none;
-    transition: filter 0.15s ease;
-  }
-  .gowod-btn:hover { filter: brightness(1.1); }
-  .gowod-btn-secondary {
-    display: inline-block;
-    padding: 10px 16px;
-    background: var(--panel-2);
-    color: var(--text) !important;
+  .set-tag-btn, .set-del-btn {
+    width: 26px; height: 26px;
+    background: var(--panel);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    font-size: 13px;
-    text-decoration: none;
+    color: var(--muted);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 11px;
+    padding: 0;
   }
-  .gowod-btn-secondary:hover { background: var(--panel); }
-  .chip.mobility { background: rgba(139,92,246,0.15); color: #8b5cf6; }
-  .mobile-meta { display: none; color: var(--muted); font-size: 12px; margin-top: 6px; gap: 6px; flex-wrap: wrap; }
-  .mobile-meta strong { color: var(--text); }
+  .set-tag-btn.active { color: var(--warn); border-color: rgba(250,204,21,0.3); background: rgba(250,204,21,0.1); }
+  .set-del-btn:hover { color: var(--danger); border-color: rgba(248,113,113,0.3); }
+
+  .add-set { font-size: 12px; padding: 6px 10px; background: transparent; border: 1px dashed var(--border); color: var(--muted); border-radius: 8px; cursor: pointer; margin-top: 4px; }
+  .add-set:hover { color: var(--text); border-color: var(--text); }
+
+  .exercise-notes input {
+    width: 100%;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 12px;
+    margin-top: 8px;
+  }
 
   /* Metrics */
   .metric {
@@ -168,7 +203,10 @@
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 14px;
+    cursor: pointer;
+    transition: all 0.15s ease;
   }
+  .metric:hover { border-color: var(--accent-2); }
   .metric .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; }
   .metric .value { font-size: 24px; font-weight: 700; margin-top: 6px; }
   .metric .sub { color: var(--muted); font-size: 12px; margin-top: 4px; }
@@ -193,6 +231,7 @@
     font-weight: 600;
     cursor: pointer;
     font-size: 14px;
+    font-family: inherit;
   }
   button.secondary { background: var(--panel-2); color: var(--text); border: 1px solid var(--border); }
   button.ghost { background: transparent; color: var(--muted); border: 1px dashed var(--border); }
@@ -200,7 +239,6 @@
   .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
   .pill { display: inline-block; padding: 4px 10px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 999px; font-size: 12px; color: var(--muted); }
 
-  /* Progress log list */
   .log-item { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
   .log-item:last-child { border-bottom: none; }
   .log-item .when { color: var(--muted); font-size: 12px; }
@@ -219,150 +257,119 @@
   details summary { cursor: pointer; font-weight: 600; }
   details p { margin: 8px 0 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
 
-  /* Completion toggle */
-  .done-toggle {
-    width: 22px; height: 22px; border-radius: 6px; border: 1.5px solid var(--border);
-    background: var(--panel-2); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; color: transparent;
+  .session-controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+  .gowod-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #8b5cf6, #6366f1);
+    color: #fff;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
   }
-  .done-toggle.done { background: var(--success); border-color: var(--success); color: #0f1115; }
+  .gowod-btn:hover { filter: brightness(1.1); }
+  .gowod-btn-secondary {
+    display: inline-block;
+    padding: 10px 16px;
+    background: var(--panel-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 13px;
+    text-decoration: none;
+  }
+  .gowod-btn-secondary:hover { background: var(--panel); }
+
+  /* Modal */
+  .modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    max-width: 560px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+  .modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; gap: 12px; }
+  .modal-header h2 { margin: 0; font-size: 18px; }
+  .modal-close { width: 32px; height: 32px; padding: 0; min-height: auto; background: var(--panel-2); border: 1px solid var(--border); color: var(--muted); border-radius: 8px; font-size: 18px; }
+
+  /* Muscle group picker */
+  .muscle-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 12px; }
+  .muscle-tile {
+    background: var(--panel-2);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .muscle-tile:hover { border-color: var(--accent-2); }
+  .muscle-tile.selected { border-color: var(--accent); background: rgba(255,122,69,0.08); }
+  .muscle-tile .name { font-weight: 600; font-size: 14px; }
+  .muscle-tile .desc { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  .combo-suggestions { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+  .combo-row {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .combo-row:hover { border-color: var(--accent); }
+  .combo-row .combo-time { color: var(--muted); font-size: 11px; }
 
   @media (max-width: 900px) {
     .week { grid-template-columns: 1fr 1fr; }
   }
 
-  /* ==================== MOBILE ==================== */
   @media (max-width: 720px) {
-    header {
-      padding: 14px 16px;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 10px;
-    }
+    header { padding: 14px 16px; flex-direction: column; align-items: flex-start; gap: 10px; }
     header h1 { font-size: 17px; }
     header .tagline { font-size: 12px; }
     header .row { width: 100%; justify-content: space-between; }
     .wrap { padding: 14px 14px 110px; }
-
-    /* Tabs: horizontal scroll strip that feels native */
-    .tabs {
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      -webkit-overflow-scrolling: touch;
-      padding-bottom: 6px;
-      margin-left: -14px;
-      margin-right: -14px;
-      padding-left: 14px;
-      padding-right: 14px;
-      gap: 8px;
-    }
+    .tabs { flex-wrap: nowrap; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding-bottom: 6px; margin-left: -14px; margin-right: -14px; padding-left: 14px; padding-right: 14px; gap: 8px; }
     .tabs::-webkit-scrollbar { display: none; }
-    .tab {
-      flex: 0 0 auto;
-      scroll-snap-align: start;
-      padding: 10px 14px;
-      font-size: 13px;
-      white-space: nowrap;
-    }
-
+    .tab { flex: 0 0 auto; scroll-snap-align: start; padding: 10px 14px; font-size: 13px; white-space: nowrap; }
     .card { padding: 16px; border-radius: 12px; margin-bottom: 14px; }
     .card h2 { font-size: 16px; }
     .grid { gap: 12px; }
     .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr 1fr; }
     .metric { padding: 12px; }
     .metric .value { font-size: 20px; }
-
-    /* Week: 1 column on small screens so each day is legible */
     .week { grid-template-columns: 1fr; gap: 8px; }
     .day { min-height: 0; padding: 12px 14px; }
-
-    /* Convert workout tables to stacked cards */
-    table.workout { border: none; }
-    table.workout thead { display: none; }
-    table.workout tbody { display: block; }
-    table.workout tr {
-      display: block;
-      background: var(--panel-2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px;
-      margin-bottom: 10px;
-    }
-    table.workout td {
-      display: block;
-      border: none;
-      padding: 4px 0;
-    }
-    table.workout td[data-label]::before {
-      content: attr(data-label);
-      display: block;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: var(--muted);
-      margin-bottom: 2px;
-      font-weight: 600;
-    }
-    table.workout td.done-cell {
-      position: absolute;
-      right: 14px;
-      top: 14px;
-    }
-    table.workout td.done-cell::before { display: none; }
-    table.workout tr { position: relative; padding-right: 48px; }
-    table.workout td.name-cell { margin-bottom: 8px; }
-    table.workout td.name-cell::before { display: none; }
-    table.workout td.desk-only { display: none; }
-    table.workout .mobile-meta { display: flex; }
-    table.workout td input[type="text"],
-    table.workout td input[type="number"] {
-      font-size: 16px; /* prevent iOS zoom */
-      padding: 10px 12px;
-    }
-
-    /* Bigger touch targets */
-    button {
-      padding: 12px 16px;
-      font-size: 15px;
-      min-height: 44px;
-    }
+    .exercise { padding: 14px; }
+    .set-row { grid-template-columns: 22px 1fr 1fr 28px 28px; }
+    .set-row input { font-size: 16px; padding: 8px 10px; }
+    button { padding: 12px 16px; font-size: 15px; min-height: 44px; }
     button.full-mobile { width: 100%; }
     .row button { flex: 1 1 auto; }
-
-    .done-toggle {
-      width: 32px; height: 32px; border-radius: 8px;
-    }
-
-    input[type="number"], input[type="text"], input[type="date"], select, textarea {
-      font-size: 16px; /* prevents iOS zoom */
-      padding: 12px 14px;
-      min-height: 44px;
-    }
+    .done-toggle { width: 32px; height: 32px; }
+    input[type="number"], input[type="text"], input[type="date"], select, textarea { font-size: 16px; padding: 12px 14px; min-height: 44px; }
     textarea { min-height: 100px; }
-
-    /* PR cards larger touch area */
     #prGrid .metric input { font-size: 18px !important; min-height: 36px; }
-
-    /* Sticky bottom action bar on workout views */
-    .mobile-actions {
-      position: sticky;
-      bottom: 0;
-      background: linear-gradient(180deg, transparent, var(--bg) 30%);
-      padding: 16px 0 4px;
-      margin-top: 10px;
-      z-index: 5;
-    }
-    .mobile-actions .row { gap: 8px; }
-
-    /* Callouts stack */
     .grid-2 .callout { font-size: 13px; }
-
-    /* Make overview KPIs single row scroll */
-    #overview .grid-4 {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-    }
+    #overview .grid-4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
   }
 
   @media (max-width: 400px) {
@@ -370,7 +377,6 @@
     #overview .grid-4 { grid-template-columns: 1fr 1fr; }
   }
 
-  /* iOS safe area */
   @supports (padding: max(0px)) {
     header { padding-top: max(20px, env(safe-area-inset-top)); }
     .wrap { padding-bottom: max(80px, env(safe-area-inset-bottom)); }
@@ -381,8 +387,8 @@
 
 <header>
   <div>
-    <h1>🧗 Boulder Fit — Your Training Dashboard</h1>
-    <div class="tagline">Climb stronger · Build muscle where it counts · Lose fat · Stay injury-free</div>
+    <h1>Boulder Fit — Your Training Dashboard</h1>
+    <div class="tagline">Climb stronger, build muscle where it counts, lose fat, stay injury-free</div>
   </div>
   <div class="row">
     <span class="pill" id="todayPill">Today: —</span>
@@ -395,62 +401,63 @@
 <div class="tabs">
   <button class="tab active" data-view="overview">Overview</button>
   <button class="tab" data-view="schedule">Weekly schedule</button>
-  <button class="tab" data-view="gymA">Gym A — Push & Core</button>
-  <button class="tab" data-view="gymB">Gym B — Legs & Pull</button>
-  <button class="tab" data-view="climb">Climbing sessions</button>
+  <button class="tab" data-view="gymA">Gym A</button>
+  <button class="tab" data-view="gymB">Gym B</button>
+  <button class="tab" data-view="custom">Custom session</button>
+  <button class="tab" data-view="climb">Climbing</button>
   <button class="tab" data-view="mobility">Mobility (GOWOD)</button>
-  <button class="tab" data-view="progress">Progress & weight</button>
-  <button class="tab" data-view="nutrition">Fat loss & nutrition</button>
-  <button class="tab" data-view="principles">Principles & tips</button>
+  <button class="tab" data-view="progress">Progress</button>
+  <button class="tab" data-view="nutrition">Nutrition</button>
+  <button class="tab" data-view="principles">Principles</button>
 </div>
 
-<!-- ===================== OVERVIEW ===================== -->
+<!-- OVERVIEW -->
 <section class="view active" id="overview">
   <div class="grid grid-4">
-    <div class="metric">
+    <div class="metric" onclick="openStatsModal('week')">
       <div class="label">This week</div>
       <div class="value" id="overviewCompleted">0/4</div>
-      <div class="sub">Sessions completed</div>
+      <div class="sub">Tap for details</div>
     </div>
-    <div class="metric">
+    <div class="metric" onclick="openStatsModal('streak')">
       <div class="label">Streak</div>
       <div class="value" id="overviewStreak">0</div>
-      <div class="sub">Weeks hitting ≥ 3 sessions</div>
+      <div class="sub">Tap for details</div>
     </div>
-    <div class="metric">
+    <div class="metric" onclick="openStatsModal('weight')">
       <div class="label">Weight trend</div>
       <div class="value" id="overviewWeight">—</div>
-      <div class="sub">Latest logged</div>
+      <div class="sub">Tap for details</div>
     </div>
-    <div class="metric">
+    <div class="metric" onclick="openStatsModal('grade')">
       <div class="label">Hardest send</div>
       <div class="value" id="overviewGrade">—</div>
-      <div class="sub">Recent climbing grade</div>
+      <div class="sub">Tap for details</div>
     </div>
   </div>
 
   <div class="card">
     <h2>Your program at a glance</h2>
-    <p class="tip">A 2-gym + 2-to-3-climb week is the sweet spot for bouldering + fat loss. The gym work is built around <strong>antagonists</strong> (push, rear delts, core), <strong>lower body strength</strong> (mostly ignored by climbers), and <strong>finger/grip conditioning</strong> — exactly the gaps that climbing alone won't fill.</p>
+    <p class="tip">A 2-gym + 2-to-3-climb week is the sweet spot for bouldering and fat loss. The gym work is built around <strong>antagonists</strong> (push, rear delts, core), <strong>lower body strength</strong>, and <strong>finger and grip conditioning</strong> — exactly the gaps climbing alone won't fill.</p>
     <div class="grid grid-2" style="margin-top: 14px;">
       <div>
         <h3>Weekly template</h3>
         <ul style="padding-left: 18px; line-height: 1.8; margin: 0;">
-          <li><strong>Mon</strong> — Gym A (Push & Core)</li>
-          <li><strong>Tue</strong> — Climb (technique + hard attempts)</li>
-          <li><strong>Wed</strong> — Rest or 30 min zone-2 walk</li>
-          <li><strong>Thu</strong> — Gym B (Legs & Pull)</li>
+          <li><strong>Mon</strong> — Gym A (Push and Core)</li>
+          <li><strong>Tue</strong> — Climb</li>
+          <li><strong>Wed</strong> — Rest or GOWOD mobility</li>
+          <li><strong>Thu</strong> — Gym B (Legs and Pull)</li>
           <li><strong>Fri</strong> — Rest</li>
-          <li><strong>Sat</strong> — Climb (volume / projects)</li>
-          <li><strong>Sun</strong> — Optional climb (easy) or rest</li>
+          <li><strong>Sat</strong> — Climb</li>
+          <li><strong>Sun</strong> — Optional easy climb or zone-2 cardio</li>
         </ul>
       </div>
       <div>
         <h3>Why this works for you</h3>
         <ul style="padding-left: 18px; line-height: 1.8; margin: 0;">
-          <li>Climbing handles your pulling strength — gym fills push/leg gaps.</li>
-          <li>48 hours between climb and gym = better recovery for fingers and forearms.</li>
-          <li>Core + anti-rotation carries over directly to harder boulders.</li>
+          <li>Climbing handles your pulling strength — gym fills push and leg gaps.</li>
+          <li>48 hours between climb and gym means better recovery for fingers and forearms.</li>
+          <li>Core and anti-rotation carries over directly to harder boulders.</li>
           <li>2 strength days keeps fat-loss deficit tolerable without wrecking climbs.</li>
         </ul>
       </div>
@@ -462,29 +469,32 @@
     <div class="row">
       <button onclick="switchView('gymA')">Start Gym A</button>
       <button onclick="switchView('gymB')">Start Gym B</button>
-      <button class="secondary" onclick="switchView('climb')">Log a climb session</button>
-      <button class="secondary" onclick="switchView('progress')">Log body weight</button>
+      <button class="secondary" onclick="switchView('custom')">Build custom session</button>
+      <button class="secondary" onclick="switchView('climb')">Log climb</button>
     </div>
   </div>
 </section>
 
-<!-- ===================== WEEKLY SCHEDULE ===================== -->
+<!-- WEEKLY SCHEDULE -->
 <section class="view" id="schedule">
   <div class="card">
     <h2>Your week</h2>
-    <p class="tip">Tap a day to jump to the workout. This is the default split — shift it to match your life (e.g. climb Wed/Sat, gym Mon/Thu).</p>
+    <p class="tip">Drag a day to swap with another. Tap a day to jump to its workout. Your custom order is remembered.</p>
     <div class="week" id="weekGrid"></div>
+    <div style="margin-top: 12px;">
+      <button class="ghost" onclick="resetSchedule()">Reset to default order</button>
+    </div>
   </div>
 
   <div class="card">
     <h2>Alternative splits</h2>
     <details open>
       <summary>If you only climb twice a week</summary>
-      <p>Mon Gym A · Tue Climb · Wed Rest · Thu Gym B · Fri Climb · Sat Zone-2 cardio (30–45 min) · Sun rest. You can optionally add a 3rd short gym day (20 min conditioning + core) on Saturday.</p>
+      <p>Mon Gym A, Tue Climb, Wed Rest, Thu Gym B, Fri Climb, Sat zone-2 cardio (30-45 min), Sun rest. Optionally add a 3rd short gym day (20 min conditioning + core) on Saturday.</p>
     </details>
     <details>
       <summary>If you climb three times a week</summary>
-      <p>Mon Gym A · Tue Climb · Wed Rest · Thu Climb · Fri Gym B · Sat Climb · Sun rest. Keep intensity high only 1–2 climb days per week; the third should be volume/technique.</p>
+      <p>Mon Gym A, Tue Climb, Wed Rest, Thu Climb, Fri Gym B, Sat Climb, Sun rest. Keep intensity high only 1-2 climb days; the third should be volume or technique.</p>
     </details>
     <details>
       <summary>Deload every 4th week</summary>
@@ -493,55 +503,97 @@
   </div>
 </section>
 
-<!-- ===================== GYM A ===================== -->
+<!-- GYM A -->
 <section class="view" id="gymA">
   <div class="card">
-    <h2>Gym A — Push, Antagonists & Core</h2>
+    <h2 id="gymATitle">Gym A — Push, Antagonists and Core</h2>
     <p class="tip">Goal: balance all the pulling you do climbing. Strong push, rear-delt, and core make you injury-proof and shoulder-stable on hard moves. ~60 min.</p>
-    <div id="gymAExercises"></div>
-    <div class="row" style="margin-top: 14px;">
+    <div class="session-controls">
       <button onclick="completeSession('gymA')">Mark session complete</button>
-      <button class="secondary" onclick="resetSession('gymA')">Clear today's log</button>
+      <button class="secondary" onclick="shuffleSession('gymA')">Shuffle session</button>
+      <button class="ghost" onclick="resetSession('gymA')">Reset to default</button>
+      <button class="ghost" onclick="clearTodayLog('gymA')">Clear today's log</button>
     </div>
+    <div id="gymAExercises" class="exercise-list"></div>
   </div>
   <div class="card">
-    <h3>Warm-up (5–8 min)</h3>
+    <h3>Warm-up (5-8 min)</h3>
     <ul class="tip" style="line-height:1.8;">
       <li>3 min easy row or bike</li>
-      <li>Band pull-aparts × 20</li>
-      <li>Scap push-ups × 10</li>
-      <li>Wall slides × 10</li>
-      <li>Cat-cow + thoracic rotations × 8/side</li>
+      <li>Band pull-aparts x 20</li>
+      <li>Scap push-ups x 10</li>
+      <li>Wall slides x 10</li>
+      <li>Cat-cow + thoracic rotations x 8/side</li>
     </ul>
-    <p class="tip" style="margin-top: 10px;">Optional upgrade: swap this for a <a href="https://www.gowod.app/sports/climbing" target="_blank" rel="noopener" class="how-to">▶ GOWOD ACTIVATE</a> routine — more targeted for climbers.</p>
+    <p class="tip" style="margin-top: 10px;">Optional upgrade: swap this for a <a href="https://www.gowod.app/sports/climbing" target="_blank" rel="noopener" class="pill-btn">GOWOD ACTIVATE</a> routine — more targeted for climbers.</p>
   </div>
 </section>
 
-<!-- ===================== GYM B ===================== -->
+<!-- GYM B -->
 <section class="view" id="gymB">
   <div class="card">
-    <h2>Gym B — Legs, Pull Power & Grip</h2>
-    <p class="tip">Goal: heavy lower-body (climbers neglect this and miss out on explosive heel hooks + metabolism), weighted pulls for finger-independent pulling power, grip/core carries. ~60 min.</p>
-    <div id="gymBExercises"></div>
-    <div class="row" style="margin-top: 14px;">
+    <h2 id="gymBTitle">Gym B — Legs, Pull Power and Grip</h2>
+    <p class="tip">Goal: heavy lower-body, weighted pulls for finger-independent pulling power, grip and core carries. ~60 min.</p>
+    <div class="session-controls">
       <button onclick="completeSession('gymB')">Mark session complete</button>
-      <button class="secondary" onclick="resetSession('gymB')">Clear today's log</button>
+      <button class="secondary" onclick="shuffleSession('gymB')">Shuffle session</button>
+      <button class="ghost" onclick="resetSession('gymB')">Reset to default</button>
+      <button class="ghost" onclick="clearTodayLog('gymB')">Clear today's log</button>
     </div>
+    <div id="gymBExercises" class="exercise-list"></div>
   </div>
   <div class="card">
-    <h3>Warm-up (5–8 min)</h3>
+    <h3>Warm-up (5-8 min)</h3>
     <ul class="tip" style="line-height:1.8;">
       <li>3 min easy bike</li>
-      <li>Bodyweight squats × 15</li>
-      <li>Walking lunges × 10/side</li>
-      <li>Glute bridges × 15</li>
-      <li>Dead bugs × 8/side</li>
+      <li>Bodyweight squats x 15</li>
+      <li>Walking lunges x 10/side</li>
+      <li>Glute bridges x 15</li>
+      <li>Dead bugs x 8/side</li>
     </ul>
-    <p class="tip" style="margin-top: 10px;">Optional upgrade: swap this for a <a href="https://www.gowod.app/sports/climbing" target="_blank" rel="noopener" class="how-to">▶ GOWOD ACTIVATE</a> routine — more targeted for climbers.</p>
+    <p class="tip" style="margin-top: 10px;">Optional upgrade: swap this for a <a href="https://www.gowod.app/sports/climbing" target="_blank" rel="noopener" class="pill-btn">GOWOD ACTIVATE</a> routine.</p>
   </div>
 </section>
 
-<!-- ===================== CLIMBING ===================== -->
+<!-- CUSTOM SESSION -->
+<section class="view" id="custom">
+  <div class="card">
+    <h2>Build your session</h2>
+    <p class="tip">Pick the muscle groups you want to train. I'll build a session that fits your time and pulls exercises from a wide library — different from your standard Gym A and B.</p>
+
+    <h3 style="margin-top: 18px;">1. What do you want to train?</h3>
+    <div class="muscle-grid" id="muscleGrid"></div>
+
+    <h3 style="margin-top: 18px;">2. How long?</h3>
+    <div class="row">
+      <select id="customDuration" style="flex: 1 1 200px;">
+        <option value="30">30 minutes (focused)</option>
+        <option value="45">45 minutes (standard)</option>
+        <option value="60" selected>60 minutes (full)</option>
+        <option value="75">75 minutes (long)</option>
+      </select>
+      <button onclick="generateCustom()">Generate session</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Smart combos</h2>
+    <p class="tip">Tested combinations that work well together. Tap one to load it.</p>
+    <div class="combo-suggestions" id="comboSuggestions"></div>
+  </div>
+
+  <div class="card" id="customSessionCard" style="display: none;">
+    <h2 id="customSessionTitle">Your custom session</h2>
+    <div class="session-controls">
+      <button onclick="completeSession('custom')">Mark session complete</button>
+      <button class="secondary" onclick="regenerateCustom()">Different exercises</button>
+      <button class="ghost" onclick="clearTodayLog('custom')">Clear today's log</button>
+    </div>
+    <div id="customExercises" class="exercise-list"></div>
+  </div>
+</section>
+
+<!-- CLIMBING -->
 <section class="view" id="climb">
   <div class="card">
     <h2>Log a climbing session</h2>
@@ -580,18 +632,18 @@
         <h3>Intensity day (hard)</h3>
         <ul class="tip" style="line-height: 1.8;">
           <li>Thorough warm-up: 15 min on easy climbs</li>
-          <li>4–6 hard attempts on 2–3 projects</li>
-          <li>Long rests (3–5 min) between attempts</li>
+          <li>4-6 hard attempts on 2-3 projects</li>
+          <li>Long rests (3-5 min) between attempts</li>
           <li>Stop before form collapses (~90 min total)</li>
         </ul>
       </div>
       <div>
         <h3>Volume / technique day</h3>
         <ul class="tip" style="line-height: 1.8;">
-          <li>Warm up, then 20–30 boulders at 2–3 grades below max</li>
+          <li>Warm up, then 20-30 boulders at 2-3 grades below max</li>
           <li>Focus on footwork, flagging, precise movement</li>
           <li>Flash or 2nd-go rule — don't grind sessions</li>
-          <li>60–75 min total</li>
+          <li>60-75 min total</li>
         </ul>
       </div>
     </div>
@@ -603,13 +655,13 @@
   </div>
 </section>
 
-<!-- ===================== MOBILITY ===================== -->
+<!-- MOBILITY -->
 <section class="view" id="mobility">
   <div class="card">
-    <h2>🧘 Mobility (powered by GOWOD)</h2>
-    <p class="tip">Mobility is the biggest hidden bottleneck for climbers. Stiff hips kill high-steps, poor shoulder flexion limits reach, tight ankles make precision foot placement unstable. <strong>GOWOD tests your mobility, then gives you targeted routines for your weak spots</strong> — which is exactly where climbers' gains hide.</p>
+    <h2>Mobility (powered by GOWOD)</h2>
+    <p class="tip">Mobility is the biggest hidden bottleneck for climbers. Stiff hips kill high-steps, poor shoulder flexion limits reach, tight ankles make precision foot placement unstable. <strong>GOWOD tests your mobility and gives you targeted routines for your weak spots</strong> — exactly where climbers' gains hide.</p>
     <div class="row" style="margin-top: 14px;">
-      <a href="https://www.gowod.app/sports/climbing" target="_blank" rel="noopener" class="gowod-btn">Open GOWOD ▸</a>
+      <a href="https://www.gowod.app/sports/climbing" target="_blank" rel="noopener" class="gowod-btn">Open GOWOD</a>
       <a href="https://apps.apple.com/us/app/gowod-mobility-stretching/id1227834875" target="_blank" rel="noopener" class="gowod-btn-secondary">Install iOS app</a>
       <a href="https://play.google.com/store/apps/details?id=eu.gowod" target="_blank" rel="noopener" class="gowod-btn-secondary">Install Android app</a>
     </div>
@@ -619,16 +671,16 @@
     <h2>When to do what</h2>
     <div class="grid grid-3">
       <div>
-        <h3>⚡ Before climbing</h3>
-        <p class="tip">GOWOD <strong>ACTIVATE</strong> (5–10 min) — wakes up shoulders, hips, and wrists before you hit the wall. Replaces your usual easy-grade warm-up with something much more targeted.</p>
+        <h3>Before climbing</h3>
+        <p class="tip">GOWOD <strong>ACTIVATE</strong> (5-10 min) wakes up shoulders, hips, and wrists before you hit the wall. Replaces your usual easy-grade warm-up with something much more targeted.</p>
       </div>
       <div>
-        <h3>🧊 After climbing</h3>
-        <p class="tip">GOWOD <strong>RECOVER</strong> (10 min) — speeds recovery, reduces next-day stiffness. Do this before you leave the gym or within 30 min of getting home.</p>
+        <h3>After climbing</h3>
+        <p class="tip">GOWOD <strong>RECOVER</strong> (10 min) speeds recovery, reduces next-day stiffness. Do this before you leave the gym or within 30 min of getting home.</p>
       </div>
       <div>
-        <h3>📆 Rest days</h3>
-        <p class="tip">GOWOD <strong>DAILY FLOW</strong> (10–15 min) — the long-term game. Consistency &gt; duration. 3–5×/week of this and your mobility score climbs month over month.</p>
+        <h3>Rest days</h3>
+        <p class="tip">GOWOD <strong>DAILY FLOW</strong> (10-15 min) is the long-term game. Consistency beats duration. 3-5x a week and your mobility score climbs month over month.</p>
       </div>
     </div>
   </div>
@@ -639,51 +691,24 @@
       <div>
         <h3>Upper body</h3>
         <ul class="tip" style="line-height: 1.8;">
-          <li><strong>Shoulder flexion &amp; external rotation</strong> — for overhangs, long reaches, mantles</li>
-          <li><strong>Thoracic spine rotation</strong> — for twisting moves, drop-knees</li>
-          <li><strong>Wrist extension/flexion</strong> — prevents climber's elbow downstream</li>
+          <li><strong>Shoulder flexion and external rotation</strong> for overhangs, long reaches, mantles</li>
+          <li><strong>Thoracic spine rotation</strong> for twisting moves, drop-knees</li>
+          <li><strong>Wrist extension and flexion</strong> prevents climber's elbow downstream</li>
         </ul>
       </div>
       <div>
         <h3>Lower body</h3>
         <ul class="tip" style="line-height: 1.8;">
-          <li><strong>Hip flexion &amp; external rotation</strong> — the #1 gain for bouldering: high-steps, heel hooks, frog positions</li>
-          <li><strong>Ankle dorsiflexion</strong> — precision footwork, drop-knees</li>
-          <li><strong>Adductor length</strong> — for wide stem positions and bridging</li>
+          <li><strong>Hip flexion and external rotation</strong> the #1 gain for bouldering: high-steps, heel hooks, frog positions</li>
+          <li><strong>Ankle dorsiflexion</strong> for precision footwork, drop-knees</li>
+          <li><strong>Adductor length</strong> for wide stem positions and bridging</li>
         </ul>
       </div>
     </div>
   </div>
-
-  <div class="card">
-    <h2>Weekly target</h2>
-    <p class="tip">3–5 short GOWOD sessions per week is the sweet spot. Better to do 10 min five times than 50 min once.</p>
-    <table>
-      <thead><tr><th>Day</th><th>Session</th><th>Duration</th></tr></thead>
-      <tbody>
-        <tr><td>Mon (Gym A)</td><td>Optional RECOVER after gym</td><td>5 min</td></tr>
-        <tr><td>Tue (Climb)</td><td>ACTIVATE before + RECOVER after</td><td>5 + 10 min</td></tr>
-        <tr><td>Wed (Rest)</td><td>DAILY FLOW</td><td>15 min</td></tr>
-        <tr><td>Thu (Gym B)</td><td>Optional RECOVER after gym</td><td>5 min</td></tr>
-        <tr><td>Sat (Climb)</td><td>ACTIVATE before + RECOVER after</td><td>5 + 10 min</td></tr>
-      </tbody>
-    </table>
-    <p class="tip" style="margin-top: 12px;"><strong>Minimum viable version:</strong> If you only do GOWOD once per week, make it DAILY FLOW on Wednesday. You'll still see measurable gains in 6 weeks.</p>
-  </div>
-
-  <div class="card">
-    <h2>Tips for getting the most out of GOWOD</h2>
-    <ul class="tip" style="line-height: 1.8;">
-      <li><strong>Do the full assessment first.</strong> It takes 15 min. Without it GOWOD can't personalize — which is the whole point.</li>
-      <li><strong>Re-test mobility every 6 weeks</strong> to see progress and adjust focus areas.</li>
-      <li><strong>Pair with climbing prep</strong>: open GOWOD on the way to the gym, do ACTIVATE in the car or locker room, hit the wall ready.</li>
-      <li><strong>Don't skip the breathing cues</strong>. Deep breath in, long exhale while pushing deeper into a stretch — that's where the mobility unlocks happen.</li>
-      <li><strong>Track in this dashboard</strong>: use the notes field on climb days to log "did ACTIVATE" so you can see the correlation with how sessions feel.</li>
-    </ul>
-  </div>
 </section>
 
-<!-- ===================== PROGRESS ===================== -->
+<!-- PROGRESS -->
 <section class="view" id="progress">
   <div class="grid grid-2">
     <div class="card">
@@ -709,7 +734,7 @@
   </div>
 </section>
 
-<!-- ===================== NUTRITION ===================== -->
+<!-- NUTRITION -->
 <section class="view" id="nutrition">
   <div class="card">
     <h2>Fat loss: the 80/20 playbook</h2>
@@ -718,39 +743,23 @@
       <div>
         <h3>The 5 habits</h3>
         <ol style="padding-left: 18px; line-height: 1.9;">
-          <li><strong>Protein first</strong>: 1.6–2.2 g per kg bodyweight, daily. Preserves muscle in a deficit and helps you feel full.</li>
-          <li><strong>~500 kcal deficit</strong>: aim for ~0.5 kg/week loss. Faster kills climbing performance.</li>
-          <li><strong>Carbs around climbing</strong>: eat most carbs in the 2–3 hours before/after climbs. Low-carb on rest days if you want.</li>
-          <li><strong>Hydrate + sleep 7–8h</strong>: under-slept lifters lose more muscle and perform worse. Non-negotiable.</li>
-          <li><strong>Alcohol ≤ 2–3 units/week</strong>: it torpedoes sleep, recovery, and body composition.</li>
+          <li><strong>Protein first</strong>: 1.6-2.2 g per kg bodyweight, daily.</li>
+          <li><strong>~500 kcal deficit</strong>: aim for ~0.5 kg/week loss.</li>
+          <li><strong>Carbs around climbing</strong>: most carbs in the 2-3 hours before/after climbs.</li>
+          <li><strong>Hydrate and sleep 7-8h</strong>: non-negotiable.</li>
+          <li><strong>Alcohol max 2-3 units/week</strong>: torpedoes sleep and recovery.</li>
         </ol>
       </div>
       <div>
         <h3>Climb-day fuel</h3>
         <ul class="tip" style="line-height: 1.8;">
-          <li>2–3h before: 40–60g carbs + 20–30g protein (oats + yogurt, rice + chicken, etc.)</li>
+          <li>2-3h before: 40-60g carbs + 20-30g protein</li>
           <li>During: water + small handful of dried fruit if session is long</li>
-          <li>After: 30–40g protein within 1h (shake, eggs, cottage cheese)</li>
-          <li>Rest day: drop 200–400 kcal vs training day, mostly from carbs</li>
+          <li>After: 30-40g protein within 1h</li>
+          <li>Rest day: drop 200-400 kcal vs training day, mostly from carbs</li>
         </ul>
       </div>
     </div>
-  </div>
-
-  <div class="card">
-    <h2>Simple daily template</h2>
-    <table>
-      <thead><tr><th>Meal</th><th>What</th><th class="right">Approx kcal</th></tr></thead>
-      <tbody>
-        <tr><td>Breakfast</td><td>Greek yogurt + oats + berries + honey</td><td class="right">400</td></tr>
-        <tr><td>Lunch</td><td>Chicken / tofu + rice + veg + olive oil</td><td class="right">550</td></tr>
-        <tr><td>Pre-climb snack</td><td>Banana + peanut butter</td><td class="right">250</td></tr>
-        <tr><td>Dinner</td><td>Salmon / beans + potato + salad</td><td class="right">600</td></tr>
-        <tr><td>Optional</td><td>Cottage cheese + fruit</td><td class="right">200</td></tr>
-      </tbody>
-      <tfoot><tr><td colspan="2"><strong>Total</strong></td><td class="right"><strong>~2000 kcal</strong></td></tr></tfoot>
-    </table>
-    <p class="tip" style="margin-top: 8px;">Adjust ±300 kcal based on your current maintenance. For most adults a deficit lands around 1800–2200 kcal.</p>
   </div>
 
   <div class="card">
@@ -759,9 +768,9 @@
       <div>
         <h3>Do this</h3>
         <ul class="tip" style="line-height: 1.8;">
-          <li>2–4× per week, 30–45 min zone-2 (brisk walk, easy bike, slow jog) — on rest days or after gym</li>
-          <li>10,000 steps/day target — low-hanging fruit</li>
-          <li>One optional 15-min HIIT finisher after Gym B (bike intervals)</li>
+          <li>2-4 times per week, 30-45 min zone-2 (brisk walk, easy bike, slow jog)</li>
+          <li>10,000 steps/day target</li>
+          <li>Optional 15-min HIIT finisher after Gym B</li>
         </ul>
       </div>
       <div>
@@ -776,89 +785,27 @@
   </div>
 </section>
 
-<!-- ===================== PRINCIPLES ===================== -->
+<!-- PRINCIPLES -->
 <section class="view" id="principles">
   <div class="card">
     <h2>Core principles</h2>
     <div class="grid grid-2">
-      <div class="callout">
-        <strong>1. Climbing is the goal — gym supports it.</strong><br />
-        Never sacrifice climbing recovery for a gym PR. If forearms are cooked, skip the gym pull work that day and do legs only.
-      </div>
-      <div class="callout">
-        <strong>2. Train antagonists.</strong><br />
-        Climbers get hunched, internally rotated, and tight. Push, rear-delt, and external-rotation work keep your shoulders healthy for years.
-      </div>
-      <div class="callout">
-        <strong>3. Progressive overload — slowly.</strong><br />
-        Add weight or 1 rep only when the current weight feels "7/10 hard". Chasing PRs in a deficit = injury.
-      </div>
-      <div class="callout">
-        <strong>4. Protect your fingers.</strong><br />
-        No hangboarding while you're still building a base. Climbing twice a week IS finger training right now.
-      </div>
-      <div class="callout">
-        <strong>5. Sleep &gt; supplements.</strong><br />
-        Sleep 7–8h. Creatine (5g/day) is the one supplement worth it. Protein powder if you can't hit protein otherwise.
-      </div>
-      <div class="callout">
-        <strong>6. Track honestly.</strong><br />
-        Weigh yourself 3× per week, same time, same conditions. Track the trend, not the day.
-      </div>
+      <div class="callout"><strong>1. Climbing is the goal — gym supports it.</strong><br />Never sacrifice climbing recovery for a gym PR.</div>
+      <div class="callout"><strong>2. Train antagonists.</strong><br />Climbers get hunched and tight. Push, rear-delt, external-rotation work keeps shoulders healthy.</div>
+      <div class="callout"><strong>3. Progressive overload — slowly.</strong><br />Add weight or 1 rep only when current weight feels 7/10 hard.</div>
+      <div class="callout"><strong>4. Protect your fingers.</strong><br />No hangboarding while building a base. Climbing twice a week IS finger training.</div>
+      <div class="callout"><strong>5. Sleep beats supplements.</strong><br />Sleep 7-8h. Creatine (5g/day) is the one supplement worth it.</div>
+      <div class="callout"><strong>6. Track honestly.</strong><br />Weigh yourself 3x per week, same time. Track the trend, not the day.</div>
     </div>
-  </div>
-
-  <div class="card">
-    <h2>Exercise reference</h2>
-    <details>
-      <summary>Barbell bench press</summary>
-      <p>Lie flat, retract shoulder blades, bar touches mid-sternum, drive up. Elbows at ~45° (not flared). <a href="https://www.youtube.com/results?search_query=barbell+bench+press+form+jeff+nippard" target="_blank" rel="noopener">Watch tutorial ▶</a></p>
-    </details>
-    <details>
-      <summary>Overhead press</summary>
-      <p>Standing, bar at collarbone. Brace hard, press overhead, bar path slightly back as head comes through. <a href="https://www.youtube.com/results?search_query=overhead+press+barbell+form" target="_blank" rel="noopener">Watch tutorial ▶</a></p>
-    </details>
-    <details>
-      <summary>Weighted dip</summary>
-      <p>Chest slightly forward for chest emphasis; more upright for triceps. Lower until shoulders level with elbows. <a href="https://www.youtube.com/results?search_query=weighted+dip+form+tutorial" target="_blank" rel="noopener">Watch tutorial ▶</a></p>
-    </details>
-    <details>
-      <summary>Face pull</summary>
-      <p>Cable + rope at face height. Pull to forehead with external rotation — thumbs point back at the end. <a href="https://www.youtube.com/results?search_query=cable+face+pull+proper+form" target="_blank" rel="noopener">Watch tutorial ▶</a></p>
-    </details>
-    <details>
-      <summary>Back squat</summary>
-      <p>Bar on upper traps, feet shoulder-width, knees track over toes. Break parallel if mobility allows. <a href="https://www.youtube.com/results?search_query=barbell+back+squat+form+jeff+nippard" target="_blank" rel="noopener">Watch tutorial ▶</a></p>
-    </details>
-    <details>
-      <summary>Romanian deadlift (RDL)</summary>
-      <p>Hinge at hips, slight knee bend, bar close to legs, back flat. Feel stretch in hamstrings at bottom. <a href="https://www.youtube.com/results?search_query=romanian+deadlift+form+tutorial" target="_blank" rel="noopener">Watch tutorial ▶</a></p>
-    </details>
-    <details>
-      <summary>Bulgarian split squat</summary>
-      <p>Rear foot on bench, front foot far enough forward that knee tracks over midfoot. Drive through heel. <a href="https://www.youtube.com/results?search_query=bulgarian+split+squat+form" target="_blank" rel="noopener">Watch tutorial ▶</a></p>
-    </details>
-    <details>
-      <summary>Weighted pull-up</summary>
-      <p>Belt with plate or dumbbell between feet. Full hang to chin over bar. Add weight before reps. <a href="https://www.youtube.com/results?search_query=weighted+pull+up+form+climbers" target="_blank" rel="noopener">Watch tutorial ▶</a></p>
-    </details>
-    <details>
-      <summary>Pallof press</summary>
-      <p>Cable at chest height, side-on. Press straight out and resist rotation. Key anti-rotation core drill. <a href="https://www.youtube.com/results?search_query=pallof+press+cable+form" target="_blank" rel="noopener">Watch tutorial ▶</a></p>
-    </details>
-    <details>
-      <summary>Farmer carry</summary>
-      <p>Heavy DB or trap bar. Walk tall, shoulders packed, 30–40m. Builds grip, core, and traps. <a href="https://www.youtube.com/results?search_query=farmer+carry+form+technique" target="_blank" rel="noopener">Watch tutorial ▶</a></p>
-    </details>
   </div>
 
   <div class="card">
     <h2>Red flags — stop and reassess</h2>
     <ul class="tip" style="line-height: 1.8;">
       <li>Finger joint pain that persists more than 48h — skip climbing for a week, no hangs.</li>
-      <li>Elbow pain on the inside (medial epicondyle) — common climber's elbow; do wrist extensor work and reduce volume.</li>
+      <li>Elbow pain on the inside (medial epicondyle) — climber's elbow; do wrist extensor work and reduce volume.</li>
       <li>Shoulder pinching overhead — check if you're skipping face pulls / rear delt work.</li>
-      <li>Weight loss &gt; 1 kg/week for more than 2 weeks — you're in too steep a deficit, eat more.</li>
+      <li>Weight loss greater than 1 kg/week for more than 2 weeks — too steep a deficit, eat more.</li>
       <li>Climbing grades dropping consistently — almost always under-recovery or under-eating.</li>
     </ul>
   </div>
@@ -866,44 +813,180 @@
 
 </div>
 
+<!-- MODAL -->
+<div class="modal-backdrop" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modalTitle">Details</h2>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
 <script>
-// ==================== DATA ====================
+// ==================== EXERCISE LIBRARY ====================
+// Each exercise has: name, sets, rest, why, target, link, group, alternatives[]
+// Alternatives are alternate exercises hitting the same muscle group
+
+const EX = {
+  bench_press: { name: "Barbell bench press", sets: "4 x 6-8", rest: "2-3 min", why: "Main antagonist to all that pulling", target: "Chest, triceps, front delts", link: "https://www.youtube.com/results?search_query=barbell+bench+press+form+jeff+nippard", group: "push_chest" },
+  db_bench: { name: "Dumbbell bench press", sets: "4 x 8-10", rest: "2 min", why: "More shoulder-friendly version of bench press", target: "Chest, triceps, front delts", link: "https://www.youtube.com/results?search_query=dumbbell+bench+press+form", group: "push_chest" },
+  machine_press: { name: "Machine chest press", sets: "4 x 8-10", rest: "90 s", why: "Stable alternative when free weights are busy", target: "Chest, triceps", link: "https://www.youtube.com/results?search_query=machine+chest+press+form", group: "push_chest" },
+  incline_db: { name: "Incline dumbbell press", sets: "4 x 8-10", rest: "2 min", why: "Hits upper chest and front delts", target: "Upper chest, front delts", link: "https://www.youtube.com/results?search_query=incline+dumbbell+press+form", group: "push_chest" },
+  pushup_weighted: { name: "Weighted push-up", sets: "4 x 10-15", rest: "90 s", why: "Bodyweight option when no bench available", target: "Chest, triceps, core", link: "https://www.youtube.com/results?search_query=weighted+push+up+form", group: "push_chest" },
+
+  ohp: { name: "Standing barbell overhead press", sets: "3 x 8-10", rest: "2 min", why: "Total shoulder strength and stability", target: "Delts, triceps, core", link: "https://www.youtube.com/results?search_query=overhead+press+barbell+form", group: "push_shoulders" },
+  db_shoulder_press: { name: "Seated dumbbell shoulder press", sets: "3 x 8-10", rest: "90 s", why: "Overhead pressing strength and shoulder stability", target: "Delts, triceps", link: "https://www.youtube.com/results?search_query=seated+dumbbell+shoulder+press+form", group: "push_shoulders" },
+  arnold_press: { name: "Arnold press", sets: "3 x 10", rest: "90 s", why: "Hits all three deltoid heads", target: "Delts", link: "https://www.youtube.com/results?search_query=arnold+press+form", group: "push_shoulders" },
+  machine_shoulder_press: { name: "Machine shoulder press", sets: "3 x 10", rest: "90 s", why: "Stable alternative when DBs are busy", target: "Delts, triceps", link: "https://www.youtube.com/results?search_query=machine+shoulder+press+form", group: "push_shoulders" },
+  lateral_raise: { name: "Dumbbell lateral raise", sets: "3 x 12-15", rest: "60 s", why: "Side delt isolation for shoulder width", target: "Side delts", link: "https://www.youtube.com/results?search_query=dumbbell+lateral+raise+form", group: "push_shoulders" },
+
+  weighted_dip: { name: "Weighted dip", sets: "3 x 8-12", rest: "90 s", why: "Locked-off pressing strength for mantling", target: "Chest, triceps", link: "https://www.youtube.com/results?search_query=weighted+dip+form+tutorial", group: "push_triceps" },
+  close_grip_bench: { name: "Close-grip bench press", sets: "3 x 8-10", rest: "90 s", why: "Compound triceps movement", target: "Triceps, chest", link: "https://www.youtube.com/results?search_query=close+grip+bench+press+form", group: "push_triceps" },
+  tricep_pushdown: { name: "Cable tricep pushdown", sets: "3 x 10-12", rest: "60 s", why: "Tricep isolation, keeps elbow healthy", target: "Triceps", link: "https://www.youtube.com/results?search_query=cable+tricep+pushdown+form", group: "push_triceps" },
+  skull_crusher: { name: "Skull crushers (EZ bar)", sets: "3 x 10-12", rest: "60 s", why: "Long head triceps emphasis", target: "Triceps", link: "https://www.youtube.com/results?search_query=skull+crusher+form", group: "push_triceps" },
+  overhead_tricep: { name: "Overhead tricep extension", sets: "3 x 10-12", rest: "60 s", why: "Stretched-position triceps work", target: "Triceps long head", link: "https://www.youtube.com/results?search_query=overhead+tricep+extension+form", group: "push_triceps" },
+
+  face_pull: { name: "Cable face pull", sets: "3 x 12-15", rest: "60 s", why: "Most important antagonist drill — shoulder health", target: "Rear delts, external rotators", link: "https://www.youtube.com/results?search_query=cable+face+pull+proper+form", group: "antagonist" },
+  reverse_pec_deck: { name: "Reverse pec deck", sets: "3 x 12-15", rest: "60 s", why: "Rear delt isolation on a machine", target: "Rear delts", link: "https://www.youtube.com/results?search_query=reverse+pec+deck+form", group: "antagonist" },
+  band_pull_apart: { name: "Band pull-apart", sets: "3 x 20", rest: "30 s", why: "Climber's secret — rear delts and posture", target: "Rear delts, traps", link: "https://www.youtube.com/results?search_query=band+pull+apart+form", group: "antagonist" },
+  y_raise: { name: "Y-raise (DB or band)", sets: "3 x 12", rest: "60 s", why: "Lower trap activation, posture fix", target: "Lower traps, rear delts", link: "https://www.youtube.com/results?search_query=y+raise+exercise+form", group: "antagonist" },
+  external_rotation: { name: "Cable external rotation", sets: "3 x 12/side", rest: "60 s", why: "Rotator cuff strength for climbers", target: "Rotator cuff", link: "https://www.youtube.com/results?search_query=cable+external+rotation+rotator+cuff", group: "antagonist" },
+
+  cable_fly: { name: "Cable chest fly", sets: "3 x 12", rest: "60 s", why: "Opens up chest, counters climber's hunch", target: "Chest", link: "https://www.youtube.com/results?search_query=cable+chest+fly+form+tutorial", group: "push_chest" },
+  pec_deck: { name: "Pec deck machine", sets: "3 x 12", rest: "60 s", why: "Stable chest isolation", target: "Chest", link: "https://www.youtube.com/results?search_query=pec+deck+form", group: "push_chest" },
+  db_fly: { name: "Dumbbell fly", sets: "3 x 12", rest: "60 s", why: "Free-weight chest stretch and contraction", target: "Chest", link: "https://www.youtube.com/results?search_query=dumbbell+fly+form", group: "push_chest" },
+
+  hanging_leg_raise: { name: "Hanging leg raise", sets: "3 x 10-15", rest: "60 s", why: "Direct carryover to overhang climbing", target: "Core, hip flexors", link: "https://www.youtube.com/results?search_query=hanging+leg+raise+form+climbers", group: "core" },
+  captains_chair: { name: "Captain's chair leg raise", sets: "3 x 12-15", rest: "60 s", why: "Easier alternative to hanging — same target", target: "Core, hip flexors", link: "https://www.youtube.com/results?search_query=captains+chair+leg+raise", group: "core" },
+  reverse_crunch: { name: "Reverse crunch", sets: "3 x 15", rest: "45 s", why: "Lower abs focus, no equipment", target: "Lower abs", link: "https://www.youtube.com/results?search_query=reverse+crunch+form", group: "core" },
+  ab_wheel: { name: "Ab wheel rollout", sets: "3 x 8-12", rest: "60 s", why: "Brutal full-core exercise", target: "Full core, lats", link: "https://www.youtube.com/results?search_query=ab+wheel+rollout+form", group: "core" },
+  dead_bug: { name: "Dead bug", sets: "3 x 10/side", rest: "45 s", why: "Anti-extension, foundational core", target: "Deep core", link: "https://www.youtube.com/results?search_query=dead+bug+exercise+form", group: "core" },
+  plank: { name: "Plank (front or side)", sets: "3 x 45-60 s", rest: "45 s", why: "Iso-hold for core endurance", target: "Full core", link: "https://www.youtube.com/results?search_query=plank+form+climbers", group: "core" },
+
+  pallof_press: { name: "Pallof press", sets: "3 x 10/side", rest: "45 s", why: "Anti-rotation core — massive climbing carryover", target: "Deep core", link: "https://www.youtube.com/results?search_query=pallof+press+cable+form", group: "core_anti_rotation" },
+  woodchop: { name: "Cable woodchopper", sets: "3 x 10/side", rest: "60 s", why: "Rotational power for dynamic moves", target: "Obliques, core", link: "https://www.youtube.com/results?search_query=cable+woodchopper+form", group: "core_anti_rotation" },
+  side_plank: { name: "Side plank with reach", sets: "3 x 30 s/side", rest: "45 s", why: "Lateral core stability", target: "Obliques, QL", link: "https://www.youtube.com/results?search_query=side+plank+with+reach+form", group: "core_anti_rotation" },
+  suitcase_hold: { name: "Suitcase hold", sets: "3 x 30 s/side", rest: "45 s", why: "Anti-lateral flexion, grip bonus", target: "Obliques, grip", link: "https://www.youtube.com/results?search_query=suitcase+hold+exercise", group: "core_anti_rotation" },
+
+  wrist_extensor: { name: "Wrist extensor curls (band/DB)", sets: "2 x 15-20", rest: "45 s", why: "Prevents climber's elbow", target: "Forearm extensors", link: "https://www.youtube.com/results?search_query=wrist+extensor+curl+climbers+elbow+prevention", group: "forearms" },
+  reverse_curl: { name: "Reverse barbell curl", sets: "3 x 12", rest: "60 s", why: "Forearm extensors and brachioradialis", target: "Forearms, brachialis", link: "https://www.youtube.com/results?search_query=reverse+barbell+curl+form", group: "forearms" },
+  plate_pinch: { name: "Plate pinch hold", sets: "3 x 30 s", rest: "60 s", why: "Pure pinch grip strength", target: "Pinch grip", link: "https://www.youtube.com/results?search_query=plate+pinch+grip+training", group: "forearms" },
+
+  back_squat: { name: "Barbell back squat", sets: "4 x 6-8", rest: "2-3 min", why: "Climbers skip legs and miss huge metabolism + power gains", target: "Quads, glutes", link: "https://www.youtube.com/results?search_query=barbell+back+squat+form+jeff+nippard", group: "legs_quads" },
+  front_squat: { name: "Front squat", sets: "4 x 6-8", rest: "2-3 min", why: "More upright torso, easier on lower back", target: "Quads, core", link: "https://www.youtube.com/results?search_query=front+squat+form", group: "legs_quads" },
+  goblet_squat: { name: "Goblet squat", sets: "3 x 12", rest: "90 s", why: "Beginner-friendly squat pattern", target: "Quads, glutes", link: "https://www.youtube.com/results?search_query=goblet+squat+form", group: "legs_quads" },
+  hack_squat: { name: "Hack squat machine", sets: "4 x 8-10", rest: "2 min", why: "Quad emphasis, lower back-friendly", target: "Quads", link: "https://www.youtube.com/results?search_query=hack+squat+machine+form", group: "legs_quads" },
+  leg_press: { name: "Leg press", sets: "4 x 10-12", rest: "2 min", why: "Heavy leg work without spinal load", target: "Quads, glutes", link: "https://www.youtube.com/results?search_query=leg+press+form", group: "legs_quads" },
+  leg_extension: { name: "Leg extension", sets: "3 x 12-15", rest: "60 s", why: "Quad isolation", target: "Quads", link: "https://www.youtube.com/results?search_query=leg+extension+form", group: "legs_quads" },
+
+  rdl: { name: "Romanian deadlift", sets: "3 x 8-10", rest: "2 min", why: "Posterior chain — heel hooks, high steps", target: "Hamstrings, glutes", link: "https://www.youtube.com/results?search_query=romanian+deadlift+form+tutorial", group: "legs_hamstrings" },
+  conventional_dl: { name: "Conventional deadlift", sets: "3 x 5", rest: "3 min", why: "Total-body strength builder", target: "Posterior chain, traps", link: "https://www.youtube.com/results?search_query=conventional+deadlift+form", group: "legs_hamstrings" },
+  single_leg_rdl: { name: "Single-leg RDL", sets: "3 x 10/leg", rest: "90 s", why: "Hamstring strength + balance", target: "Hamstrings, glutes", link: "https://www.youtube.com/results?search_query=single+leg+rdl+form", group: "legs_hamstrings" },
+  leg_curl: { name: "Leg curl machine", sets: "3 x 12", rest: "60 s", why: "Hamstring isolation", target: "Hamstrings", link: "https://www.youtube.com/results?search_query=leg+curl+form", group: "legs_hamstrings" },
+  good_morning: { name: "Good morning", sets: "3 x 10", rest: "90 s", why: "Hip-hinge pattern + erectors", target: "Hamstrings, erectors", link: "https://www.youtube.com/results?search_query=good+morning+exercise+form", group: "legs_hamstrings" },
+
+  bulgarian: { name: "Bulgarian split squat", sets: "3 x 10/leg", rest: "90 s", why: "Single-leg power and stability", target: "Quads, glutes", link: "https://www.youtube.com/results?search_query=bulgarian+split+squat+form", group: "legs_glutes" },
+  walking_lunge: { name: "Walking lunge", sets: "3 x 12/side", rest: "90 s", why: "Functional single-leg work", target: "Quads, glutes", link: "https://www.youtube.com/results?search_query=walking+lunge+form", group: "legs_glutes" },
+  reverse_lunge: { name: "Reverse lunge", sets: "3 x 10/side", rest: "90 s", why: "Knee-friendly lunge variation", target: "Quads, glutes", link: "https://www.youtube.com/results?search_query=reverse+lunge+form", group: "legs_glutes" },
+  step_up: { name: "Box step-up", sets: "3 x 10/leg", rest: "90 s", why: "Single-leg power, climbing carryover", target: "Quads, glutes", link: "https://www.youtube.com/results?search_query=box+step+up+form", group: "legs_glutes" },
+  hip_thrust: { name: "Barbell hip thrust", sets: "3 x 10", rest: "2 min", why: "Pure glute strength", target: "Glutes, hamstrings", link: "https://www.youtube.com/results?search_query=hip+thrust+form", group: "legs_glutes" },
+
+  weighted_pullup: { name: "Weighted pull-up", sets: "4 x 5-8", rest: "2 min", why: "Pure pulling strength — the #1 gym lift for bouldering", target: "Lats, biceps, grip", link: "https://www.youtube.com/results?search_query=weighted+pull+up+form+climbers", group: "pull_lats" },
+  pullup: { name: "Bodyweight pull-up", sets: "4 x AMRAP", rest: "2 min", why: "Vertical pull, climbing-specific", target: "Lats, biceps", link: "https://www.youtube.com/results?search_query=pull+up+form+climbers", group: "pull_lats" },
+  lat_pulldown: { name: "Lat pulldown", sets: "4 x 10-12", rest: "90 s", why: "Lat builder when pull-ups aren't enough", target: "Lats", link: "https://www.youtube.com/results?search_query=lat+pulldown+form", group: "pull_lats" },
+  chinup: { name: "Chin-up", sets: "4 x AMRAP", rest: "2 min", why: "More biceps emphasis than pull-up", target: "Lats, biceps", link: "https://www.youtube.com/results?search_query=chin+up+form", group: "pull_lats" },
+  inverted_row: { name: "Inverted row", sets: "3 x 10-15", rest: "90 s", why: "Horizontal pull, easy on shoulders", target: "Mid back", link: "https://www.youtube.com/results?search_query=inverted+row+form", group: "pull_lats" },
+
+  db_row: { name: "Single-arm dumbbell row", sets: "3 x 8-10/side", rest: "90 s", why: "Unilateral pulling, fixes L/R imbalances", target: "Lats, rhomboids", link: "https://www.youtube.com/results?search_query=single+arm+dumbbell+row+form", group: "pull_back" },
+  cable_row: { name: "Seated cable row", sets: "3 x 10-12", rest: "90 s", why: "Mid-back focus, smooth resistance", target: "Mid back, rhomboids", link: "https://www.youtube.com/results?search_query=seated+cable+row+form", group: "pull_back" },
+  tbar_row: { name: "T-bar row", sets: "3 x 10", rest: "2 min", why: "Heavy mid-back builder", target: "Mid back, lats", link: "https://www.youtube.com/results?search_query=t+bar+row+form", group: "pull_back" },
+  chest_supported_row: { name: "Chest-supported row", sets: "3 x 10-12", rest: "90 s", why: "Strict pull, no momentum", target: "Mid back, rear delts", link: "https://www.youtube.com/results?search_query=chest+supported+row+form", group: "pull_back" },
+  pendlay_row: { name: "Pendlay row", sets: "3 x 5-8", rest: "2 min", why: "Explosive horizontal pull", target: "Lats, mid back", link: "https://www.youtube.com/results?search_query=pendlay+row+form", group: "pull_back" },
+
+  bb_curl: { name: "Barbell biceps curl", sets: "3 x 10", rest: "60 s", why: "Classic biceps mass builder", target: "Biceps", link: "https://www.youtube.com/results?search_query=barbell+biceps+curl+form", group: "pull_biceps" },
+  hammer_curl: { name: "Hammer curl", sets: "3 x 10/side", rest: "60 s", why: "Brachialis and forearm growth", target: "Biceps, brachialis", link: "https://www.youtube.com/results?search_query=hammer+curl+form", group: "pull_biceps" },
+  preacher_curl: { name: "Preacher curl", sets: "3 x 10", rest: "60 s", why: "Strict form, biceps peak", target: "Biceps", link: "https://www.youtube.com/results?search_query=preacher+curl+form", group: "pull_biceps" },
+  cable_curl: { name: "Cable biceps curl", sets: "3 x 12", rest: "60 s", why: "Constant tension biceps work", target: "Biceps", link: "https://www.youtube.com/results?search_query=cable+biceps+curl+form", group: "pull_biceps" },
+
+  farmer_carry: { name: "Farmer carry (heavy DB)", sets: "3 x 30-40 m", rest: "90 s", why: "Grip endurance + standing core", target: "Grip, traps, core", link: "https://www.youtube.com/results?search_query=farmer+carry+form+technique", group: "grip" },
+  suitcase_carry: { name: "Suitcase carry", sets: "3 x 30 m/side", rest: "90 s", why: "Single-arm version, anti-lateral flexion", target: "Grip, obliques", link: "https://www.youtube.com/results?search_query=suitcase+carry+form", group: "grip" },
+  trap_bar_hold: { name: "Trap bar hold", sets: "3 x 30 s", rest: "90 s", why: "Heavy static grip", target: "Grip, traps", link: "https://www.youtube.com/results?search_query=trap+bar+hold+grip", group: "grip" },
+  dead_hang: { name: "Dead hang", sets: "3 x max", rest: "90 s", why: "Climbing-specific grip endurance", target: "Grip, lats", link: "https://www.youtube.com/results?search_query=dead+hang+climbers+grip", group: "grip" },
+
+  standing_calf: { name: "Standing calf raise", sets: "3 x 12-15", rest: "60 s", why: "Calves matter for tiny footholds", target: "Calves (gastrocnemius)", link: "https://www.youtube.com/results?search_query=standing+calf+raise+form", group: "calves" },
+  seated_calf: { name: "Seated calf raise", sets: "3 x 15", rest: "60 s", why: "Soleus emphasis", target: "Calves (soleus)", link: "https://www.youtube.com/results?search_query=seated+calf+raise+form", group: "calves" },
+  single_leg_calf: { name: "Single-leg calf raise", sets: "3 x 12/leg", rest: "60 s", why: "Bodyweight calf option, balance bonus", target: "Calves, balance", link: "https://www.youtube.com/results?search_query=single+leg+calf+raise+form", group: "calves" },
+
+  zone2_cardio: { name: "Zone-2 cardio finisher", sets: "10-15 min easy bike or row", rest: "—", why: "Fat-loss support without trashing recovery", target: "Aerobic base", link: "https://www.youtube.com/results?search_query=zone+2+cardio+explained", group: "cardio" },
+  hiit: { name: "HIIT bike intervals", sets: "8 x 20s on / 40s off", rest: "—", why: "Conditioning in minimal time", target: "Conditioning", link: "https://www.youtube.com/results?search_query=hiit+bike+intervals", group: "cardio" },
+  incline_walk: { name: "Incline treadmill walk", sets: "20-30 min at 10-12% incline", rest: "—", why: "Low-impact zone-2", target: "Aerobic base, calves", link: "https://www.youtube.com/results?search_query=incline+walk+treadmill+fat+loss", group: "cardio" }
+};
+
+// Build a reverse index by group
+const POOL = {};
+Object.entries(EX).forEach(([id, ex]) => {
+  if (!POOL[ex.group]) POOL[ex.group] = [];
+  POOL[ex.group].push(id);
+});
+
+// Default sessions: list of exercise IDs in order
 const PROGRAM = {
   gymA: {
-    title: "Gym A — Push, Antagonists & Core",
-    exercises: [
-      { name: "Barbell bench press", sets: "4 × 6–8", rest: "2–3 min", why: "Main antagonist to all that pulling", target: "Chest, triceps, front delts", link: "https://www.youtube.com/results?search_query=barbell+bench+press+form+jeff+nippard" },
-      { name: "Seated dumbbell shoulder press", sets: "3 × 8–10", rest: "90 s", why: "Overhead pressing strength & shoulder stability", target: "Delts, triceps", link: "https://www.youtube.com/results?search_query=seated+dumbbell+shoulder+press+form" },
-      { name: "Weighted dip (or push-up)", sets: "3 × 8–12", rest: "90 s", why: "Locked-off pressing strength for mantling", target: "Chest, triceps", link: "https://www.youtube.com/results?search_query=weighted+dip+form+tutorial" },
-      { name: "Cable face pull", sets: "3 × 12–15", rest: "60 s", why: "Most important antagonist drill — shoulder health", target: "Rear delts, external rotators", link: "https://www.youtube.com/results?search_query=cable+face+pull+proper+form" },
-      { name: "Cable chest fly", sets: "3 × 12", rest: "60 s", why: "Opens up chest; counters climber's hunch", target: "Chest", link: "https://www.youtube.com/results?search_query=cable+chest+fly+form+tutorial" },
-      { name: "Hanging leg raise", sets: "3 × 10–15", rest: "60 s", why: "Direct carryover to overhang climbing", target: "Core, hip flexors", link: "https://www.youtube.com/results?search_query=hanging+leg+raise+form+climbers" },
-      { name: "Pallof press", sets: "3 × 10/side", rest: "45 s", why: "Anti-rotation core — massive climbing carryover", target: "Deep core", link: "https://www.youtube.com/results?search_query=pallof+press+cable+form" },
-      { name: "Wrist extensor curls (band/DB)", sets: "2 × 15–20", rest: "45 s", why: "Prevents climber's elbow", target: "Forearm extensors", link: "https://www.youtube.com/results?search_query=wrist+extensor+curl+climbers+elbow+prevention" }
+    title: "Gym A — Push, Antagonists and Core",
+    slots: [
+      "bench_press", "db_shoulder_press", "weighted_dip", "face_pull",
+      "cable_fly", "hanging_leg_raise", "pallof_press", "wrist_extensor"
     ]
   },
   gymB: {
-    title: "Gym B — Legs, Pull Power & Grip",
-    exercises: [
-      { name: "Back squat", sets: "4 × 6–8", rest: "2–3 min", why: "Climbers skip legs and miss huge metabolism + power gains", target: "Quads, glutes", link: "https://www.youtube.com/results?search_query=barbell+back+squat+form+jeff+nippard" },
-      { name: "Romanian deadlift", sets: "3 × 8–10", rest: "2 min", why: "Posterior chain — heel hooks, high steps", target: "Hamstrings, glutes", link: "https://www.youtube.com/results?search_query=romanian+deadlift+form+tutorial" },
-      { name: "Bulgarian split squat", sets: "3 × 10/leg", rest: "90 s", why: "Single-leg power & stability for precise footwork", target: "Quads, glutes", link: "https://www.youtube.com/results?search_query=bulgarian+split+squat+form" },
-      { name: "Weighted pull-up", sets: "4 × 5–8", rest: "2 min", why: "Pure pulling strength — the #1 gym lift for bouldering", target: "Lats, biceps, grip", link: "https://www.youtube.com/results?search_query=weighted+pull+up+form+climbers" },
-      { name: "Single-arm dumbbell row", sets: "3 × 8–10/side", rest: "90 s", why: "Unilateral pulling strength, fixes L/R imbalances", target: "Lats, rhomboids", link: "https://www.youtube.com/results?search_query=single+arm+dumbbell+row+form" },
-      { name: "Farmer carry (heavy DB)", sets: "3 × 30–40 m", rest: "90 s", why: "Grip endurance + standing core", target: "Grip, traps, core", link: "https://www.youtube.com/results?search_query=farmer+carry+form+technique" },
-      { name: "Standing calf raise", sets: "3 × 12–15", rest: "60 s", why: "Calves matter for standing on tiny footholds", target: "Calves", link: "https://www.youtube.com/results?search_query=standing+calf+raise+form" },
-      { name: "Zone-2 cardio finisher", sets: "10–15 min easy bike/row", rest: "—", why: "Fat-loss support without trashing recovery", target: "Aerobic base", link: "https://www.youtube.com/results?search_query=zone+2+cardio+explained" }
+    title: "Gym B — Legs, Pull Power and Grip",
+    slots: [
+      "back_squat", "rdl", "bulgarian", "weighted_pullup",
+      "db_row", "farmer_carry", "standing_calf", "zone2_cardio"
     ]
   }
 };
 
+// ==================== MUSCLE GROUPS for custom session ====================
+const MUSCLE_GROUPS = [
+  { id: "push_chest", name: "Chest", desc: "Pressing, flyes" },
+  { id: "push_shoulders", name: "Shoulders", desc: "Overhead, raises" },
+  { id: "push_triceps", name: "Triceps", desc: "Pushdown, dips, extensions" },
+  { id: "pull_lats", name: "Lats / Vertical pull", desc: "Pull-ups, pulldowns" },
+  { id: "pull_back", name: "Back / Horizontal pull", desc: "Rows" },
+  { id: "pull_biceps", name: "Biceps", desc: "Curls" },
+  { id: "antagonist", name: "Antagonist (climber)", desc: "Rear delts, rotators" },
+  { id: "legs_quads", name: "Quads", desc: "Squat, leg press" },
+  { id: "legs_hamstrings", name: "Hamstrings", desc: "RDL, deadlift, curl" },
+  { id: "legs_glutes", name: "Glutes / Single-leg", desc: "Lunge, hip thrust" },
+  { id: "calves", name: "Calves", desc: "Calf raises" },
+  { id: "core", name: "Core", desc: "Abs, leg raise, plank" },
+  { id: "core_anti_rotation", name: "Anti-rotation core", desc: "Pallof, woodchop" },
+  { id: "forearms", name: "Forearms / Grip", desc: "Wrist work, pinches" },
+  { id: "grip", name: "Grip carries", desc: "Farmer, suitcase" },
+  { id: "cardio", name: "Cardio finisher", desc: "Zone 2 or HIIT" }
+];
+
+const COMBO_SUGGESTIONS = [
+  { name: "Push + core (60 min)", groups: ["push_chest", "push_shoulders", "push_triceps", "core"], duration: 60 },
+  { name: "Pull + core (60 min)", groups: ["pull_lats", "pull_back", "pull_biceps", "core"], duration: 60 },
+  { name: "Full leg day (60 min)", groups: ["legs_quads", "legs_hamstrings", "legs_glutes", "calves"], duration: 60 },
+  { name: "Upper body balanced (60 min)", groups: ["push_chest", "pull_lats", "antagonist", "core"], duration: 60 },
+  { name: "Arms only (45 min)", groups: ["push_triceps", "pull_biceps", "forearms"], duration: 45 },
+  { name: "Climber's antagonist (45 min)", groups: ["push_chest", "antagonist", "core_anti_rotation"], duration: 45 },
+  { name: "Quick legs + core (45 min)", groups: ["legs_quads", "legs_hamstrings", "core"], duration: 45 },
+  { name: "Grip + core (30 min)", groups: ["grip", "core", "forearms"], duration: 30 }
+];
+
 const DEFAULT_SCHEDULE = [
-  { dow: "Mon", type: "gym", label: "Gym A", focus: "Push & Core", view: "gymA" },
-  { dow: "Tue", type: "climb", label: "Climb + GOWOD", focus: "Project day · ACTIVATE before, RECOVER after", view: "climb" },
+  { dow: "Mon", type: "gym", label: "Gym A", focus: "Push and Core", view: "gymA" },
+  { dow: "Tue", type: "climb", label: "Climb + GOWOD", focus: "Project day, ACTIVATE before, RECOVER after", view: "climb" },
   { dow: "Wed", type: "rest", label: "Rest + GOWOD", focus: "DAILY FLOW 15 min", view: "mobility" },
-  { dow: "Thu", type: "gym", label: "Gym B", focus: "Legs & Pull", view: "gymB" },
+  { dow: "Thu", type: "gym", label: "Gym B", focus: "Legs and Pull", view: "gymB" },
   { dow: "Fri", type: "rest", label: "Rest", focus: "Full recovery", view: "nutrition" },
-  { dow: "Sat", type: "climb", label: "Climb + GOWOD", focus: "Volume · ACTIVATE + RECOVER", view: "climb" },
+  { dow: "Sat", type: "climb", label: "Climb + GOWOD", focus: "Volume, ACTIVATE + RECOVER", view: "climb" },
   { dow: "Sun", type: "cardio", label: "Optional", focus: "Climb easy or zone-2 cardio", view: "climb" }
 ];
 
@@ -917,7 +1000,7 @@ const DEFAULT_PRS = [
 ];
 
 // ==================== STATE ====================
-const STORAGE_KEY = "boulderFitDashboard.v1";
+const STORAGE_KEY = "boulderFitDashboard.v2";
 let state = loadState();
 
 function loadState() {
@@ -926,11 +1009,16 @@ function loadState() {
     if (raw) return JSON.parse(raw);
   } catch (e) {}
   return {
-    gymALog: {},   // date -> { completed, sets: [{weight, reps}, ...] per exercise }
+    gymALog: {},
     gymBLog: {},
-    climbLog: [],  // { date, type, grade, duration, notes }
-    bodyweight: [],// { date, value }
-    prs: DEFAULT_PRS
+    customLog: {},
+    climbLog: [],
+    bodyweight: [],
+    prs: DEFAULT_PRS,
+    altIndex: {},        // exerciseId -> alternative cycle position
+    customSlots: { gymA: null, gymB: null }, // null means use default; otherwise custom array of IDs
+    customSession: { groups: [], slots: [], duration: 60 },
+    scheduleOrder: null  // null means default; otherwise array of indices
   };
 }
 
@@ -952,24 +1040,74 @@ document.querySelectorAll(".tab").forEach(t => {
 function switchView(v) {
   document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.view === v));
   document.querySelectorAll(".view").forEach(s => s.classList.toggle("active", s.id === v));
+  window.scrollTo(0, 0);
 }
 
-// ==================== WEEK GRID ====================
+// ==================== WEEKLY SCHEDULE (with drag-drop) ====================
+function getSchedule() {
+  if (!state.scheduleOrder) return DEFAULT_SCHEDULE.slice();
+  return state.scheduleOrder.map(i => DEFAULT_SCHEDULE[i]);
+}
+
+function resetSchedule() {
+  state.scheduleOrder = null;
+  saveState();
+  renderWeek();
+}
+
+let dragSrcIdx = null;
+
 function renderWeek() {
   const grid = document.getElementById("weekGrid");
   const today = new Date().toLocaleDateString("en-US", { weekday: "short" });
+  const schedule = getSchedule();
   grid.innerHTML = "";
-  DEFAULT_SCHEDULE.forEach(day => {
+  schedule.forEach((day, idx) => {
     const el = document.createElement("div");
     el.className = "day " + day.type;
+    el.draggable = true;
+    el.dataset.idx = idx;
     el.innerHTML = `
-      <div class="dow">${day.dow}${day.dow === today ? " • today" : ""}</div>
+      <div class="dow">${day.dow}${day.dow === today ? " (today)" : ""}</div>
       <div class="label">${day.label}</div>
       <div class="type"><span class="chip ${day.type}">${day.type}</span></div>
       <div class="focus">${day.focus}</div>
+      <div class="drag-handle">drag</div>
     `;
-    el.addEventListener("click", () => switchView(day.view));
-    el.style.cursor = "pointer";
+    el.addEventListener("click", (e) => {
+      // Don't switch view if user just dragged
+      if (el.classList.contains("dragging")) return;
+      switchView(day.view);
+    });
+
+    el.addEventListener("dragstart", (e) => {
+      dragSrcIdx = idx;
+      el.classList.add("dragging");
+      e.dataTransfer.effectAllowed = "move";
+    });
+    el.addEventListener("dragend", () => {
+      el.classList.remove("dragging");
+      document.querySelectorAll(".day").forEach(d => d.classList.remove("drag-over"));
+    });
+    el.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      el.classList.add("drag-over");
+    });
+    el.addEventListener("dragleave", () => el.classList.remove("drag-over"));
+    el.addEventListener("drop", (e) => {
+      e.preventDefault();
+      el.classList.remove("drag-over");
+      if (dragSrcIdx === null || dragSrcIdx === idx) return;
+
+      const order = state.scheduleOrder ? state.scheduleOrder.slice() : DEFAULT_SCHEDULE.map((_, i) => i);
+      // Swap (not insert): swap the two positions
+      [order[dragSrcIdx], order[idx]] = [order[idx], order[dragSrcIdx]];
+      state.scheduleOrder = order;
+      saveState();
+      renderWeek();
+    });
+
     grid.appendChild(el);
   });
 }
@@ -979,102 +1117,301 @@ function todayKey() {
   return new Date().toISOString().slice(0, 10);
 }
 
+function getSessionSlots(key) {
+  // Returns the current ordered list of exercise IDs for this session
+  if (key === "custom") return state.customSession.slots || [];
+  if (state.customSlots[key]) return state.customSlots[key];
+  return PROGRAM[key].slots;
+}
+
+function getResolvedExercise(exId, exerciseSlotIdx, sessionKey) {
+  // Apply alternative cycling
+  const baseEx = EX[exId];
+  if (!baseEx) return null;
+  const altKey = `${sessionKey}_${exerciseSlotIdx}`;
+  const altIdx = state.altIndex[altKey];
+  if (!altIdx) return baseEx;
+  // Get all in same group, find the cycle position
+  const sameGroup = POOL[baseEx.group].filter(id => id !== exId);
+  if (sameGroup.length === 0) return baseEx;
+  const altId = sameGroup[(altIdx - 1) % sameGroup.length];
+  return EX[altId] || baseEx;
+}
+
+function cycleAlternative(sessionKey, slotIdx) {
+  const slots = getSessionSlots(sessionKey);
+  const exId = slots[slotIdx];
+  const baseEx = EX[exId];
+  if (!baseEx) return;
+  const sameGroup = POOL[baseEx.group].filter(id => id !== exId);
+  if (sameGroup.length === 0) {
+    alert("No alternatives available for this muscle group.");
+    return;
+  }
+  const altKey = `${sessionKey}_${slotIdx}`;
+  const cur = state.altIndex[altKey] || 0;
+  const next = (cur + 1) % (sameGroup.length + 1); // +1 to include "back to original"
+  if (next === 0) {
+    delete state.altIndex[altKey];
+  } else {
+    state.altIndex[altKey] = next;
+  }
+  saveState();
+  renderWorkout(sessionKey);
+}
+
 function renderWorkout(key) {
-  const prog = PROGRAM[key];
   const container = document.getElementById(key + "Exercises");
+  if (!container) return;
+  const slots = getSessionSlots(key);
   const log = state[key + "Log"][todayKey()] || {};
   container.innerHTML = "";
-  const table = document.createElement("table");
-  table.className = "workout";
-  table.innerHTML = `
-    <thead>
-      <tr>
-        <th style="width:30px;">✓</th>
-        <th>Exercise</th>
-        <th>Sets × reps</th>
-        <th>Rest</th>
-        <th>Weight (kg) — last</th>
-        <th>Notes</th>
-      </tr>
-    </thead>
-    <tbody></tbody>`;
-  const tbody = table.querySelector("tbody");
-  prog.exercises.forEach((ex, i) => {
-    const entry = log[i] || {};
-    const last = lastWeight(key, i);
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td class="done-cell"><button class="done-toggle ${entry.done ? 'done' : ''}" data-key="${key}" data-i="${i}" aria-label="Mark ${ex.name} done">✓</button></td>
-      <td class="name-cell">
-        <div class="exercise-name">${ex.name}${ex.link ? ` <a href="${ex.link}" target="_blank" rel="noopener" class="how-to" title="Watch a video tutorial">▶ How-to</a>` : ''}</div>
-        <div class="exercise-why">${ex.why}</div>
-        <div class="mobile-meta">
-          <span><strong>${ex.sets}</strong></span>
-          <span>·</span>
-          <span>${ex.rest} rest</span>
-          ${last ? `<span>·</span><span>last: <strong>${last} kg</strong></span>` : ''}
-        </div>
-      </td>
-      <td class="desk-only" data-label="Sets × reps">${ex.sets}</td>
-      <td class="desk-only" data-label="Rest">${ex.rest}</td>
-      <td data-label="Weight (kg)"><input type="text" inputmode="decimal" data-key="${key}" data-i="${i}" data-field="weight" value="${entry.weight || ''}" placeholder="${last || '—'}"/></td>
-      <td data-label="Notes"><input type="text" data-key="${key}" data-i="${i}" data-field="notes" value="${entry.notes || ''}" placeholder="felt good / add 2.5kg next"/></td>
-    `;
-    tbody.appendChild(tr);
-  });
-  container.appendChild(table);
 
-  // Handlers
-  container.querySelectorAll(".done-toggle").forEach(b => {
-    b.addEventListener("click", () => {
-      const k = b.dataset.key, i = +b.dataset.i;
-      const today = todayKey();
-      state[k+"Log"][today] = state[k+"Log"][today] || {};
-      state[k+"Log"][today][i] = state[k+"Log"][today][i] || {};
-      state[k+"Log"][today][i].done = !state[k+"Log"][today][i].done;
-      b.classList.toggle("done", state[k+"Log"][today][i].done);
-      saveState();
+  slots.forEach((slotId, slotIdx) => {
+    const ex = getResolvedExercise(slotId, slotIdx, key);
+    if (!ex) return;
+    const entry = log[slotIdx] || {};
+    const sets = entry.sets || [{ weight: "", reps: "", warmup: false }];
+    const lastWeight = getLastWeight(key, slotIdx);
+
+    const card = document.createElement("div");
+    card.className = "exercise";
+
+    let setsHTML = "";
+    sets.forEach((s, sIdx) => {
+      setsHTML += `
+        <div class="set-row">
+          <div class="set-num ${s.warmup ? 'warmup' : ''}">${s.warmup ? 'W' : sIdx + 1 - sets.slice(0, sIdx).filter(x => x.warmup).length}</div>
+          <input type="text" inputmode="decimal" placeholder="kg" value="${s.weight || ''}" onchange="updateSet('${key}', ${slotIdx}, ${sIdx}, 'weight', this.value)" />
+          <input type="text" inputmode="numeric" placeholder="reps" value="${s.reps || ''}" onchange="updateSet('${key}', ${slotIdx}, ${sIdx}, 'reps', this.value)" />
+          <button class="set-tag-btn ${s.warmup ? 'active' : ''}" onclick="toggleWarmup('${key}', ${slotIdx}, ${sIdx})" title="Mark as warm-up">W</button>
+          <button class="set-del-btn" onclick="deleteSet('${key}', ${slotIdx}, ${sIdx})" title="Delete set">x</button>
+        </div>
+      `;
     });
-  });
-  container.querySelectorAll("input").forEach(inp => {
-    inp.addEventListener("change", () => {
-      const k = inp.dataset.key, i = +inp.dataset.i, f = inp.dataset.field;
-      const today = todayKey();
-      state[k+"Log"][today] = state[k+"Log"][today] || {};
-      state[k+"Log"][today][i] = state[k+"Log"][today][i] || {};
-      state[k+"Log"][today][i][f] = inp.value;
-      saveState();
-    });
+
+    card.innerHTML = `
+      <div class="exercise-header">
+        <div class="exercise-title">
+          <div class="exercise-name">${ex.name}</div>
+          <div class="exercise-why">${ex.why}</div>
+          <div class="exercise-meta">
+            <span><strong>${ex.sets}</strong> prescribed</span>
+            <span>rest <strong>${ex.rest}</strong></span>
+            ${lastWeight ? `<span>last: <strong>${lastWeight} kg</strong></span>` : ''}
+          </div>
+        </div>
+        <button class="done-toggle ${entry.done ? 'done' : ''}" onclick="toggleDone('${key}', ${slotIdx})" title="Mark done">&check;</button>
+      </div>
+
+      <div class="exercise-actions">
+        <button class="pill-btn alt" onclick="cycleAlternative('${key}', ${slotIdx})">Alternative</button>
+        ${ex.link ? `<a class="pill-btn" href="${ex.link}" target="_blank" rel="noopener">How-to</a>` : ''}
+      </div>
+
+      <div class="sets-section">
+        <div class="sets-header">
+          <span>Sets — your weights and reps</span>
+          <span style="font-size: 11px;">W = warm-up</span>
+        </div>
+        ${setsHTML}
+        <button class="add-set" onclick="addSet('${key}', ${slotIdx})">+ Add set</button>
+      </div>
+
+      <div class="exercise-notes">
+        <input type="text" placeholder="Notes (e.g. felt good, add 2.5kg next)" value="${entry.notes || ''}" onchange="updateNotes('${key}', ${slotIdx}, this.value)" />
+      </div>
+    `;
+    container.appendChild(card);
   });
 }
 
-function lastWeight(key, i) {
+function ensureLog(key, slotIdx) {
+  const today = todayKey();
+  if (!state[key + "Log"][today]) state[key + "Log"][today] = {};
+  if (!state[key + "Log"][today][slotIdx]) state[key + "Log"][today][slotIdx] = { sets: [{ weight: "", reps: "", warmup: false }] };
+  if (!state[key + "Log"][today][slotIdx].sets) state[key + "Log"][today][slotIdx].sets = [{ weight: "", reps: "", warmup: false }];
+  return state[key + "Log"][today][slotIdx];
+}
+
+function updateSet(key, slotIdx, sIdx, field, value) {
+  const e = ensureLog(key, slotIdx);
+  if (!e.sets[sIdx]) e.sets[sIdx] = { weight: "", reps: "", warmup: false };
+  e.sets[sIdx][field] = value;
+  saveState();
+}
+
+function toggleWarmup(key, slotIdx, sIdx) {
+  const e = ensureLog(key, slotIdx);
+  if (!e.sets[sIdx]) e.sets[sIdx] = { weight: "", reps: "", warmup: false };
+  e.sets[sIdx].warmup = !e.sets[sIdx].warmup;
+  saveState();
+  renderWorkout(key);
+}
+
+function addSet(key, slotIdx) {
+  const e = ensureLog(key, slotIdx);
+  e.sets.push({ weight: "", reps: "", warmup: false });
+  saveState();
+  renderWorkout(key);
+}
+
+function deleteSet(key, slotIdx, sIdx) {
+  const e = ensureLog(key, slotIdx);
+  if (e.sets.length <= 1) return;
+  e.sets.splice(sIdx, 1);
+  saveState();
+  renderWorkout(key);
+}
+
+function toggleDone(key, slotIdx) {
+  const e = ensureLog(key, slotIdx);
+  e.done = !e.done;
+  saveState();
+  renderWorkout(key);
+}
+
+function updateNotes(key, slotIdx, value) {
+  const e = ensureLog(key, slotIdx);
+  e.notes = value;
+  saveState();
+}
+
+function getLastWeight(key, slotIdx) {
   const log = state[key + "Log"];
   const dates = Object.keys(log).sort().reverse();
   for (const d of dates) {
     if (d === todayKey()) continue;
-    if (log[d][i] && log[d][i].weight) return log[d][i].weight;
+    if (log[d][slotIdx] && log[d][slotIdx].sets) {
+      // Find the heaviest non-warmup set
+      let heaviest = null;
+      log[d][slotIdx].sets.forEach(s => {
+        if (s.warmup) return;
+        const w = parseFloat(s.weight);
+        if (!isNaN(w) && (heaviest === null || w > heaviest)) heaviest = w;
+      });
+      if (heaviest !== null) return heaviest;
+    }
   }
   return "";
 }
 
 function completeSession(key) {
   const today = todayKey();
-  state[key+"Log"][today] = state[key+"Log"][today] || {};
-  state[key+"Log"][today]._completed = true;
+  if (!state[key + "Log"][today]) state[key + "Log"][today] = {};
+  state[key + "Log"][today]._completed = true;
   saveState();
   renderOverview();
   alert("Nice work — session logged.");
 }
-function resetSession(key) {
+
+function clearTodayLog(key) {
   if (!confirm("Clear today's log for this session?")) return;
-  delete state[key+"Log"][todayKey()];
+  delete state[key + "Log"][todayKey()];
   saveState();
   renderWorkout(key);
   renderOverview();
 }
 
-// ==================== CLIMB LOG ====================
+function resetSession(key) {
+  state.customSlots[key] = null;
+  state.altIndex = Object.fromEntries(Object.entries(state.altIndex).filter(([k]) => !k.startsWith(key + "_")));
+  saveState();
+  renderWorkout(key);
+}
+
+// ==================== SHUFFLE ====================
+function shuffleSession(key) {
+  const slots = PROGRAM[key].slots;
+  const shuffled = slots.map(exId => {
+    const baseEx = EX[exId];
+    const sameGroup = POOL[baseEx.group];
+    if (sameGroup.length <= 1) return exId;
+    // Pick a random one (not necessarily different from the original)
+    return sameGroup[Math.floor(Math.random() * sameGroup.length)];
+  });
+  state.customSlots[key] = shuffled;
+  state.altIndex = Object.fromEntries(Object.entries(state.altIndex).filter(([k]) => !k.startsWith(key + "_")));
+  saveState();
+  renderWorkout(key);
+}
+
+// ==================== CUSTOM SESSION ====================
+function renderMuscleGrid() {
+  const grid = document.getElementById("muscleGrid");
+  grid.innerHTML = MUSCLE_GROUPS.map(g => `
+    <div class="muscle-tile ${state.customSession.groups.includes(g.id) ? 'selected' : ''}" onclick="toggleMuscle('${g.id}')">
+      <div class="name">${g.name}</div>
+      <div class="desc">${g.desc}</div>
+    </div>
+  `).join("");
+}
+
+function toggleMuscle(groupId) {
+  const idx = state.customSession.groups.indexOf(groupId);
+  if (idx >= 0) state.customSession.groups.splice(idx, 1);
+  else state.customSession.groups.push(groupId);
+  saveState();
+  renderMuscleGrid();
+}
+
+function renderCombos() {
+  const wrap = document.getElementById("comboSuggestions");
+  wrap.innerHTML = COMBO_SUGGESTIONS.map((c, i) => `
+    <div class="combo-row" onclick="loadCombo(${i})">
+      <span><strong>${c.name}</strong></span>
+      <span class="combo-time">${c.duration} min · ${c.groups.length} groups</span>
+    </div>
+  `).join("");
+}
+
+function loadCombo(idx) {
+  const c = COMBO_SUGGESTIONS[idx];
+  state.customSession.groups = c.groups.slice();
+  state.customSession.duration = c.duration;
+  document.getElementById("customDuration").value = c.duration;
+  saveState();
+  renderMuscleGrid();
+  generateCustom();
+}
+
+function generateCustom() {
+  const groups = state.customSession.groups;
+  if (groups.length === 0) { alert("Pick at least one muscle group."); return; }
+  const duration = parseInt(document.getElementById("customDuration").value);
+  state.customSession.duration = duration;
+
+  // Roughly 8-10 min per exercise (sets + rest + setup)
+  const targetExercises = Math.max(3, Math.floor(duration / 8));
+  // Distribute exercises across groups
+  const slots = [];
+  const groupQueue = groups.slice();
+  let i = 0;
+  while (slots.length < targetExercises && i < 100) {
+    const g = groupQueue[i % groupQueue.length];
+    const pool = POOL[g] || [];
+    if (pool.length > 0) {
+      const candidates = pool.filter(id => !slots.includes(id));
+      if (candidates.length > 0) {
+        slots.push(candidates[Math.floor(Math.random() * candidates.length)]);
+      }
+    }
+    i++;
+  }
+
+  state.customSession.slots = slots;
+  saveState();
+
+  document.getElementById("customSessionCard").style.display = "";
+  document.getElementById("customSessionTitle").textContent = `Your custom session (${duration} min, ${slots.length} exercises)`;
+  renderWorkout("custom");
+}
+
+function regenerateCustom() {
+  generateCustom();
+}
+
+// ==================== CLIMB ====================
 function logClimb() {
   const entry = {
     date: todayKey(),
@@ -1083,7 +1420,6 @@ function logClimb() {
     duration: document.getElementById("climbDuration").value || "—",
     notes: document.getElementById("climbNotes").value || ""
   };
-  if (!entry.grade && !entry.notes && !entry.duration) { alert("Add at least one field."); return; }
   state.climbLog.unshift(entry);
   saveState();
   document.getElementById("climbGrade").value = "";
@@ -1127,7 +1463,6 @@ function renderBodyweight() {
   if (!log.length) logEl.innerHTML = '<p class="tip">No weigh-ins yet.</p>';
   else logEl.innerHTML = log.slice(-10).reverse().map(e => `<div class="log-item"><div>${e.value.toFixed(1)} kg</div><div class="when">${e.date}</div></div>`).join("");
 
-  // Chart
   const c = document.getElementById("bwChart");
   const ctx = c.getContext("2d");
   const W = c.width = c.clientWidth * devicePixelRatio;
@@ -1141,25 +1476,19 @@ function renderBodyweight() {
   const min = Math.min(...log.map(e=>e.value)) - 1;
   const max = Math.max(...log.map(e=>e.value)) + 1;
   const pad = 30 * devicePixelRatio;
-  ctx.strokeStyle = "#ff7a45";
-  ctx.lineWidth = 2 * devicePixelRatio;
-  ctx.beginPath();
+  ctx.strokeStyle = "#ff7a45"; ctx.lineWidth = 2 * devicePixelRatio; ctx.beginPath();
   log.forEach((e, i) => {
     const x = pad + (W - pad*2) * (i / (log.length - 1));
     const y = pad + (H - pad*2) * (1 - (e.value - min) / (max - min));
     if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   });
   ctx.stroke();
-  // dots
   log.forEach((e, i) => {
     const x = pad + (W - pad*2) * (i / (log.length - 1));
     const y = pad + (H - pad*2) * (1 - (e.value - min) / (max - min));
-    ctx.fillStyle = "#ff7a45";
-    ctx.beginPath(); ctx.arc(x, y, 4 * devicePixelRatio, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = "#ff7a45"; ctx.beginPath(); ctx.arc(x, y, 4 * devicePixelRatio, 0, Math.PI*2); ctx.fill();
   });
-  ctx.fillStyle = "#9aa4b2";
-  ctx.font = `${11 * devicePixelRatio}px sans-serif`;
-  ctx.textAlign = "left";
+  ctx.fillStyle = "#9aa4b2"; ctx.font = `${11 * devicePixelRatio}px sans-serif`; ctx.textAlign = "left";
   ctx.fillText(max.toFixed(1) + " kg", 4, 14*devicePixelRatio);
   ctx.fillText(min.toFixed(1) + " kg", 4, H - 8);
 }
@@ -1171,6 +1500,7 @@ function renderPRs() {
   state.prs.forEach((pr, i) => {
     const el = document.createElement("div");
     el.className = "metric";
+    el.style.cursor = "default";
     el.innerHTML = `
       <div class="label">${pr.label}</div>
       <input type="text" style="font-size:20px;font-weight:700;background:transparent;border:none;padding:6px 0;color:var(--text);" value="${pr.value}" data-i="${i}" />
@@ -1187,21 +1517,23 @@ function renderPRs() {
 }
 
 // ==================== OVERVIEW ====================
-function renderOverview() {
-  // Sessions this week
+function getMondayStr() {
   const now = new Date();
   const monday = new Date(now);
   const diff = (now.getDay() + 6) % 7;
   monday.setDate(now.getDate() - diff);
-  const mondayStr = monday.toISOString().slice(0,10);
+  return monday.toISOString().slice(0,10);
+}
 
+function renderOverview() {
+  const mondayStr = getMondayStr();
   let completed = 0;
   Object.entries(state.gymALog).forEach(([d, v]) => { if (d >= mondayStr && v._completed) completed++; });
   Object.entries(state.gymBLog).forEach(([d, v]) => { if (d >= mondayStr && v._completed) completed++; });
+  Object.entries(state.customLog || {}).forEach(([d, v]) => { if (d >= mondayStr && v._completed) completed++; });
   state.climbLog.forEach(e => { if (e.date >= mondayStr) completed++; });
   document.getElementById("overviewCompleted").textContent = `${completed}/4`;
 
-  // Weight
   if (state.bodyweight.length) {
     const last = state.bodyweight[state.bodyweight.length - 1];
     document.getElementById("overviewWeight").textContent = last.value.toFixed(1) + " kg";
@@ -1209,24 +1541,21 @@ function renderOverview() {
     document.getElementById("overviewWeight").textContent = "—";
   }
 
-  // Grade
   const climbs = state.climbLog.filter(e => e.grade && e.grade !== "—");
   document.getElementById("overviewGrade").textContent = climbs[0]?.grade || "—";
-
   document.getElementById("overviewStreak").textContent = computeStreak();
 
-  // Today pill
   const names = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
   const today = names[new Date().getDay()];
-  const match = DEFAULT_SCHEDULE.find(d => d.dow === today);
+  const match = getSchedule().find(d => d.dow === today);
   document.getElementById("todayPill").textContent = "Today: " + (match ? match.label + " — " + match.focus : today);
 
-  // Weekly summary
   const ws = document.getElementById("weeklySummary");
   if (ws) {
     ws.innerHTML = `
       <div class="log-item"><div>Gym A sessions</div><div>${Object.values(state.gymALog).filter(v=>v._completed).length}</div></div>
       <div class="log-item"><div>Gym B sessions</div><div>${Object.values(state.gymBLog).filter(v=>v._completed).length}</div></div>
+      <div class="log-item"><div>Custom sessions</div><div>${Object.values(state.customLog||{}).filter(v=>v._completed).length}</div></div>
       <div class="log-item"><div>Climbing sessions</div><div>${state.climbLog.length}</div></div>
       <div class="log-item"><div>Body-weight entries</div><div>${state.bodyweight.length}</div></div>
     `;
@@ -1234,7 +1563,6 @@ function renderOverview() {
 }
 
 function computeStreak() {
-  // count consecutive past weeks (inc. this one) with ≥ 3 total sessions
   const weeks = {};
   const addToWeek = d => {
     const dt = new Date(d); const day = (dt.getDay()+6)%7; dt.setDate(dt.getDate()-day);
@@ -1243,8 +1571,8 @@ function computeStreak() {
   };
   Object.entries(state.gymALog).forEach(([d,v]) => { if (v._completed) addToWeek(d); });
   Object.entries(state.gymBLog).forEach(([d,v]) => { if (v._completed) addToWeek(d); });
+  Object.entries(state.customLog||{}).forEach(([d,v]) => { if (v._completed) addToWeek(d); });
   state.climbLog.forEach(e => addToWeek(e.date));
-
   const sorted = Object.keys(weeks).sort().reverse();
   let streak = 0;
   for (const w of sorted) {
@@ -1253,11 +1581,126 @@ function computeStreak() {
   return streak;
 }
 
+// ==================== STATS MODALS ====================
+function openModal(title, html) {
+  document.getElementById("modalTitle").textContent = title;
+  document.getElementById("modalBody").innerHTML = html;
+  document.getElementById("modal").classList.add("open");
+}
+function closeModal() {
+  document.getElementById("modal").classList.remove("open");
+}
+
+function describeSession(key, date, label) {
+  const log = state[key + "Log"][date];
+  if (!log) return "";
+  let html = `<div style="margin-bottom:14px;"><strong>${label}</strong> on ${date}${log._completed ? ' <span style="color:var(--success);font-size:12px;">(completed)</span>' : ''}</div>`;
+  const slots = key === "custom" ? (state.customSession.slots || []) : (state.customSlots[key] || PROGRAM[key].slots);
+  slots.forEach((slotId, idx) => {
+    const ex = getResolvedExercise(slotId, idx, key);
+    const entry = log[idx];
+    if (!ex || !entry) return;
+    const setsTxt = (entry.sets || []).filter(s => s.weight || s.reps).map(s =>
+      `${s.warmup ? '(warm) ' : ''}${s.weight || '?'}kg x ${s.reps || '?'}`
+    ).join(", ");
+    if (!setsTxt && !entry.notes) return;
+    html += `<div class="log-item"><div><strong>${ex.name}</strong>${setsTxt ? ` — ${setsTxt}` : ''}${entry.notes ? `<div class="tip" style="font-size:12px;">${entry.notes}</div>` : ''}</div></div>`;
+  });
+  return html;
+}
+
+function openStatsModal(which) {
+  const mondayStr = getMondayStr();
+  let title = "", body = "";
+
+  if (which === "week") {
+    title = "This week's sessions";
+    const items = [];
+    Object.entries(state.gymALog).forEach(([d, v]) => { if (d >= mondayStr) items.push({ d, k: "gymA", l: "Gym A", v }); });
+    Object.entries(state.gymBLog).forEach(([d, v]) => { if (d >= mondayStr) items.push({ d, k: "gymB", l: "Gym B", v }); });
+    Object.entries(state.customLog || {}).forEach(([d, v]) => { if (d >= mondayStr) items.push({ d, k: "custom", l: "Custom", v }); });
+    state.climbLog.filter(e => e.date >= mondayStr).forEach(e => items.push({ d: e.date, k: "climb", l: "Climb", v: e }));
+    items.sort((a, b) => b.d.localeCompare(a.d));
+    if (!items.length) body = '<p class="tip">No sessions logged this week yet.</p>';
+    else {
+      items.forEach(it => {
+        if (it.k === "climb") {
+          body += `<div class="log-item"><div><strong>Climb</strong> (${it.v.type}) — ${it.v.grade}${it.v.notes ? `<div class="tip" style="font-size:12px;">${it.v.notes}</div>` : ''}</div><div class="when">${it.d}</div></div>`;
+        } else {
+          body += describeSession(it.k, it.d, it.l);
+        }
+      });
+    }
+  } else if (which === "streak") {
+    title = "Streak history";
+    const weeks = {};
+    const addToWeek = d => {
+      const dt = new Date(d); const day = (dt.getDay()+6)%7; dt.setDate(dt.getDate()-day);
+      const k = dt.toISOString().slice(0,10);
+      if (!weeks[k]) weeks[k] = { count: 0, items: [] };
+      weeks[k].count++;
+    };
+    Object.entries(state.gymALog).forEach(([d,v]) => { if (v._completed) { addToWeek(d); weeks[mondayOf(d)].items.push("Gym A " + d); }});
+    Object.entries(state.gymBLog).forEach(([d,v]) => { if (v._completed) { addToWeek(d); weeks[mondayOf(d)].items.push("Gym B " + d); }});
+    Object.entries(state.customLog||{}).forEach(([d,v]) => { if (v._completed) { addToWeek(d); weeks[mondayOf(d)].items.push("Custom " + d); }});
+    state.climbLog.forEach(e => { addToWeek(e.date); weeks[mondayOf(e.date)].items.push("Climb " + e.date); });
+    const sorted = Object.entries(weeks).sort(([a],[b]) => b.localeCompare(a));
+    if (!sorted.length) body = '<p class="tip">No completed sessions yet.</p>';
+    else body = sorted.map(([wk, info]) => `
+      <div class="log-item">
+        <div><strong>Week of ${wk}</strong> — ${info.count} session${info.count !== 1 ? 's' : ''}${info.count >= 3 ? ' <span style="color:var(--success);">(streak)</span>' : ''}
+          <div class="tip" style="font-size:11px;">${info.items.join(", ")}</div>
+        </div>
+      </div>
+    `).join("");
+  } else if (which === "weight") {
+    title = "Weight history";
+    if (!state.bodyweight.length) body = '<p class="tip">No weigh-ins logged yet.</p>';
+    else {
+      const sorted = state.bodyweight.slice().sort((a,b) => b.date.localeCompare(a.date));
+      const first = state.bodyweight[0], last = state.bodyweight[state.bodyweight.length-1];
+      const change = last.value - first.value;
+      body = `<div style="padding: 10px; background: var(--panel-2); border-radius: 8px; margin-bottom: 14px;">
+        <strong>${first.value.toFixed(1)} kg → ${last.value.toFixed(1)} kg</strong>
+        <span style="color: ${change < 0 ? 'var(--success)' : change > 0 ? 'var(--warn)' : 'var(--muted)'};"> (${change > 0 ? '+' : ''}${change.toFixed(1)} kg)</span>
+        <div class="tip" style="font-size:12px;">${state.bodyweight.length} logs from ${first.date} to ${last.date}</div>
+      </div>`;
+      body += sorted.map(e => `<div class="log-item"><div>${e.value.toFixed(1)} kg</div><div class="when">${e.date}</div></div>`).join("");
+    }
+  } else if (which === "grade") {
+    title = "Climbing log";
+    if (!state.climbLog.length) body = '<p class="tip">No climbs logged yet.</p>';
+    else body = state.climbLog.map(e => `
+      <div class="log-item">
+        <div>
+          <strong>${e.type} — ${e.grade}</strong>
+          ${e.notes ? `<div class="tip" style="font-size:12px;">${e.notes}</div>` : ''}
+        </div>
+        <div class="when">${e.date} · ${e.duration} min</div>
+      </div>
+    `).join("");
+  }
+
+  openModal(title, body);
+}
+
+function mondayOf(d) {
+  const dt = new Date(d); const day = (dt.getDay()+6)%7; dt.setDate(dt.getDate()-day);
+  return dt.toISOString().slice(0,10);
+}
+
 // ==================== RENDER ALL ====================
 function renderAll() {
   renderWeek();
   renderWorkout("gymA");
   renderWorkout("gymB");
+  if (state.customSession.slots && state.customSession.slots.length) {
+    document.getElementById("customSessionCard").style.display = "";
+    document.getElementById("customSessionTitle").textContent = `Your custom session (${state.customSession.duration} min, ${state.customSession.slots.length} exercises)`;
+    renderWorkout("custom");
+  }
+  renderMuscleGrid();
+  renderCombos();
   renderClimbLog();
   renderBodyweight();
   renderPRs();
