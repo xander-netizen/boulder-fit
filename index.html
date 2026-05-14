@@ -962,12 +962,12 @@
 <section class="view active" id="overview">
 
   <!-- Hero CTA: today's session -->
-  <div class="hero-today glass" id="heroToday">
-    <div class="hero-eyebrow"><span class="dot"></span><span>Today · <span id="heroDow">—</span></span></div>
-    <div class="hero-title" id="heroTitle">Loading…</div>
-    <div class="hero-sub" id="heroSub">—</div>
+  <div class="hero-today glass" data-hero-block>
+    <div class="hero-eyebrow"><span class="dot"></span><span>Today · <span data-hero="dow">—</span></span></div>
+    <div class="hero-title" data-hero="title">Loading…</div>
+    <div class="hero-sub" data-hero="sub">—</div>
     <div>
-      <button class="hero-cta" id="heroCta" onclick="heroCtaAction()"><span id="heroCtaLabel">Start</span> <span class="arrow">→</span></button>
+      <button class="hero-cta" data-hero="cta" onclick="heroCtaAction(this)"><span data-hero="cta-label">Start</span> <span class="arrow">→</span></button>
       <button class="hero-secondary" onclick="switchView('calendar')">See week</button>
     </div>
   </div>
@@ -1309,8 +1309,19 @@
 
 <!-- CALENDAR (was PROGRESS) -->
 <section class="view" id="calendar">
+  <!-- Hero CTA: today's session — mirrors home -->
+  <div class="hero-today glass" data-hero-block>
+    <div class="hero-eyebrow"><span class="dot"></span><span>Today · <span data-hero="dow">—</span></span></div>
+    <div class="hero-title" data-hero="title">Loading…</div>
+    <div class="hero-sub" data-hero="sub">—</div>
+    <div>
+      <button class="hero-cta" data-hero="cta" onclick="heroCtaAction(this)"><span data-hero="cta-label">Start</span> <span class="arrow">→</span></button>
+      <button class="hero-secondary" onclick="switchView('overview')">Home</button>
+    </div>
+  </div>
+
   <div class="card" style="padding: 14px 14px 12px;">
-    <h3 style="margin: 0 0 10px; padding-left: 4px;">Today</h3>
+    <h3 style="margin: 0 0 10px; padding-left: 4px;">Day-strip</h3>
     <div class="day-strip" id="dayStripCal"></div>
   </div>
 
@@ -2676,11 +2687,15 @@ function renderOverview() {
   state.climbLog.forEach(e => { if (e.date >= mondayStr) completed++; });
   document.getElementById("overviewCompleted").textContent = `${completed}/4`;
 
-  if (state.bodyweight.length) {
-    const last = state.bodyweight[state.bodyweight.length - 1];
-    document.getElementById("overviewWeight").textContent = last.value.toFixed(1) + " kg";
-  } else {
-    document.getElementById("overviewWeight").textContent = "—";
+  // overviewWeight was deprecated in the v6 ring redesign — only update if it still exists
+  const owEl = document.getElementById("overviewWeight");
+  if (owEl) {
+    if (state.bodyweight.length) {
+      const last = state.bodyweight[state.bodyweight.length - 1];
+      owEl.textContent = last.value.toFixed(1) + " kg";
+    } else {
+      owEl.textContent = "—";
+    }
   }
 
   const climbs = state.climbLog.filter(e => e.grade && e.grade !== "—");
@@ -2710,20 +2725,18 @@ function renderOverview() {
 }
 
 // ===== v4 home dashboard renderers =====
+// Updates ALL hero blocks (home + calendar) using data-hero attributes.
 function renderHero(match, todayDow) {
-  const hero = document.getElementById("heroToday");
-  if (!hero) return;
-  const dowEl = document.getElementById("heroDow");
-  const titleEl = document.getElementById("heroTitle");
-  const subEl = document.getElementById("heroSub");
-  const ctaEl = document.getElementById("heroCta");
-  const ctaLabelEl = document.getElementById("heroCtaLabel");
-  if (dowEl) dowEl.textContent = todayDow || "—";
+  const setAll = (sel, txt) => {
+    document.querySelectorAll(`[data-hero="${sel}"]`).forEach(el => { el.textContent = txt; });
+  };
+  setAll("dow", todayDow || "—");
+
   if (!match) {
-    if (titleEl) titleEl.textContent = "Free day";
-    if (subEl) subEl.textContent = "Nothing scheduled. Build a custom session or log a climb.";
-    if (ctaLabelEl) ctaLabelEl.textContent = "Build session";
-    ctaEl && ctaEl.setAttribute("data-target", "custom");
+    setAll("title", "Free day");
+    setAll("sub", "Nothing scheduled. Build a custom session or log a climb.");
+    setAll("cta-label", "Build session");
+    document.querySelectorAll('[data-hero="cta"]').forEach(el => el.setAttribute("data-target", "custom"));
     return;
   }
   const titles = { gymA: "Gym A · Push & Core", gymB: "Gym B · Legs & Pull", climb: "Climb day", custom: "Custom session", overview: "Today" };
@@ -2735,15 +2748,22 @@ function renderHero(match, todayDow) {
   };
   const ctas = { gymA: "Start Gym A", gymB: "Start Gym B", climb: "Log climb", custom: "Build session" };
   const v = match.view;
-  if (titleEl) titleEl.textContent = titles[v] || (match.label || "Today");
-  if (subEl)   subEl.textContent   = subs[v]   || (match.focus || "Today's training");
-  if (ctaLabelEl) ctaLabelEl.textContent = ctas[v] || "Open";
-  ctaEl && ctaEl.setAttribute("data-target", v);
+  setAll("title", titles[v] || (match.label || "Today"));
+  setAll("sub",   subs[v]   || (match.focus || "Today's training"));
+  setAll("cta-label", ctas[v] || "Open");
+  document.querySelectorAll('[data-hero="cta"]').forEach(el => el.setAttribute("data-target", v));
 }
 
-function heroCtaAction() {
-  const cta = document.getElementById("heroCta");
-  const target = (cta && cta.getAttribute("data-target")) || "calendar";
+// Called from the clicked CTA button — uses its own data-target so home and calendar both work.
+function heroCtaAction(btn) {
+  let target = "calendar";
+  if (btn && btn.getAttribute("data-target")) {
+    target = btn.getAttribute("data-target");
+  } else {
+    // Fallback: find any hero CTA
+    const anyCta = document.querySelector('[data-hero="cta"][data-target]');
+    if (anyCta) target = anyCta.getAttribute("data-target");
+  }
   switchView(target);
 }
 
