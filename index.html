@@ -1402,94 +1402,94 @@
 // Alternatives are alternate exercises hitting the same muscle group
 
 const EX = {
-  bench_press: { name: "Barbell bench press", sets: "4 x 6-8", rest: "2-3 min", why: "Main antagonist to all that pulling", target: "Chest, triceps, front delts", link: "https://www.youtube.com/results?search_query=barbell+bench+press+form+jeff+nippard", group: "push_chest" },
-  db_bench: { name: "Dumbbell bench press", sets: "4 x 8-10", rest: "2 min", why: "More shoulder-friendly version of bench press", target: "Chest, triceps, front delts", link: "https://www.youtube.com/results?search_query=dumbbell+bench+press+form", group: "push_chest" },
-  machine_press: { name: "Machine chest press", sets: "4 x 8-10", rest: "90 s", why: "Stable alternative when free weights are busy", target: "Chest, triceps", link: "https://www.youtube.com/results?search_query=machine+chest+press+form", group: "push_chest" },
-  incline_db: { name: "Incline dumbbell press", sets: "4 x 8-10", rest: "2 min", why: "Hits upper chest and front delts", target: "Upper chest, front delts", link: "https://www.youtube.com/results?search_query=incline+dumbbell+press+form", group: "push_chest" },
-  pushup_weighted: { name: "Weighted push-up", sets: "4 x 10-15", rest: "90 s", why: "Bodyweight option when no bench available", target: "Chest, triceps, core", link: "https://www.youtube.com/results?search_query=weighted+push+up+form", group: "push_chest" },
+  bench_press: { name: "Barbell bench press", sets: "4 x 6-8", rest: "2-3 min", why: "Main antagonist to all that pulling", target: "Chest, triceps, front delts", link: "https://www.youtube.com/shorts/hWbUlkb5Ms4", group: "push_chest" },
+  db_bench: { name: "Dumbbell bench press", sets: "4 x 8-10", rest: "2 min", why: "More shoulder-friendly version of bench press", target: "Chest, triceps, front delts", link: "https://www.youtube.com/shorts/mTaiQemkEpU", group: "push_chest" },
+  machine_press: { name: "Machine chest press", sets: "4 x 8-10", rest: "90 s", why: "Stable alternative when free weights are busy", target: "Chest, triceps", link: "https://www.youtube.com/shorts/Qu7-ceCvq7w", group: "push_chest" },
+  incline_db: { name: "Incline dumbbell press", sets: "4 x 8-10", rest: "2 min", why: "Hits upper chest and front delts", target: "Upper chest, front delts", link: "https://www.youtube.com/shorts/8fXfwG4ftaQ", group: "push_chest" },
+  pushup_weighted: { name: "Weighted push-up", sets: "4 x 10-15", rest: "90 s", why: "Bodyweight option when no bench available", target: "Chest, triceps, core", link: "https://www.youtube.com/shorts/z4oz6W1X10w", group: "push_chest" },
 
-  ohp: { name: "Standing barbell overhead press", sets: "3 x 8-10", rest: "2 min", why: "Total shoulder strength and stability", target: "Delts, triceps, core", link: "https://www.youtube.com/results?search_query=overhead+press+barbell+form", group: "push_shoulders" },
-  db_shoulder_press: { name: "Seated dumbbell shoulder press", sets: "3 x 8-10", rest: "90 s", why: "Overhead pressing strength and shoulder stability", target: "Delts, triceps", link: "https://www.youtube.com/results?search_query=seated+dumbbell+shoulder+press+form", group: "push_shoulders" },
-  arnold_press: { name: "Arnold press", sets: "3 x 10", rest: "90 s", why: "Hits all three deltoid heads", target: "Delts", link: "https://www.youtube.com/results?search_query=arnold+press+form", group: "push_shoulders" },
-  machine_shoulder_press: { name: "Machine shoulder press", sets: "3 x 10", rest: "90 s", why: "Stable alternative when DBs are busy", target: "Delts, triceps", link: "https://www.youtube.com/results?search_query=machine+shoulder+press+form", group: "push_shoulders" },
-  lateral_raise: { name: "Dumbbell lateral raise", sets: "3 x 12-15", rest: "60 s", why: "Side delt isolation for shoulder width", target: "Side delts", link: "https://www.youtube.com/results?search_query=dumbbell+lateral+raise+form", group: "push_shoulders" },
+  ohp: { name: "Standing barbell overhead press", sets: "3 x 8-10", rest: "2 min", why: "Total shoulder strength and stability", target: "Delts, triceps, core", link: "https://www.youtube.com/shorts/4LBVP2Oe7fg", group: "push_shoulders" },
+  db_shoulder_press: { name: "Seated dumbbell shoulder press", sets: "3 x 8-10", rest: "90 s", why: "Overhead pressing strength and shoulder stability", target: "Delts, triceps", link: "https://www.youtube.com/shorts/JmJzqda_0XQ", group: "push_shoulders" },
+  arnold_press: { name: "Arnold press", sets: "3 x 10", rest: "90 s", why: "Hits all three deltoid heads", target: "Delts", link: "https://www.youtube.com/shorts/7OigtfRmxSo", group: "push_shoulders" },
+  machine_shoulder_press: { name: "Machine shoulder press", sets: "3 x 10", rest: "90 s", why: "Stable alternative when DBs are busy", target: "Delts, triceps", link: "https://www.youtube.com/shorts/2D0TyoHv_EY", group: "push_shoulders" },
+  lateral_raise: { name: "Dumbbell lateral raise", sets: "3 x 12-15", rest: "60 s", why: "Side delt isolation for shoulder width", target: "Side delts", link: "https://www.youtube.com/shorts/Kl3LEzQ5Zqs", group: "push_shoulders" },
 
-  weighted_dip: { name: "Weighted dip", sets: "3 x 8-12", rest: "90 s", why: "Locked-off pressing strength for mantling", target: "Chest, triceps", link: "https://www.youtube.com/results?search_query=weighted+dip+form+tutorial", group: "push_triceps" },
-  close_grip_bench: { name: "Close-grip bench press", sets: "3 x 8-10", rest: "90 s", why: "Compound triceps movement", target: "Triceps, chest", link: "https://www.youtube.com/results?search_query=close+grip+bench+press+form", group: "push_triceps" },
-  tricep_pushdown: { name: "Cable tricep pushdown", sets: "3 x 10-12", rest: "60 s", why: "Tricep isolation, keeps elbow healthy", target: "Triceps", link: "https://www.youtube.com/results?search_query=cable+tricep+pushdown+form", group: "push_triceps" },
-  skull_crusher: { name: "Skull crushers (EZ bar)", sets: "3 x 10-12", rest: "60 s", why: "Long head triceps emphasis", target: "Triceps", link: "https://www.youtube.com/results?search_query=skull+crusher+form", group: "push_triceps" },
-  overhead_tricep: { name: "Overhead tricep extension", sets: "3 x 10-12", rest: "60 s", why: "Stretched-position triceps work", target: "Triceps long head", link: "https://www.youtube.com/results?search_query=overhead+tricep+extension+form", group: "push_triceps" },
+  weighted_dip: { name: "Weighted dip", sets: "3 x 8-12", rest: "90 s", why: "Locked-off pressing strength for mantling", target: "Chest, triceps", link: "https://www.youtube.com/shorts/_hmQWwPApQ8", group: "push_triceps" },
+  close_grip_bench: { name: "Close-grip bench press", sets: "3 x 8-10", rest: "90 s", why: "Compound triceps movement", target: "Triceps, chest", link: "https://www.youtube.com/shorts/Qx7XIbUOJlQ", group: "push_triceps" },
+  tricep_pushdown: { name: "Cable tricep pushdown", sets: "3 x 10-12", rest: "60 s", why: "Tricep isolation, keeps elbow healthy", target: "Triceps", link: "https://www.youtube.com/shorts/-PqzEk57xiw", group: "push_triceps" },
+  skull_crusher: { name: "Skull crushers (EZ bar)", sets: "3 x 10-12", rest: "60 s", why: "Long head triceps emphasis", target: "Triceps", link: "https://www.youtube.com/shorts/RetiLFQobXU", group: "push_triceps" },
+  overhead_tricep: { name: "Overhead tricep extension", sets: "3 x 10-12", rest: "60 s", why: "Stretched-position triceps work", target: "Triceps long head", link: "https://www.youtube.com/shorts/9Ark9S11uXw", group: "push_triceps" },
 
-  face_pull: { name: "Cable face pull", sets: "3 x 12-15", rest: "60 s", why: "Most important antagonist drill — shoulder health", target: "Rear delts, external rotators", link: "https://www.youtube.com/results?search_query=cable+face+pull+proper+form", group: "antagonist" },
-  reverse_pec_deck: { name: "Reverse pec deck", sets: "3 x 12-15", rest: "60 s", why: "Rear delt isolation on a machine", target: "Rear delts", link: "https://www.youtube.com/results?search_query=reverse+pec+deck+form", group: "antagonist" },
-  band_pull_apart: { name: "Band pull-apart", sets: "3 x 20", rest: "30 s", why: "Climber's secret — rear delts and posture", target: "Rear delts, traps", link: "https://www.youtube.com/results?search_query=band+pull+apart+form", group: "antagonist" },
+  face_pull: { name: "Cable face pull", sets: "3 x 12-15", rest: "60 s", why: "Most important antagonist drill — shoulder health", target: "Rear delts, external rotators", link: "https://www.youtube.com/shorts/MChHOiaCR7s", group: "antagonist" },
+  reverse_pec_deck: { name: "Reverse pec deck", sets: "3 x 12-15", rest: "60 s", why: "Rear delt isolation on a machine", target: "Rear delts", link: "https://www.youtube.com/shorts/H5UxZFl0lgk", group: "antagonist" },
+  band_pull_apart: { name: "Band pull-apart", sets: "3 x 20", rest: "30 s", why: "Climber's secret — rear delts and posture", target: "Rear delts, traps", link: "https://www.youtube.com/shorts/MxQlSph7Zug", group: "antagonist" },
   y_raise: { name: "Y-raise (DB or band)", sets: "3 x 12", rest: "60 s", why: "Lower trap activation, posture fix", target: "Lower traps, rear delts", link: "https://www.youtube.com/results?search_query=y+raise+exercise+form", group: "antagonist" },
-  external_rotation: { name: "Cable external rotation", sets: "3 x 12/side", rest: "60 s", why: "Rotator cuff strength for climbers", target: "Rotator cuff", link: "https://www.youtube.com/results?search_query=cable+external+rotation+rotator+cuff", group: "antagonist" },
+  external_rotation: { name: "Cable external rotation", sets: "3 x 12/side", rest: "60 s", why: "Rotator cuff strength for climbers", target: "Rotator cuff", link: "https://www.youtube.com/shorts/6wHaXpM6JgE", group: "antagonist" },
 
-  cable_fly: { name: "Cable chest fly", sets: "3 x 12", rest: "60 s", why: "Opens up chest, counters climber's hunch", target: "Chest", link: "https://www.youtube.com/results?search_query=cable+chest+fly+form+tutorial", group: "push_chest" },
-  pec_deck: { name: "Pec deck machine", sets: "3 x 12", rest: "60 s", why: "Stable chest isolation", target: "Chest", link: "https://www.youtube.com/results?search_query=pec+deck+form", group: "push_chest" },
-  db_fly: { name: "Dumbbell fly", sets: "3 x 12", rest: "60 s", why: "Free-weight chest stretch and contraction", target: "Chest", link: "https://www.youtube.com/results?search_query=dumbbell+fly+form", group: "push_chest" },
+  cable_fly: { name: "Cable chest fly", sets: "3 x 12", rest: "60 s", why: "Opens up chest, counters climber's hunch", target: "Chest", link: "https://www.youtube.com/watch?v=XgekALiC8Ik", group: "push_chest" },
+  pec_deck: { name: "Pec deck machine", sets: "3 x 12", rest: "60 s", why: "Stable chest isolation", target: "Chest", link: "https://www.youtube.com/shorts/fgXSA2-o0NM", group: "push_chest" },
+  db_fly: { name: "Dumbbell fly", sets: "3 x 12", rest: "60 s", why: "Free-weight chest stretch and contraction", target: "Chest", link: "https://www.youtube.com/shorts/95g8rULJSfY", group: "push_chest" },
 
-  hanging_leg_raise: { name: "Hanging leg raise", sets: "3 x 10-15", rest: "60 s", why: "Direct carryover to overhang climbing", target: "Core, hip flexors", link: "https://www.youtube.com/results?search_query=hanging+leg+raise+form+climbers", group: "core" },
-  captains_chair: { name: "Captain's chair leg raise", sets: "3 x 12-15", rest: "60 s", why: "Easier alternative to hanging — same target", target: "Core, hip flexors", link: "https://www.youtube.com/results?search_query=captains+chair+leg+raise", group: "core" },
-  reverse_crunch: { name: "Reverse crunch", sets: "3 x 15", rest: "45 s", why: "Lower abs focus, no equipment", target: "Lower abs", link: "https://www.youtube.com/results?search_query=reverse+crunch+form", group: "core" },
-  ab_wheel: { name: "Ab wheel rollout", sets: "3 x 8-12", rest: "60 s", why: "Brutal full-core exercise", target: "Full core, lats", link: "https://www.youtube.com/results?search_query=ab+wheel+rollout+form", group: "core" },
-  dead_bug: { name: "Dead bug", sets: "3 x 10/side", rest: "45 s", why: "Anti-extension, foundational core", target: "Deep core", link: "https://www.youtube.com/results?search_query=dead+bug+exercise+form", group: "core" },
-  plank: { name: "Plank (front or side)", sets: "3 x 45-60 s", rest: "45 s", why: "Iso-hold for core endurance", target: "Full core", link: "https://www.youtube.com/results?search_query=plank+form+climbers", group: "core" },
+  hanging_leg_raise: { name: "Hanging leg raise", sets: "3 x 10-15", rest: "60 s", why: "Direct carryover to overhang climbing", target: "Core, hip flexors", link: "https://www.youtube.com/shorts/iYyp2QrsV2g", group: "core" },
+  captains_chair: { name: "Captain's chair leg raise", sets: "3 x 12-15", rest: "60 s", why: "Easier alternative to hanging — same target", target: "Core, hip flexors", link: "https://www.youtube.com/shorts/PpZxg66ftYc", group: "core" },
+  reverse_crunch: { name: "Reverse crunch", sets: "3 x 15", rest: "45 s", why: "Lower abs focus, no equipment", target: "Lower abs", link: "https://www.youtube.com/shorts/I-qRngqd2wY", group: "core" },
+  ab_wheel: { name: "Ab wheel rollout", sets: "3 x 8-12", rest: "60 s", why: "Brutal full-core exercise", target: "Full core, lats", link: "https://www.youtube.com/shorts/kISuoI7QCYk", group: "core" },
+  dead_bug: { name: "Dead bug", sets: "3 x 10/side", rest: "45 s", why: "Anti-extension, foundational core", target: "Deep core", link: "https://www.youtube.com/shorts/5qah1cTaJCk", group: "core" },
+  plank: { name: "Plank (front or side)", sets: "3 x 45-60 s", rest: "45 s", why: "Iso-hold for core endurance", target: "Full core", link: "https://www.youtube.com/shorts/xe2MXatLTUw", group: "core" },
 
-  pallof_press: { name: "Pallof press", sets: "3 x 10/side", rest: "45 s", why: "Anti-rotation core — massive climbing carryover", target: "Deep core", link: "https://www.youtube.com/results?search_query=pallof+press+cable+form", group: "core_anti_rotation" },
-  woodchop: { name: "Cable woodchopper", sets: "3 x 10/side", rest: "60 s", why: "Rotational power for dynamic moves", target: "Obliques, core", link: "https://www.youtube.com/results?search_query=cable+woodchopper+form", group: "core_anti_rotation" },
-  side_plank: { name: "Side plank with reach", sets: "3 x 30 s/side", rest: "45 s", why: "Lateral core stability", target: "Obliques, QL", link: "https://www.youtube.com/results?search_query=side+plank+with+reach+form", group: "core_anti_rotation" },
-  suitcase_hold: { name: "Suitcase hold", sets: "3 x 30 s/side", rest: "45 s", why: "Anti-lateral flexion, grip bonus", target: "Obliques, grip", link: "https://www.youtube.com/results?search_query=suitcase+hold+exercise", group: "core_anti_rotation" },
+  pallof_press: { name: "Pallof press", sets: "3 x 10/side", rest: "45 s", why: "Anti-rotation core — massive climbing carryover", target: "Deep core", link: "https://www.youtube.com/shorts/5aZ0IhJS8O8", group: "core_anti_rotation" },
+  woodchop: { name: "Cable woodchopper", sets: "3 x 10/side", rest: "60 s", why: "Rotational power for dynamic moves", target: "Obliques, core", link: "https://www.youtube.com/shorts/YIU0U_B57rU", group: "core_anti_rotation" },
+  side_plank: { name: "Side plank with reach", sets: "3 x 30 s/side", rest: "45 s", why: "Lateral core stability", target: "Obliques, QL", link: "https://www.youtube.com/shorts/BFOyHDlY2UE", group: "core_anti_rotation" },
+  suitcase_hold: { name: "Suitcase hold", sets: "3 x 30 s/side", rest: "45 s", why: "Anti-lateral flexion, grip bonus", target: "Obliques, grip", link: "https://www.youtube.com/shorts/v8O0kNuvp_k", group: "core_anti_rotation" },
 
-  wrist_extensor: { name: "Wrist extensor curls (band/DB)", sets: "2 x 15-20", rest: "45 s", why: "Prevents climber's elbow", target: "Forearm extensors", link: "https://www.youtube.com/results?search_query=wrist+extensor+curl+climbers+elbow+prevention", group: "forearms" },
-  reverse_curl: { name: "Reverse barbell curl", sets: "3 x 12", rest: "60 s", why: "Forearm extensors and brachioradialis", target: "Forearms, brachialis", link: "https://www.youtube.com/results?search_query=reverse+barbell+curl+form", group: "forearms" },
-  plate_pinch: { name: "Plate pinch hold", sets: "3 x 30 s", rest: "60 s", why: "Pure pinch grip strength", target: "Pinch grip", link: "https://www.youtube.com/results?search_query=plate+pinch+grip+training", group: "forearms" },
+  wrist_extensor: { name: "Wrist extensor curls (band/DB)", sets: "2 x 15-20", rest: "45 s", why: "Prevents climber's elbow", target: "Forearm extensors", link: "https://www.youtube.com/shorts/SQuJTsbqz6M", group: "forearms" },
+  reverse_curl: { name: "Reverse barbell curl", sets: "3 x 12", rest: "60 s", why: "Forearm extensors and brachioradialis", target: "Forearms, brachialis", link: "https://www.youtube.com/shorts/X0rjfLVVgwY", group: "forearms" },
+  plate_pinch: { name: "Plate pinch hold", sets: "3 x 30 s", rest: "60 s", why: "Pure pinch grip strength", target: "Pinch grip", link: "https://www.youtube.com/shorts/7c9OQMcFUfI", group: "forearms" },
 
-  back_squat: { name: "Barbell back squat", sets: "4 x 6-8", rest: "2-3 min", why: "Climbers skip legs and miss huge metabolism + power gains", target: "Quads, glutes", link: "https://www.youtube.com/results?search_query=barbell+back+squat+form+jeff+nippard", group: "legs_quads" },
-  front_squat: { name: "Front squat", sets: "4 x 6-8", rest: "2-3 min", why: "More upright torso, easier on lower back", target: "Quads, core", link: "https://www.youtube.com/results?search_query=front+squat+form", group: "legs_quads" },
-  goblet_squat: { name: "Goblet squat", sets: "3 x 12", rest: "90 s", why: "Beginner-friendly squat pattern", target: "Quads, glutes", link: "https://www.youtube.com/results?search_query=goblet+squat+form", group: "legs_quads" },
-  hack_squat: { name: "Hack squat machine", sets: "4 x 8-10", rest: "2 min", why: "Quad emphasis, lower back-friendly", target: "Quads", link: "https://www.youtube.com/results?search_query=hack+squat+machine+form", group: "legs_quads" },
-  leg_press: { name: "Leg press", sets: "4 x 10-12", rest: "2 min", why: "Heavy leg work without spinal load", target: "Quads, glutes", link: "https://www.youtube.com/results?search_query=leg+press+form", group: "legs_quads" },
-  leg_extension: { name: "Leg extension", sets: "3 x 12-15", rest: "60 s", why: "Quad isolation", target: "Quads", link: "https://www.youtube.com/results?search_query=leg+extension+form", group: "legs_quads" },
+  back_squat: { name: "Barbell back squat", sets: "4 x 6-8", rest: "2-3 min", why: "Climbers skip legs and miss huge metabolism + power gains", target: "Quads, glutes", link: "https://www.youtube.com/shorts/PPmvh7gBTi0", group: "legs_quads" },
+  front_squat: { name: "Front squat", sets: "4 x 6-8", rest: "2-3 min", why: "More upright torso, easier on lower back", target: "Quads, core", link: "https://www.youtube.com/shorts/_qv0m3tPd3s", group: "legs_quads" },
+  goblet_squat: { name: "Goblet squat", sets: "3 x 12", rest: "90 s", why: "Beginner-friendly squat pattern", target: "Quads, glutes", link: "https://www.youtube.com/shorts/C-KDgXbAVjc", group: "legs_quads" },
+  hack_squat: { name: "Hack squat machine", sets: "4 x 8-10", rest: "2 min", why: "Quad emphasis, lower back-friendly", target: "Quads", link: "https://www.youtube.com/shorts/3cOixL3fG08", group: "legs_quads" },
+  leg_press: { name: "Leg press", sets: "4 x 10-12", rest: "2 min", why: "Heavy leg work without spinal load", target: "Quads, glutes", link: "https://www.youtube.com/shorts/OlWE5rOjS5o", group: "legs_quads" },
+  leg_extension: { name: "Leg extension", sets: "3 x 12-15", rest: "60 s", why: "Quad isolation", target: "Quads", link: "https://www.youtube.com/shorts/uM86QE59Tgc", group: "legs_quads" },
 
-  rdl: { name: "Romanian deadlift", sets: "3 x 8-10", rest: "2 min", why: "Posterior chain — heel hooks, high steps", target: "Hamstrings, glutes", link: "https://www.youtube.com/results?search_query=romanian+deadlift+form+tutorial", group: "legs_hamstrings" },
-  conventional_dl: { name: "Conventional deadlift", sets: "3 x 5", rest: "3 min", why: "Total-body strength builder", target: "Posterior chain, traps", link: "https://www.youtube.com/results?search_query=conventional+deadlift+form", group: "legs_hamstrings" },
-  single_leg_rdl: { name: "Single-leg RDL", sets: "3 x 10/leg", rest: "90 s", why: "Hamstring strength + balance", target: "Hamstrings, glutes", link: "https://www.youtube.com/results?search_query=single+leg+rdl+form", group: "legs_hamstrings" },
-  leg_curl: { name: "Leg curl machine", sets: "3 x 12", rest: "60 s", why: "Hamstring isolation", target: "Hamstrings", link: "https://www.youtube.com/results?search_query=leg+curl+form", group: "legs_hamstrings" },
-  good_morning: { name: "Good morning", sets: "3 x 10", rest: "90 s", why: "Hip-hinge pattern + erectors", target: "Hamstrings, erectors", link: "https://www.youtube.com/results?search_query=good+morning+exercise+form", group: "legs_hamstrings" },
+  rdl: { name: "Romanian deadlift", sets: "3 x 8-10", rest: "2 min", why: "Posterior chain — heel hooks, high steps", target: "Hamstrings, glutes", link: "https://www.youtube.com/shorts/8tm3JW1UpAs", group: "legs_hamstrings" },
+  conventional_dl: { name: "Conventional deadlift", sets: "3 x 5", rest: "3 min", why: "Total-body strength builder", target: "Posterior chain, traps", link: "https://www.youtube.com/watch?v=ZaTM37cfiDs", group: "legs_hamstrings" },
+  single_leg_rdl: { name: "Single-leg RDL", sets: "3 x 10/leg", rest: "90 s", why: "Hamstring strength + balance", target: "Hamstrings, glutes", link: "https://www.youtube.com/shorts/wHktyQBgejo", group: "legs_hamstrings" },
+  leg_curl: { name: "Leg curl machine", sets: "3 x 12", rest: "60 s", why: "Hamstring isolation", target: "Hamstrings", link: "https://www.youtube.com/shorts/_lgE0gPvbik", group: "legs_hamstrings" },
+  good_morning: { name: "Good morning", sets: "3 x 10", rest: "90 s", why: "Hip-hinge pattern + erectors", target: "Hamstrings, erectors", link: "https://www.youtube.com/shorts/4LYL84PV3AY", group: "legs_hamstrings" },
 
-  bulgarian: { name: "Bulgarian split squat", sets: "3 x 10/leg", rest: "90 s", why: "Single-leg power and stability", target: "Quads, glutes", link: "https://www.youtube.com/results?search_query=bulgarian+split+squat+form", group: "legs_glutes" },
-  walking_lunge: { name: "Walking lunge", sets: "3 x 12/side", rest: "90 s", why: "Functional single-leg work", target: "Quads, glutes", link: "https://www.youtube.com/results?search_query=walking+lunge+form", group: "legs_glutes" },
-  reverse_lunge: { name: "Reverse lunge", sets: "3 x 10/side", rest: "90 s", why: "Knee-friendly lunge variation", target: "Quads, glutes", link: "https://www.youtube.com/results?search_query=reverse+lunge+form", group: "legs_glutes" },
-  step_up: { name: "Box step-up", sets: "3 x 10/leg", rest: "90 s", why: "Single-leg power, climbing carryover", target: "Quads, glutes", link: "https://www.youtube.com/results?search_query=box+step+up+form", group: "legs_glutes" },
-  hip_thrust: { name: "Barbell hip thrust", sets: "3 x 10", rest: "2 min", why: "Pure glute strength", target: "Glutes, hamstrings", link: "https://www.youtube.com/results?search_query=hip+thrust+form", group: "legs_glutes" },
+  bulgarian: { name: "Bulgarian split squat", sets: "3 x 10/leg", rest: "90 s", why: "Single-leg power and stability", target: "Quads, glutes", link: "https://www.youtube.com/shorts/9p5e2BSvoLs", group: "legs_glutes" },
+  walking_lunge: { name: "Walking lunge", sets: "3 x 12/side", rest: "90 s", why: "Functional single-leg work", target: "Quads, glutes", link: "https://www.youtube.com/shorts/mJilHWIBWO8", group: "legs_glutes" },
+  reverse_lunge: { name: "Reverse lunge", sets: "3 x 10/side", rest: "90 s", why: "Knee-friendly lunge variation", target: "Quads, glutes", link: "https://www.youtube.com/shorts/cHcm4JtLuHE", group: "legs_glutes" },
+  step_up: { name: "Box step-up", sets: "3 x 10/leg", rest: "90 s", why: "Single-leg power, climbing carryover", target: "Quads, glutes", link: "https://www.youtube.com/shorts/8q9LVgN2RD4", group: "legs_glutes" },
+  hip_thrust: { name: "Barbell hip thrust", sets: "3 x 10", rest: "2 min", why: "Pure glute strength", target: "Glutes, hamstrings", link: "https://www.youtube.com/shorts/9eY4bfeWGc0", group: "legs_glutes" },
 
-  weighted_pullup: { name: "Weighted pull-up", sets: "4 x 5-8", rest: "2 min", why: "Pure pulling strength — the #1 gym lift for bouldering", target: "Lats, biceps, grip", link: "https://www.youtube.com/results?search_query=weighted+pull+up+form+climbers", group: "pull_lats" },
-  pullup: { name: "Bodyweight pull-up", sets: "4 x AMRAP", rest: "2 min", why: "Vertical pull, climbing-specific", target: "Lats, biceps", link: "https://www.youtube.com/results?search_query=pull+up+form+climbers", group: "pull_lats" },
-  lat_pulldown: { name: "Lat pulldown", sets: "4 x 10-12", rest: "90 s", why: "Lat builder when pull-ups aren't enough", target: "Lats", link: "https://www.youtube.com/results?search_query=lat+pulldown+form", group: "pull_lats" },
-  chinup: { name: "Chin-up", sets: "4 x AMRAP", rest: "2 min", why: "More biceps emphasis than pull-up", target: "Lats, biceps", link: "https://www.youtube.com/results?search_query=chin+up+form", group: "pull_lats" },
-  inverted_row: { name: "Inverted row", sets: "3 x 10-15", rest: "90 s", why: "Horizontal pull, easy on shoulders", target: "Mid back", link: "https://www.youtube.com/results?search_query=inverted+row+form", group: "pull_lats" },
+  weighted_pullup: { name: "Weighted pull-up", sets: "4 x 5-8", rest: "2 min", why: "Pure pulling strength — the #1 gym lift for bouldering", target: "Lats, biceps, grip", link: "https://www.youtube.com/shorts/WYfy2KWYO4w", group: "pull_lats" },
+  pullup: { name: "Bodyweight pull-up", sets: "4 x AMRAP", rest: "2 min", why: "Vertical pull, climbing-specific", target: "Lats, biceps", link: "https://www.youtube.com/shorts/OEXosPwzFdc", group: "pull_lats" },
+  lat_pulldown: { name: "Lat pulldown", sets: "4 x 10-12", rest: "90 s", why: "Lat builder when pull-ups aren't enough", target: "Lats", link: "https://www.youtube.com/shorts/QuSqYj7tFbI", group: "pull_lats" },
+  chinup: { name: "Chin-up", sets: "4 x AMRAP", rest: "2 min", why: "More biceps emphasis than pull-up", target: "Lats, biceps", link: "https://www.youtube.com/shorts/QuSqYj7tFbI", group: "pull_lats" },
+  inverted_row: { name: "Inverted row", sets: "3 x 10-15", rest: "90 s", why: "Horizontal pull, easy on shoulders", target: "Mid back", link: "https://www.youtube.com/shorts/VO-pt_XgFho", group: "pull_lats" },
 
-  db_row: { name: "Single-arm dumbbell row", sets: "3 x 8-10/side", rest: "90 s", why: "Unilateral pulling, fixes L/R imbalances", target: "Lats, rhomboids", link: "https://www.youtube.com/results?search_query=single+arm+dumbbell+row+form", group: "pull_back" },
-  cable_row: { name: "Seated cable row", sets: "3 x 10-12", rest: "90 s", why: "Mid-back focus, smooth resistance", target: "Mid back, rhomboids", link: "https://www.youtube.com/results?search_query=seated+cable+row+form", group: "pull_back" },
-  tbar_row: { name: "T-bar row", sets: "3 x 10", rest: "2 min", why: "Heavy mid-back builder", target: "Mid back, lats", link: "https://www.youtube.com/results?search_query=t+bar+row+form", group: "pull_back" },
-  chest_supported_row: { name: "Chest-supported row", sets: "3 x 10-12", rest: "90 s", why: "Strict pull, no momentum", target: "Mid back, rear delts", link: "https://www.youtube.com/results?search_query=chest+supported+row+form", group: "pull_back" },
-  pendlay_row: { name: "Pendlay row", sets: "3 x 5-8", rest: "2 min", why: "Explosive horizontal pull", target: "Lats, mid back", link: "https://www.youtube.com/results?search_query=pendlay+row+form", group: "pull_back" },
+  db_row: { name: "Single-arm dumbbell row", sets: "3 x 8-10/side", rest: "90 s", why: "Unilateral pulling, fixes L/R imbalances", target: "Lats, rhomboids", link: "https://www.youtube.com/shorts/H8jf3DwlIlo", group: "pull_back" },
+  cable_row: { name: "Seated cable row", sets: "3 x 10-12", rest: "90 s", why: "Mid-back focus, smooth resistance", target: "Mid back, rhomboids", link: "https://www.youtube.com/shorts/UyI7Sc7ZVdU", group: "pull_back" },
+  tbar_row: { name: "T-bar row", sets: "3 x 10", rest: "2 min", why: "Heavy mid-back builder", target: "Mid back, lats", link: "https://www.youtube.com/shorts/Nm3M-4fmprk", group: "pull_back" },
+  chest_supported_row: { name: "Chest-supported row", sets: "3 x 10-12", rest: "90 s", why: "Strict pull, no momentum", target: "Mid back, rear delts", link: "https://www.youtube.com/shorts/ZyRm1TZWHfA", group: "pull_back" },
+  pendlay_row: { name: "Pendlay row", sets: "3 x 5-8", rest: "2 min", why: "Explosive horizontal pull", target: "Lats, mid back", link: "https://www.youtube.com/shorts/Uc8Dw1V8gaE", group: "pull_back" },
 
-  bb_curl: { name: "Barbell biceps curl", sets: "3 x 10", rest: "60 s", why: "Classic biceps mass builder", target: "Biceps", link: "https://www.youtube.com/results?search_query=barbell+biceps+curl+form", group: "pull_biceps" },
-  hammer_curl: { name: "Hammer curl", sets: "3 x 10/side", rest: "60 s", why: "Brachialis and forearm growth", target: "Biceps, brachialis", link: "https://www.youtube.com/results?search_query=hammer+curl+form", group: "pull_biceps" },
-  preacher_curl: { name: "Preacher curl", sets: "3 x 10", rest: "60 s", why: "Strict form, biceps peak", target: "Biceps", link: "https://www.youtube.com/results?search_query=preacher+curl+form", group: "pull_biceps" },
-  cable_curl: { name: "Cable biceps curl", sets: "3 x 12", rest: "60 s", why: "Constant tension biceps work", target: "Biceps", link: "https://www.youtube.com/results?search_query=cable+biceps+curl+form", group: "pull_biceps" },
+  bb_curl: { name: "Barbell biceps curl", sets: "3 x 10", rest: "60 s", why: "Classic biceps mass builder", target: "Biceps", link: "https://www.youtube.com/shorts/OKDhR0d2Dxg", group: "pull_biceps" },
+  hammer_curl: { name: "Hammer curl", sets: "3 x 10/side", rest: "60 s", why: "Brachialis and forearm growth", target: "Biceps, brachialis", link: "https://www.youtube.com/shorts/jzsytGMjGYo", group: "pull_biceps" },
+  preacher_curl: { name: "Preacher curl", sets: "3 x 10", rest: "60 s", why: "Strict form, biceps peak", target: "Biceps", link: "https://www.youtube.com/shorts/e4RHUJbpeh8", group: "pull_biceps" },
+  cable_curl: { name: "Cable biceps curl", sets: "3 x 12", rest: "60 s", why: "Constant tension biceps work", target: "Biceps", link: "https://www.youtube.com/shorts/DSbosQ2T1_8", group: "pull_biceps" },
 
-  farmer_carry: { name: "Farmer carry (heavy DB)", sets: "3 x 30-40 m", rest: "90 s", why: "Grip endurance + standing core", target: "Grip, traps, core", link: "https://www.youtube.com/results?search_query=farmer+carry+form+technique", group: "grip" },
-  suitcase_carry: { name: "Suitcase carry", sets: "3 x 30 m/side", rest: "90 s", why: "Single-arm version, anti-lateral flexion", target: "Grip, obliques", link: "https://www.youtube.com/results?search_query=suitcase+carry+form", group: "grip" },
-  trap_bar_hold: { name: "Trap bar hold", sets: "3 x 30 s", rest: "90 s", why: "Heavy static grip", target: "Grip, traps", link: "https://www.youtube.com/results?search_query=trap+bar+hold+grip", group: "grip" },
-  dead_hang: { name: "Dead hang", sets: "3 x max", rest: "90 s", why: "Climbing-specific grip endurance", target: "Grip, lats", link: "https://www.youtube.com/results?search_query=dead+hang+climbers+grip", group: "grip" },
+  farmer_carry: { name: "Farmer carry (heavy DB)", sets: "3 x 30-40 m", rest: "90 s", why: "Grip endurance + standing core", target: "Grip, traps, core", link: "https://www.youtube.com/shorts/6j4mc-3Ze50", group: "grip" },
+  suitcase_carry: { name: "Suitcase carry", sets: "3 x 30 m/side", rest: "90 s", why: "Single-arm version, anti-lateral flexion", target: "Grip, obliques", link: "https://www.youtube.com/shorts/v8O0kNuvp_k", group: "grip" },
+  trap_bar_hold: { name: "Trap bar hold", sets: "3 x 30 s", rest: "90 s", why: "Heavy static grip", target: "Grip, traps", link: "https://www.youtube.com/shorts/_69HX08E1aI", group: "grip" },
+  dead_hang: { name: "Dead hang", sets: "3 x max", rest: "90 s", why: "Climbing-specific grip endurance", target: "Grip, lats", link: "https://www.youtube.com/shorts/dOCQjaasbGs", group: "grip" },
 
-  standing_calf: { name: "Standing calf raise", sets: "3 x 12-15", rest: "60 s", why: "Calves matter for tiny footholds", target: "Calves (gastrocnemius)", link: "https://www.youtube.com/results?search_query=standing+calf+raise+form", group: "calves" },
-  seated_calf: { name: "Seated calf raise", sets: "3 x 15", rest: "60 s", why: "Soleus emphasis", target: "Calves (soleus)", link: "https://www.youtube.com/results?search_query=seated+calf+raise+form", group: "calves" },
-  single_leg_calf: { name: "Single-leg calf raise", sets: "3 x 12/leg", rest: "60 s", why: "Bodyweight calf option, balance bonus", target: "Calves, balance", link: "https://www.youtube.com/results?search_query=single+leg+calf+raise+form", group: "calves" },
+  standing_calf: { name: "Standing calf raise", sets: "3 x 12-15", rest: "60 s", why: "Calves matter for tiny footholds", target: "Calves (gastrocnemius)", link: "https://www.youtube.com/shorts/yQZDGjL-xT4", group: "calves" },
+  seated_calf: { name: "Seated calf raise", sets: "3 x 15", rest: "60 s", why: "Soleus emphasis", target: "Calves (soleus)", link: "https://www.youtube.com/shorts/4f_-CJVbyxg", group: "calves" },
+  single_leg_calf: { name: "Single-leg calf raise", sets: "3 x 12/leg", rest: "60 s", why: "Bodyweight calf option, balance bonus", target: "Calves, balance", link: "https://www.youtube.com/shorts/FmJKR_fGDz8", group: "calves" },
 
   zone2_cardio: { name: "Zone-2 cardio finisher", sets: "10-15 min easy bike or row", rest: "—", why: "Fat-loss support without trashing recovery", target: "Aerobic base", link: "https://www.youtube.com/results?search_query=zone+2+cardio+explained", group: "cardio" },
   hiit: { name: "HIIT bike intervals", sets: "8 x 20s on / 40s off", rest: "—", why: "Conditioning in minimal time", target: "Conditioning", link: "https://www.youtube.com/results?search_query=hiit+bike+intervals", group: "cardio" },
@@ -2059,13 +2059,50 @@ function deletePopupReplace() {
 }
 
 // ===== How-to modal =====
+function extractYouTubeId(url) {
+  if (!url) return null;
+  let m = url.match(/youtube\.com\/shorts\/([\w-]{11})/i);
+  if (m) return m[1];
+  m = url.match(/youtube\.com\/watch\?[^#]*[?&]?v=([\w-]{11})/i);
+  if (m) return m[1];
+  m = url.match(/youtu\.be\/([\w-]{11})/i);
+  if (m) return m[1];
+  m = url.match(/youtube\.com\/embed\/([\w-]{11})/i);
+  if (m) return m[1];
+  return null;
+}
+
 function openHowTo(url, name) {
   document.getElementById("howToTitle").textContent = name ? `How-to: ${name}` : "How-to";
-  document.getElementById("howToLink").href = url || "#";
-  document.getElementById("howToLink").textContent = "Open YouTube search";
+  const videoId = extractYouTubeId(url);
+  const iframeWrap = document.getElementById("howToIframeWrap");
+  const iframe = document.getElementById("howToIframe");
+  const fallback = document.getElementById("howToFallback");
+  const openOnYT = document.getElementById("howToOpenOnYT");
+  const ytLink = document.getElementById("howToYTLink");
+
+  if (videoId) {
+    // Embed video inline. ?playsinline=1 for iOS, ?rel=0 to hide unrelated suggestions.
+    iframe.src = `https://www.youtube.com/embed/${videoId}?playsinline=1&rel=0`;
+    iframeWrap.style.display = "";
+    fallback.style.display = "none";
+    openOnYT.style.display = "";
+    ytLink.href = url;
+  } else {
+    // No curated video — show the search-link fallback
+    iframe.src = "";
+    iframeWrap.style.display = "none";
+    fallback.style.display = "";
+    openOnYT.style.display = "none";
+    document.getElementById("howToLink").href = url || "#";
+    document.getElementById("howToLink").textContent = "Open YouTube search ↗";
+  }
   document.getElementById("howToModal").classList.add("open");
 }
+
 function closeHowTo() {
+  // Clear the iframe src to stop video playback / audio
+  document.getElementById("howToIframe").src = "";
   document.getElementById("howToModal").classList.remove("open");
 }
 
@@ -2984,11 +3021,17 @@ bootApp();
       <h2 id="howToTitle">How-to</h2>
       <button class="modal-close" onclick="closeHowTo()" aria-label="Close">×</button>
     </div>
-    <div class="howto-fallback">
+    <div class="howto-iframe-wrap" id="howToIframeWrap" style="display:none;">
+      <iframe id="howToIframe" src="" title="Exercise demo" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    </div>
+    <div class="howto-fallback" id="howToFallback">
       <div class="yt-logo">▶</div>
-      <div style="font-size: 14px; color: var(--text); font-weight: 600;">YouTube tutorials</div>
-      <div class="howto-note">Tap below to open YouTube search results for this exercise in a new tab. Pick a video that matches your gear and level — climbers tend to like Emil Abrahamsson, Hooper's Beta, and Lattice Training.</div>
+      <div style="font-size: 14px; color: var(--text); font-weight: 600;">No demo curated yet</div>
+      <div class="howto-note">Tap below to open YouTube search results for this exercise. Pick a video that matches your gear and level — climbers tend to like Emil Abrahamsson, Hooper's Beta, and Lattice Training.</div>
       <a id="howToLink" class="howto-open-link" href="#" target="_blank" rel="noopener">Open YouTube search ↗</a>
+    </div>
+    <div id="howToOpenOnYT" style="display:none; margin-top: 10px; text-align: center;">
+      <a id="howToYTLink" href="#" target="_blank" rel="noopener" style="font-size: 12px; color: var(--muted); text-decoration: underline;">Open on YouTube ↗</a>
     </div>
   </div>
 </div>
