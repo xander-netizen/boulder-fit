@@ -948,8 +948,8 @@
 
 <div class="tabs">
   <button class="tab active" data-view="overview">Home</button>
-  <button class="tab" data-view="gymA">Gym A</button>
-  <button class="tab" data-view="gymB">Gym B</button>
+  <button class="tab" data-view="gymA">Push &amp; Core</button>
+  <button class="tab" data-view="gymB">Legs &amp; Pull</button>
   <button class="tab" data-view="custom">Custom</button>
   <button class="tab" data-view="climb">Climb</button>
   <button class="tab" data-view="mobility">Mobility</button>
@@ -1031,6 +1031,18 @@
     </div>
   </div>
 
+  <!-- Personal records: all-time totals + key lifts -->
+  <div class="card">
+    <h2>Personal records</h2>
+    <p class="tip">All-time totals from your logs, plus your key lifts and climbing milestones.</p>
+
+    <h3 style="margin-top: 14px;">All-time totals</h3>
+    <div class="grid grid-3" id="prTotalsGrid"></div>
+
+    <h3 style="margin-top: 18px;">Key lifts</h3>
+    <div class="grid grid-3" id="prGrid"></div>
+  </div>
+
 </section>
 
 
@@ -1042,12 +1054,12 @@
     </button>
     <div class="sfh-title">
       <div class="sfh-eyebrow">Session</div>
-      <div class="sfh-name">Gym A · Push & Core</div>
+      <div class="sfh-name">Push &amp; Core</div>
     </div>
     <div class="sfh-progress" id="gymAProgress">0<span class="label">/0</span></div>
   </div>
   <div class="card">
-    <h2 id="gymATitle">Gym A — Push, Antagonists and Core</h2>
+    <h2 id="gymATitle">Push, Antagonists and Core</h2>
     <p class="tip">Goal: balance all the pulling you do climbing. Strong push, rear-delt, and core make you injury-proof and shoulder-stable on hard moves. ~60 min.</p>
     <div class="train-action-row">
       <button class="pill-btn" onclick="shuffleSession('gymA')">Shuffle</button>
@@ -1088,12 +1100,12 @@
     </button>
     <div class="sfh-title">
       <div class="sfh-eyebrow">Session</div>
-      <div class="sfh-name">Gym B · Legs & Pull</div>
+      <div class="sfh-name">Legs &amp; Pull</div>
     </div>
     <div class="sfh-progress" id="gymBProgress">0<span class="label">/0</span></div>
   </div>
   <div class="card">
-    <h2 id="gymBTitle">Gym B — Legs, Pull Power and Grip</h2>
+    <h2 id="gymBTitle">Legs, Pull Power and Grip</h2>
     <p class="tip">Goal: heavy lower-body, weighted pulls for finger-independent pulling power, grip and core carries. ~60 min.</p>
     <div class="train-action-row">
       <button class="pill-btn" onclick="shuffleSession('gymB')">Shuffle</button>
@@ -1140,7 +1152,7 @@
   </div>
   <div class="card">
     <h2>Build your session</h2>
-    <p class="tip">Pick the muscle groups you want to train. I'll build a session that fits your time and pulls exercises from a wide library — different from your standard Gym A and B.</p>
+    <p class="tip">Pick the muscle groups you want to train. I'll build a session that fits your time and pulls exercises from a wide library — different from your standard programs.</p>
 
     <h3 style="margin-top: 18px;">1. What do you want to train?</h3>
     <div class="muscle-grid" id="muscleGrid"></div>
@@ -1334,16 +1346,6 @@
     </div>
   </div>
 
-  <div class="card">
-    <h2>Personal records</h2>
-    <p class="tip">Key lifts and climbing milestones — edit anytime as you progress.</p>
-    <div class="grid grid-3" id="prGrid"></div>
-  </div>
-
-  <div class="card">
-    <h2>Weekly summary</h2>
-    <div id="weeklySummary"></div>
-  </div>
 </section>
 
 <!-- SETTINGS (was NUTRITION) -->
@@ -1517,14 +1519,14 @@ Object.entries(EX).forEach(([id, ex]) => {
 // Default sessions: list of exercise IDs in order
 const PROGRAM = {
   gymA: {
-    title: "Gym A — Push, Antagonists and Core",
+    title: "Push, Antagonists and Core",
     slots: [
       "bench_press", "db_shoulder_press", "weighted_dip", "face_pull",
       "cable_fly", "hanging_leg_raise", "pallof_press", "wrist_extensor"
     ]
   },
   gymB: {
-    title: "Gym B — Legs, Pull Power and Grip",
+    title: "Legs, Pull Power and Grip",
     slots: [
       "back_squat", "rdl", "bulgarian", "weighted_pullup",
       "db_row", "farmer_carry", "standing_calf", "zone2_cardio"
@@ -1564,10 +1566,10 @@ const COMBO_SUGGESTIONS = [
 ];
 
 const DEFAULT_SCHEDULE = [
-  { dow: "Mon", type: "gym", label: "Gym A", focus: "Push and Core", view: "gymA" },
+  { dow: "Mon", type: "gym", label: "Push & Core", focus: "Push and Core", view: "gymA" },
   { dow: "Tue", type: "climb", label: "Climb + GOWOD", focus: "Project day, ACTIVATE before, RECOVER after", view: "climb" },
   { dow: "Wed", type: "rest", label: "Rest + GOWOD", focus: "DAILY FLOW 15 min", view: "mobility" },
-  { dow: "Thu", type: "gym", label: "Gym B", focus: "Legs and Pull", view: "gymB" },
+  { dow: "Thu", type: "gym", label: "Legs & Pull", focus: "Legs and Pull", view: "gymB" },
   { dow: "Fri", type: "rest", label: "Rest", focus: "Full recovery", view: "nutrition" },
   { dow: "Sat", type: "climb", label: "Climb + GOWOD", focus: "Volume, ACTIVATE + RECOVER", view: "climb" },
   { dow: "Sun", type: "cardio", label: "Optional", focus: "Climb easy or zone-2 cardio", view: "climb" }
@@ -2648,7 +2650,33 @@ function renderBodyweight() {
 
 // ==================== PRs ====================
 function renderPRs() {
+  // 1) All-time totals (read-only tiles)
+  const totalsEl = document.getElementById("prTotalsGrid");
+  if (totalsEl) {
+    const pushCount = Object.values(state.gymALog).filter(v => v._completed).length;
+    const legsCount = Object.values(state.gymBLog).filter(v => v._completed).length;
+    const customCount = Object.values(state.customLog || {}).filter(v => v._completed).length;
+    const climbCount = state.climbLog.length;
+    const bwCount = state.bodyweight.length;
+    const totalsTiles = [
+      { label: "Push & Core",   value: pushCount,   sub: pushCount === 1 ? "session"  : "sessions" },
+      { label: "Legs & Pull",   value: legsCount,   sub: legsCount === 1 ? "session"  : "sessions" },
+      { label: "Custom",        value: customCount, sub: customCount === 1 ? "session" : "sessions" },
+      { label: "Climbing",      value: climbCount,  sub: climbCount === 1 ? "session" : "sessions" },
+      { label: "Body weight",   value: bwCount,     sub: bwCount === 1 ? "entry"   : "entries" },
+    ];
+    totalsEl.innerHTML = totalsTiles.map(t => `
+      <div class="metric" style="cursor:default;">
+        <div class="label">${t.label}</div>
+        <div class="value">${t.value}</div>
+        <div class="sub">${t.sub}</div>
+      </div>
+    `).join("");
+  }
+
+  // 2) Key lifts (editable tiles)
   const g = document.getElementById("prGrid");
+  if (!g) return;
   g.innerHTML = "";
   state.prs.forEach((pr, i) => {
     const el = document.createElement("div");
@@ -2707,21 +2735,13 @@ function renderOverview() {
   const match = getSchedule().find(d => d.dow === today);
   document.getElementById("todayPill").textContent = "Today: " + (match ? match.label + " — " + match.focus : today);
 
-  const ws = document.getElementById("weeklySummary");
-  if (ws) {
-    ws.innerHTML = `
-      <div class="log-item"><div>Gym A sessions</div><div>${Object.values(state.gymALog).filter(v=>v._completed).length}</div></div>
-      <div class="log-item"><div>Gym B sessions</div><div>${Object.values(state.gymBLog).filter(v=>v._completed).length}</div></div>
-      <div class="log-item"><div>Custom sessions</div><div>${Object.values(state.customLog||{}).filter(v=>v._completed).length}</div></div>
-      <div class="log-item"><div>Climbing sessions</div><div>${state.climbLog.length}</div></div>
-      <div class="log-item"><div>Body-weight entries</div><div>${state.bodyweight.length}</div></div>
-    `;
-  }
+  // (Weekly summary card removed — totals now live in the Personal Records card on home.)
 
   // ---- v4: hero CTA, ring fills, day strip
   renderHero(match, today);
   renderRings(completed);
   renderDayStrip(today);
+  renderPRs(); // keep the all-time totals tile in sync after any action
 }
 
 // ===== v4 home dashboard renderers =====
@@ -2739,14 +2759,14 @@ function renderHero(match, todayDow) {
     document.querySelectorAll('[data-hero="cta"]').forEach(el => el.setAttribute("data-target", "custom"));
     return;
   }
-  const titles = { gymA: "Gym A · Push & Core", gymB: "Gym B · Legs & Pull", climb: "Climb day", custom: "Custom session", overview: "Today" };
+  const titles = { gymA: "Push & Core", gymB: "Legs & Pull", climb: "Climb day", custom: "Custom session", overview: "Today" };
   const subs = {
     gymA: "Push, antagonists, core. About 60 minutes.",
     gymB: "Legs, pull power, grip. About 60 minutes.",
     climb: "Project, flash, or volume — your call. Log it after.",
     custom: "Pick muscle groups and a duration; we'll generate the session."
   };
-  const ctas = { gymA: "Start Gym A", gymB: "Start Gym B", climb: "Log climb", custom: "Build session" };
+  const ctas = { gymA: "Start session", gymB: "Start session", climb: "Log climb", custom: "Build session" };
   const v = match.view;
   setAll("title", titles[v] || (match.label || "Today"));
   setAll("sub",   subs[v]   || (match.focus || "Today's training"));
@@ -2872,8 +2892,8 @@ function openStatsModal(which) {
   if (which === "week") {
     title = "This week's sessions";
     const items = [];
-    Object.entries(state.gymALog).forEach(([d, v]) => { if (d >= mondayStr) items.push({ d, k: "gymA", l: "Gym A", v }); });
-    Object.entries(state.gymBLog).forEach(([d, v]) => { if (d >= mondayStr) items.push({ d, k: "gymB", l: "Gym B", v }); });
+    Object.entries(state.gymALog).forEach(([d, v]) => { if (d >= mondayStr) items.push({ d, k: "gymA", l: "Push & Core", v }); });
+    Object.entries(state.gymBLog).forEach(([d, v]) => { if (d >= mondayStr) items.push({ d, k: "gymB", l: "Legs & Pull", v }); });
     Object.entries(state.customLog || {}).forEach(([d, v]) => { if (d >= mondayStr) items.push({ d, k: "custom", l: "Custom", v }); });
     state.climbLog.filter(e => e.date >= mondayStr).forEach(e => items.push({ d: e.date, k: "climb", l: "Climb", v: e }));
     items.sort((a, b) => b.d.localeCompare(a.d));
@@ -2896,8 +2916,8 @@ function openStatsModal(which) {
       if (!weeks[k]) weeks[k] = { count: 0, items: [] };
       weeks[k].count++;
     };
-    Object.entries(state.gymALog).forEach(([d,v]) => { if (v._completed) { addToWeek(d); weeks[mondayOf(d)].items.push("Gym A " + d); }});
-    Object.entries(state.gymBLog).forEach(([d,v]) => { if (v._completed) { addToWeek(d); weeks[mondayOf(d)].items.push("Gym B " + d); }});
+    Object.entries(state.gymALog).forEach(([d,v]) => { if (v._completed) { addToWeek(d); weeks[mondayOf(d)].items.push("Push & Core " + d); }});
+    Object.entries(state.gymBLog).forEach(([d,v]) => { if (v._completed) { addToWeek(d); weeks[mondayOf(d)].items.push("Legs & Pull " + d); }});
     Object.entries(state.customLog||{}).forEach(([d,v]) => { if (v._completed) { addToWeek(d); weeks[mondayOf(d)].items.push("Custom " + d); }});
     state.climbLog.forEach(e => { addToWeek(e.date); weeks[mondayOf(e.date)].items.push("Climb " + e.date); });
     const sorted = Object.entries(weeks).sort(([a],[b]) => b.localeCompare(a));
