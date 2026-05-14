@@ -452,9 +452,59 @@
   .chip.cardio { background: rgba(76,201,240,0.15); color: var(--cardio); }
   .chip.mobility { background: rgba(139,92,246,0.15); color: #8b5cf6; }
 
-  /* Exercise card layout (replaces table) */
-  .exercise-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+  /* ===== TRAIN — HORIZONTAL CAROUSEL ===== */
+  .train-action-row {
+    display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+    margin-bottom: 4px;
+  }
+  .train-action-row .pill-btn { font-size: 12px; padding: 9px 14px; min-height: 36px; }
+  .train-action-row .pill-btn.primary {
+    background: var(--accent); color: #0d0f0a; border-color: var(--accent); font-weight: 700;
+    box-shadow: 0 0 0 1px rgba(184,255,0,0.3), 0 8px 18px -8px var(--accent-glow);
+  }
+  .train-action-row .pill-btn.primary:hover { background: var(--accent); color: #0d0f0a; filter: brightness(1.08); }
+  .train-footer-row {
+    display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;
+  }
+  .train-footer-row button { flex: 1 1 0; min-width: 0; }
+
+  .carousel-meta {
+    display: flex; justify-content: space-between; align-items: center;
+    margin: 10px 0 0; font-size: 11px; letter-spacing: 0.8px;
+    text-transform: uppercase; color: var(--muted); font-weight: 600;
+  }
+  .carousel-meta .swipe-hint { opacity: 0.6; font-size: 10px; letter-spacing: 0.4px; text-transform: none; }
+  .carousel-dots {
+    display: flex; justify-content: center; gap: 6px; margin: 10px 0 0;
+    flex-wrap: wrap;
+  }
+  .carousel-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: rgba(184,255,0,0.18); border: none; padding: 0; cursor: pointer;
+    transition: all 0.18s ease;
+  }
+  .carousel-dot.active { background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); transform: scale(1.3); }
+
+  /* Exercise card layout — horizontal scroll-snap carousel */
+  .exercise-list {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    overflow-x: auto;
+    overflow-y: visible;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    margin: 14px -20px 0;
+    padding: 6px 20px 14px;
+  }
+  .exercise-list::-webkit-scrollbar { display: none; }
   .exercise {
+    flex: 0 0 calc(100% - 32px);
+    min-width: 0;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
     background: linear-gradient(165deg, rgba(184,255,0,0.04), rgba(31,35,25,0.7));
     border: 1px solid var(--border);
     border-radius: 18px;
@@ -462,12 +512,35 @@
     position: relative;
     transition: border-color 0.2s ease, transform 0.18s ease;
   }
+  @media (min-width: 760px) {
+    .exercise { flex: 0 0 calc(60% - 16px); }
+  }
+  @media (min-width: 1100px) {
+    .exercise { flex: 0 0 calc(42% - 12px); }
+  }
   .exercise:hover { border-color: rgba(184,255,0,0.22); }
+  /* X (delete) button — top-right corner */
+  .exercise-x {
+    position: absolute;
+    top: 10px; right: 10px;
+    width: 28px; height: 28px;
+    padding: 0;
+    background: rgba(13,15,10,0.6);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 50%;
+    font-size: 14px; line-height: 1;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: all 0.15s ease;
+    z-index: 2;
+  }
+  .exercise-x:hover { color: var(--danger); border-color: rgba(248,113,113,0.5); background: rgba(248,113,113,0.08); }
   .exercise.is-done {
     border-color: rgba(184,255,0,0.35);
     background: linear-gradient(165deg, rgba(184,255,0,0.08), rgba(31,35,25,0.7));
   }
-  .exercise-header { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+  .exercise-header { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; padding-right: 36px; }
   .exercise-title { flex: 1; }
   .exercise-name { font-weight: 700; font-size: 16px; letter-spacing: -0.2px; }
   .exercise-why { color: var(--muted); font-size: 12px; margin-top: 4px; line-height: 1.45; }
@@ -732,6 +805,154 @@
   .combo-row:hover { border-color: var(--accent); }
   .combo-row .combo-time { color: var(--muted); font-size: 11px; }
 
+  /* ===== DELETE / REPLACE POPUP ===== */
+  .popup-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.72);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 24px;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .popup-overlay.open { display: flex; }
+  .popup-card {
+    background: var(--panel);
+    border: 1px solid var(--border-bright);
+    border-radius: 18px;
+    padding: 22px;
+    max-width: 380px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 24px 64px -16px rgba(0,0,0,0.8);
+  }
+  .popup-card h3 {
+    margin: 0 0 8px; font-size: 17px; font-weight: 700; color: var(--text);
+    text-transform: none; letter-spacing: 0; color: var(--text);
+  }
+  .popup-card p { color: var(--muted); font-size: 13px; margin: 0 0 18px; line-height: 1.5; }
+  .popup-actions { display: flex; flex-direction: column; gap: 8px; }
+  .popup-actions button {
+    width: 100%; padding: 12px 16px; border-radius: 12px; min-height: 44px;
+    font-size: 14px; font-weight: 600;
+  }
+  .popup-actions .danger { background: var(--danger); color: #fff; }
+  .popup-actions .cancel { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+
+  /* ===== HOW-TO MODAL ===== */
+  .howto-iframe-wrap {
+    position: relative; width: 100%; aspect-ratio: 16/9;
+    background: #000; border-radius: 12px; overflow: hidden;
+    margin: 8px 0 14px;
+    border: 1px solid var(--border);
+  }
+  .howto-iframe-wrap iframe { width: 100%; height: 100%; border: 0; }
+  .howto-fallback {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 28px 18px; gap: 12px;
+  }
+  .howto-fallback .yt-logo {
+    width: 56px; height: 56px; border-radius: 14px;
+    background: linear-gradient(135deg, #ff0000, #b00000);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 800; font-size: 22px;
+    box-shadow: 0 6px 18px -6px rgba(255,0,0,0.6);
+  }
+  .howto-open-link {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--accent); color: #0d0f0a; font-weight: 700;
+    padding: 12px 22px; border-radius: 12px; text-decoration: none;
+    font-size: 14px;
+    box-shadow: 0 8px 18px -6px var(--accent-glow);
+  }
+  .howto-open-link:hover { filter: brightness(1.08); }
+  .howto-note { font-size: 12px; color: var(--muted); margin-top: 4px; line-height: 1.5; }
+
+  /* ===== ADD-EXERCISE PICKER ===== */
+  .picker-group { margin-top: 14px; }
+  .picker-group h4 {
+    margin: 0 0 8px; font-size: 11px; letter-spacing: 0.8px; text-transform: uppercase;
+    color: var(--muted); font-weight: 600;
+  }
+  .picker-list { display: flex; flex-direction: column; gap: 6px; }
+  .picker-item {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    background: var(--panel-2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 12px; cursor: pointer; text-align: left;
+    font-family: inherit; color: var(--text); width: 100%;
+  }
+  .picker-item:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .picker-item .pi-name { font-weight: 600; font-size: 13px; }
+  .picker-item .pi-meta { font-size: 11px; color: var(--muted); }
+  .picker-search input { width: 100%; }
+
+  /* ===== PASSWORD GATE ===== */
+  .lock-screen {
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(184,255,0,0.28), transparent 70%),
+      radial-gradient(ellipse 60% 40% at 50% 100%, rgba(184,255,0,0.12), transparent 65%),
+      var(--bg);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    z-index: 1000;
+    padding: 32px 24px;
+    text-align: center;
+  }
+  body.is-locked { overflow: hidden; }
+  body.is-locked > *:not(.lock-screen) { display: none !important; }
+  .lock-logo {
+    width: 72px; height: 72px; border-radius: 20px;
+    background: linear-gradient(160deg, var(--accent), #7eb800);
+    display: flex; align-items: center; justify-content: center;
+    color: #0d0f0a; margin-bottom: 18px;
+    box-shadow: 0 0 0 1px rgba(184,255,0,0.5), 0 16px 36px -8px var(--accent-glow);
+  }
+  .lock-logo svg { width: 38px; height: 38px; }
+  .lock-title { font-size: 24px; font-weight: 800; letter-spacing: -0.4px; margin: 0 0 4px; }
+  .lock-title .accent { color: var(--accent); }
+  .lock-sub { color: var(--muted); font-size: 14px; margin: 0 0 22px; max-width: 320px; line-height: 1.5; }
+  .lock-input {
+    width: 100%; max-width: 320px;
+    background: var(--panel);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 16px;
+    text-align: center;
+    letter-spacing: 0.1em;
+    font-family: inherit;
+    margin-bottom: 10px;
+  }
+  .lock-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(184,255,0,0.18); }
+  .lock-input.error { border-color: var(--danger); animation: shake 0.4s ease; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+  .lock-error { color: var(--danger); font-size: 12px; min-height: 18px; margin-bottom: 6px; }
+  .lock-submit {
+    width: 100%; max-width: 320px;
+    background: var(--accent); color: #0d0f0a; font-weight: 700;
+    padding: 14px 18px; border-radius: 12px; border: none;
+    font-size: 15px; cursor: pointer; font-family: inherit;
+    box-shadow: 0 0 0 1px rgba(184,255,0,0.3), 0 12px 24px -8px var(--accent-glow);
+    margin-bottom: 12px;
+  }
+  .lock-forgot {
+    background: transparent; color: var(--muted); border: none;
+    font-size: 12px; cursor: pointer; padding: 8px; font-family: inherit;
+    text-decoration: underline;
+  }
+  .lock-forgot:hover { color: var(--text); }
+  .lock-disclaimer {
+    color: var(--muted-2); font-size: 11px; margin-top: 28px;
+    max-width: 340px; line-height: 1.5; opacity: 0.7;
+  }
+
   @media (max-width: 900px) {
     .week { grid-template-columns: 1fr 1fr; }
   }
@@ -754,6 +975,9 @@
     .week { grid-template-columns: 1fr; gap: 8px; }
     .day { min-height: 0; padding: 12px 14px; }
     .exercise { padding: 14px; }
+    .exercise-list { margin: 14px -16px 0; padding: 6px 16px 14px; }
+    .train-action-row .pill-btn { font-size: 11px; padding: 8px 10px; min-height: 34px; }
+    .train-footer-row button { font-size: 13px; padding: 10px 12px; min-height: 40px; }
     .set-row { grid-template-columns: 22px 1fr 1fr 28px 28px; }
     .set-row input { font-size: 16px; padding: 8px 10px; }
     button { padding: 12px 16px; font-size: 15px; min-height: 44px; }
@@ -890,13 +1114,23 @@
   <div class="card">
     <h2 id="gymATitle">Gym A — Push, Antagonists and Core</h2>
     <p class="tip">Goal: balance all the pulling you do climbing. Strong push, rear-delt, and core make you injury-proof and shoulder-stable on hard moves. ~60 min.</p>
-    <div class="session-controls">
-      <button onclick="completeSession('gymA')">Mark session complete</button>
-      <button class="secondary" onclick="shuffleSession('gymA')">Shuffle session</button>
-      <button class="ghost" onclick="resetSession('gymA')">Reset to default</button>
-      <button class="ghost" onclick="clearTodayLog('gymA')">Clear today's log</button>
+    <div class="train-action-row">
+      <button class="pill-btn" onclick="shuffleSession('gymA')">Shuffle</button>
+      <button class="pill-btn" onclick="openAddExercise('gymA')">+ Add exercise</button>
+      <button class="pill-btn" onclick="switchView('custom')">Custom session</button>
+      <button class="pill-btn primary" onclick="startSession('gymA')">Start session →</button>
+    </div>
+    <div class="carousel-meta">
+      <span id="gymACarouselCounter">Exercise 1 of —</span>
+      <span class="swipe-hint">Swipe →</span>
     </div>
     <div id="gymAExercises" class="exercise-list"></div>
+    <div class="carousel-dots" id="gymACarouselDots"></div>
+    <div class="train-footer-row">
+      <button class="ghost" onclick="resetSession('gymA')">Reset to default</button>
+      <button class="ghost" onclick="clearTodayLog('gymA')">Clear today's log</button>
+      <button class="secondary" onclick="completeSession('gymA')">Mark complete ✓</button>
+    </div>
   </div>
   <div class="card">
     <h3>Warm-up (5-8 min)</h3>
@@ -926,13 +1160,23 @@
   <div class="card">
     <h2 id="gymBTitle">Gym B — Legs, Pull Power and Grip</h2>
     <p class="tip">Goal: heavy lower-body, weighted pulls for finger-independent pulling power, grip and core carries. ~60 min.</p>
-    <div class="session-controls">
-      <button onclick="completeSession('gymB')">Mark session complete</button>
-      <button class="secondary" onclick="shuffleSession('gymB')">Shuffle session</button>
-      <button class="ghost" onclick="resetSession('gymB')">Reset to default</button>
-      <button class="ghost" onclick="clearTodayLog('gymB')">Clear today's log</button>
+    <div class="train-action-row">
+      <button class="pill-btn" onclick="shuffleSession('gymB')">Shuffle</button>
+      <button class="pill-btn" onclick="openAddExercise('gymB')">+ Add exercise</button>
+      <button class="pill-btn" onclick="switchView('custom')">Custom session</button>
+      <button class="pill-btn primary" onclick="startSession('gymB')">Start session →</button>
+    </div>
+    <div class="carousel-meta">
+      <span id="gymBCarouselCounter">Exercise 1 of —</span>
+      <span class="swipe-hint">Swipe →</span>
     </div>
     <div id="gymBExercises" class="exercise-list"></div>
+    <div class="carousel-dots" id="gymBCarouselDots"></div>
+    <div class="train-footer-row">
+      <button class="ghost" onclick="resetSession('gymB')">Reset to default</button>
+      <button class="ghost" onclick="clearTodayLog('gymB')">Clear today's log</button>
+      <button class="secondary" onclick="completeSession('gymB')">Mark complete ✓</button>
+    </div>
   </div>
   <div class="card">
     <h3>Warm-up (5-8 min)</h3>
@@ -986,12 +1230,21 @@
 
   <div class="card" id="customSessionCard" style="display: none;">
     <h2 id="customSessionTitle">Your custom session</h2>
-    <div class="session-controls">
-      <button onclick="completeSession('custom')">Mark session complete</button>
-      <button class="secondary" onclick="regenerateCustom()">Different exercises</button>
-      <button class="ghost" onclick="clearTodayLog('custom')">Clear today's log</button>
+    <div class="train-action-row">
+      <button class="pill-btn" onclick="regenerateCustom()">Shuffle</button>
+      <button class="pill-btn" onclick="openAddExercise('custom')">+ Add exercise</button>
+      <button class="pill-btn primary" onclick="startSession('custom')">Start session →</button>
+    </div>
+    <div class="carousel-meta">
+      <span id="customCarouselCounter">Exercise 1 of —</span>
+      <span class="swipe-hint">Swipe →</span>
     </div>
     <div id="customExercises" class="exercise-list"></div>
+    <div class="carousel-dots" id="customCarouselDots"></div>
+    <div class="train-footer-row">
+      <button class="ghost" onclick="clearTodayLog('custom')">Clear today's log</button>
+      <button class="secondary" onclick="completeSession('custom')">Mark complete ✓</button>
+    </div>
   </div>
 </section>
 
@@ -1653,7 +1906,10 @@ function renderWorkout(key) {
       ? `<div class="last-time">Last time: <strong>${formatLastSets(lastSession.sets)}</strong><span class="ago">${daysAgo(lastSession.date)}</span></div>`
       : `<div class="last-time" style="opacity:0.6">Last time: <strong>—</strong><span class="ago">no history yet</span></div>`;
 
+    const safeName = (ex.name || '').replace(/'/g, "\\'");
+    const safeLink = (ex.link || '').replace(/'/g, "\\'");
     card.innerHTML = `
+      <button class="exercise-x" onclick="openDeletePopup('${key}', ${slotIdx})" title="Remove from today's session" aria-label="Remove exercise">×</button>
       <div class="exercise-header">
         <div class="exercise-title">
           <div class="exercise-name">${ex.name}</div>
@@ -1670,7 +1926,7 @@ function renderWorkout(key) {
       <div class="exercise-actions">
         <button class="pill-btn alt" onclick="cycleAlternative('${key}', ${slotIdx})">Alternative</button>
         ${lastSession ? `<button class="pill-btn repeat" onclick="repeatLastSession('${key}', ${slotIdx})">Repeat last</button>` : ''}
-        ${ex.link ? `<a class="pill-btn" href="${ex.link}" target="_blank" rel="noopener">How-to</a>` : ''}
+        ${ex.link ? `<button class="pill-btn" onclick="openHowTo('${safeLink}','${safeName}')">How-to</button>` : ''}
       </div>
 
       <div class="sets-section">
@@ -1697,6 +1953,252 @@ function renderWorkout(key) {
     slots.forEach((_, idx) => { if (log[idx] && log[idx].done) done++; });
     progressEl.innerHTML = done + '<span class="label">/' + total + '</span>';
   }
+
+  // Wire up carousel counter + dots + scroll observer
+  setupCarousel(key);
+}
+
+// ===== Carousel (counter + dots + scroll snap detection) =====
+function setupCarousel(key) {
+  const container = document.getElementById(key + "Exercises");
+  if (!container) return;
+  const cards = container.querySelectorAll(".exercise");
+  const total = cards.length;
+
+  // Build dots
+  const dotsEl = document.getElementById(key + "CarouselDots");
+  if (dotsEl) {
+    if (total <= 1) {
+      dotsEl.innerHTML = "";
+    } else {
+      dotsEl.innerHTML = Array.from(cards).map((_, i) =>
+        `<button class="carousel-dot${i === 0 ? ' active' : ''}" data-idx="${i}" onclick="scrollCarouselTo('${key}', ${i})" aria-label="Go to exercise ${i + 1}"></button>`
+      ).join("");
+    }
+  }
+
+  // Initial counter
+  const counterEl = document.getElementById(key + "CarouselCounter");
+  if (counterEl) counterEl.textContent = total === 0 ? "No exercises yet" : `Exercise 1 of ${total}`;
+  if (total === 0) return;
+
+  // Attach scroll listener only once per container (innerHTML resets don't remove listeners)
+  if (!container.dataset.carouselWired) {
+    let scrollTimer = null;
+    container.addEventListener("scroll", () => {
+      if (scrollTimer) cancelAnimationFrame(scrollTimer);
+      scrollTimer = requestAnimationFrame(() => updateCarouselIndicator(key));
+    }, { passive: true });
+    container.dataset.carouselWired = "1";
+    // Only reset scroll on first wire-up — preserve position on subsequent re-renders
+    container.scrollLeft = 0;
+  } else {
+    // After re-render, recompute the indicator for the current scroll position
+    requestAnimationFrame(() => updateCarouselIndicator(key));
+  }
+}
+
+function updateCarouselIndicator(key) {
+  const container = document.getElementById(key + "Exercises");
+  if (!container) return;
+  const cards = container.querySelectorAll(".exercise");
+  if (cards.length === 0) return;
+  // Find the card whose center is closest to the container center
+  const cRect = container.getBoundingClientRect();
+  const cMid = cRect.left + cRect.width / 2;
+  let closestIdx = 0;
+  let closestDist = Infinity;
+  cards.forEach((card, i) => {
+    const r = card.getBoundingClientRect();
+    const mid = r.left + r.width / 2;
+    const d = Math.abs(mid - cMid);
+    if (d < closestDist) { closestDist = d; closestIdx = i; }
+  });
+  const counterEl = document.getElementById(key + "CarouselCounter");
+  if (counterEl) counterEl.textContent = `Exercise ${closestIdx + 1} of ${cards.length}`;
+  const dotsEl = document.getElementById(key + "CarouselDots");
+  if (dotsEl) {
+    dotsEl.querySelectorAll(".carousel-dot").forEach((d, i) => d.classList.toggle("active", i === closestIdx));
+  }
+}
+
+function scrollCarouselTo(key, idx) {
+  const container = document.getElementById(key + "Exercises");
+  if (!container) return;
+  const cards = container.querySelectorAll(".exercise");
+  if (!cards[idx]) return;
+  const card = cards[idx];
+  const target = card.offsetLeft - (container.clientWidth - card.clientWidth) / 2;
+  container.scrollTo({ left: target, behavior: "smooth" });
+}
+
+// ===== Train action row: Start session, Add exercise, Delete popup =====
+function startSession(key) {
+  const log = state[key + "Log"][todayKey()] || {};
+  const slots = getSessionSlots(key);
+  // Scroll to first not-done exercise (or first one)
+  let target = 0;
+  for (let i = 0; i < slots.length; i++) {
+    if (!log[i] || !log[i].done) { target = i; break; }
+  }
+  scrollCarouselTo(key, target);
+  const container = document.getElementById(key + "Exercises");
+  if (container) container.classList.add("session-started");
+}
+
+function openDeletePopup(key, slotIdx) {
+  const slots = getSessionSlots(key);
+  const ex = getResolvedExercise(slots[slotIdx], slotIdx, key);
+  const name = ex ? ex.name : "this exercise";
+  document.getElementById("deletePopupName").textContent = name;
+  const overlay = document.getElementById("deletePopup");
+  overlay.dataset.key = key;
+  overlay.dataset.slot = slotIdx;
+  overlay.classList.add("open");
+}
+
+function closeDeletePopup() {
+  document.getElementById("deletePopup").classList.remove("open");
+}
+
+function deleteExerciseSlot() {
+  const overlay = document.getElementById("deletePopup");
+  const key = overlay.dataset.key;
+  const slotIdx = parseInt(overlay.dataset.slot, 10);
+  closeDeletePopup();
+  if (key == null || isNaN(slotIdx)) return;
+
+  // Build a custom-slots array if not already, then splice out this slot
+  let slots = getSessionSlots(key).slice();
+  slots.splice(slotIdx, 1);
+
+  if (key === "custom") {
+    state.customSession.slots = slots;
+  } else {
+    state.customSlots[key] = slots;
+  }
+
+  // Re-index altIndex + today's log to keep alignment with new slot positions
+  reindexAfterRemoval(key, slotIdx);
+
+  saveState();
+  renderWorkout(key);
+}
+
+function reindexAfterRemoval(key, removedIdx) {
+  // Drop the removed entry's altIndex key, shift higher ones down
+  const newAlt = {};
+  Object.entries(state.altIndex).forEach(([k, v]) => {
+    if (!k.startsWith(key + "_")) { newAlt[k] = v; return; }
+    const idx = parseInt(k.split("_")[1], 10);
+    if (idx === removedIdx) return; // drop
+    if (idx > removedIdx) newAlt[`${key}_${idx - 1}`] = v;
+    else newAlt[k] = v;
+  });
+  state.altIndex = newAlt;
+
+  // Shift today's log entries down too
+  const today = todayKey();
+  const log = state[key + "Log"][today];
+  if (log) {
+    const newLog = {};
+    Object.entries(log).forEach(([k, v]) => {
+      if (k === "_completed") { newLog[k] = v; return; }
+      const idx = parseInt(k, 10);
+      if (isNaN(idx)) { newLog[k] = v; return; }
+      if (idx === removedIdx) return;
+      if (idx > removedIdx) newLog[idx - 1] = v;
+      else newLog[idx] = v;
+    });
+    state[key + "Log"][today] = newLog;
+  }
+}
+
+function deletePopupReplace() {
+  const overlay = document.getElementById("deletePopup");
+  const key = overlay.dataset.key;
+  const slotIdx = parseInt(overlay.dataset.slot, 10);
+  closeDeletePopup();
+  if (key == null || isNaN(slotIdx)) return;
+  cycleAlternative(key, slotIdx);
+}
+
+// ===== How-to modal =====
+function openHowTo(url, name) {
+  document.getElementById("howToTitle").textContent = name ? `How-to: ${name}` : "How-to";
+  document.getElementById("howToLink").href = url || "#";
+  document.getElementById("howToLink").textContent = "Open YouTube search";
+  document.getElementById("howToModal").classList.add("open");
+}
+function closeHowTo() {
+  document.getElementById("howToModal").classList.remove("open");
+}
+
+// ===== Add exercise picker =====
+function openAddExercise(key) {
+  const modal = document.getElementById("addExerciseModal");
+  modal.dataset.key = key;
+  // Build picker grouped by muscle group
+  const groups = {};
+  Object.entries(EX).forEach(([id, ex]) => {
+    if (!ex.group) return;
+    if (!groups[ex.group]) groups[ex.group] = [];
+    groups[ex.group].push({ id, ex });
+  });
+  const groupNameMap = {};
+  if (typeof MUSCLE_GROUPS !== "undefined") {
+    MUSCLE_GROUPS.forEach(g => { groupNameMap[g.id] = g.name; });
+  }
+  const listEl = document.getElementById("addExerciseList");
+  const groupKeys = Object.keys(groups).sort();
+  listEl.innerHTML = groupKeys.map(g => `
+    <div class="picker-group">
+      <h4>${groupNameMap[g] || g}</h4>
+      <div class="picker-list">
+        ${groups[g].map(({id, ex}) => `
+          <button class="picker-item" onclick="addExerciseToSession('${id}')">
+            <span class="pi-name">${ex.name}</span>
+            <span class="pi-meta">${ex.sets} · rest ${ex.rest}</span>
+          </button>
+        `).join("")}
+      </div>
+    </div>
+  `).join("");
+  // Reset search
+  const searchEl = document.getElementById("addExerciseSearch");
+  if (searchEl) { searchEl.value = ""; filterAddExercise(""); }
+  modal.classList.add("open");
+}
+function closeAddExercise() {
+  document.getElementById("addExerciseModal").classList.remove("open");
+}
+function filterAddExercise(q) {
+  const needle = (q || "").trim().toLowerCase();
+  document.querySelectorAll("#addExerciseList .picker-item").forEach(btn => {
+    const text = btn.textContent.toLowerCase();
+    btn.style.display = (!needle || text.indexOf(needle) >= 0) ? "" : "none";
+  });
+  document.querySelectorAll("#addExerciseList .picker-group").forEach(g => {
+    const anyVisible = Array.from(g.querySelectorAll(".picker-item")).some(b => b.style.display !== "none");
+    g.style.display = anyVisible ? "" : "none";
+  });
+}
+function addExerciseToSession(exId) {
+  const modal = document.getElementById("addExerciseModal");
+  const key = modal.dataset.key;
+  if (!key) return;
+  let slots = getSessionSlots(key).slice();
+  slots.push(exId);
+  if (key === "custom") {
+    state.customSession.slots = slots;
+  } else {
+    state.customSlots[key] = slots;
+  }
+  saveState();
+  closeAddExercise();
+  renderWorkout(key);
+  // Scroll to the new last card
+  setTimeout(() => scrollCarouselTo(key, slots.length - 1), 60);
 }
 
 function ensureLog(key, slotIdx) {
@@ -2510,18 +3012,194 @@ document.getElementById("bwDate").value = todayKey();
   syncDur();
 })();
 
-migrateExerciseIds();
-renderAll();
-// Initialise bottom-nav active state to match the currently-active view
-(function initBottomNav() {
+function bootApp() {
+  migrateExerciseIds();
+  renderAll();
   const active = document.querySelector(".view.active");
   if (active) {
     const group = bnGroupForView(active.id);
     document.querySelectorAll(".bn-item").forEach(b => b.classList.toggle("active", b.dataset.bn === group));
   }
-})();
+}
 window.addEventListener("resize", renderBodyweight);
+
+// ===== PASSWORD GATE =====
+const PW_HASH_KEY = "boulderFit_pwHash_v1";
+
+async function sha256(text) {
+  const enc = new TextEncoder().encode(text);
+  const hash = await crypto.subtle.digest("SHA-256", enc);
+  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+function showLockError(msg) {
+  const errEl = document.getElementById("lockError");
+  const inp = document.getElementById("lockPasswordInput");
+  errEl.textContent = msg;
+  inp.classList.add("error");
+  setTimeout(() => inp.classList.remove("error"), 500);
+}
+
+function clearLockError() {
+  document.getElementById("lockError").textContent = "";
+}
+
+async function handleLockSubmit() {
+  const inp = document.getElementById("lockPasswordInput");
+  const submitBtn = document.getElementById("lockSubmit");
+  const pw = inp.value;
+  if (!pw || pw.length < 4) {
+    showLockError("Password must be at least 4 characters.");
+    return;
+  }
+  const stored = localStorage.getItem(PW_HASH_KEY);
+  if (!stored) {
+    // First-time setup
+    if (submitBtn.dataset.confirm === "1") {
+      // This is the confirm step
+      const firstHash = submitBtn.dataset.firstHash;
+      const confirmHash = await sha256(pw);
+      if (firstHash !== confirmHash) {
+        showLockError("Passwords don't match. Try again.");
+        inp.value = "";
+        // Reset to step 1
+        submitBtn.dataset.confirm = "0";
+        delete submitBtn.dataset.firstHash;
+        document.getElementById("lockSub").textContent = "Set a password for the app. Don't forget it — there's no recovery.";
+        submitBtn.textContent = "Set password";
+        return;
+      }
+      localStorage.setItem(PW_HASH_KEY, confirmHash);
+      unlockApp();
+    } else {
+      // First step — capture hash, ask for confirm
+      const h = await sha256(pw);
+      submitBtn.dataset.confirm = "1";
+      submitBtn.dataset.firstHash = h;
+      inp.value = "";
+      clearLockError();
+      document.getElementById("lockSub").textContent = "Confirm your password.";
+      submitBtn.textContent = "Confirm and unlock";
+    }
+  } else {
+    // Unlock flow
+    const h = await sha256(pw);
+    if (h === stored) {
+      unlockApp();
+    } else {
+      showLockError("Wrong password.");
+      inp.value = "";
+    }
+  }
+}
+
+function unlockApp() {
+  document.body.classList.remove("is-locked");
+  document.getElementById("lockScreen").style.display = "none";
+  document.getElementById("lockPasswordInput").value = "";
+  bootApp();
+}
+
+function forgotPassword() {
+  if (!confirm("This will WIPE all local data: workouts, climbs, body-weight log, PRs — and reset the password. Continue?")) return;
+  // Wipe everything
+  localStorage.clear();
+  location.reload();
+}
+
+function initPasswordGate() {
+  const lockScreen = document.getElementById("lockScreen");
+  const inp = document.getElementById("lockPasswordInput");
+  const sub = document.getElementById("lockSub");
+  const btn = document.getElementById("lockSubmit");
+  document.body.classList.add("is-locked");
+  lockScreen.style.display = "flex";
+  const stored = localStorage.getItem(PW_HASH_KEY);
+  if (!stored) {
+    sub.textContent = "Welcome. Set a password to protect your training data. Don't forget it — there's no recovery.";
+    btn.textContent = "Set password";
+    btn.dataset.confirm = "0";
+  } else {
+    sub.textContent = "Enter your password to unlock the app.";
+    btn.textContent = "Unlock";
+    btn.dataset.confirm = "0";
+  }
+  // Enter key submits
+  inp.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); handleLockSubmit(); }
+    else if (e.key !== "Tab") { clearLockError(); }
+  });
+  setTimeout(() => inp.focus(), 100);
+}
+
+// Lock immediately so nothing flashes; finish setup after DOM is parsed
+document.body.classList.add("is-locked");
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initPasswordGate);
+} else {
+  initPasswordGate();
+}
 </script>
+
+<!-- ===== DELETE / REPLACE POPUP ===== -->
+<div class="popup-overlay" id="deletePopup" data-key="" data-slot="" onclick="if(event.target===this) closeDeletePopup()">
+  <div class="popup-card" role="dialog" aria-modal="true" aria-labelledby="deletePopupTitle">
+    <h3 id="deletePopupTitle">Remove <span id="deletePopupName">this exercise</span>?</h3>
+    <p>Delete it from today's session, or swap it for a different exercise targeting the same muscle group.</p>
+    <div class="popup-actions">
+      <button class="danger" onclick="deleteExerciseSlot()">Delete</button>
+      <button class="secondary" onclick="deletePopupReplace()">Replace (next alternative)</button>
+      <button class="cancel" onclick="closeDeletePopup()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== HOW-TO MODAL ===== -->
+<div class="modal-backdrop" id="howToModal" onclick="if(event.target===this) closeHowTo()">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="howToTitle">
+    <div class="modal-header">
+      <h2 id="howToTitle">How-to</h2>
+      <button class="modal-close" onclick="closeHowTo()" aria-label="Close">×</button>
+    </div>
+    <div class="howto-fallback">
+      <div class="yt-logo">▶</div>
+      <div style="font-size: 14px; color: var(--text); font-weight: 600;">YouTube tutorials</div>
+      <div class="howto-note">Tap below to open YouTube search results for this exercise in a new tab. Pick a video that matches your gear and level — climbers tend to like Emil Abrahamsson, Hooper's Beta, and Lattice Training.</div>
+      <a id="howToLink" class="howto-open-link" href="#" target="_blank" rel="noopener">Open YouTube search ↗</a>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ADD EXERCISE MODAL ===== -->
+<div class="modal-backdrop" id="addExerciseModal" data-key="" onclick="if(event.target===this) closeAddExercise()">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="addExerciseTitle">
+    <div class="modal-header">
+      <h2 id="addExerciseTitle">Add an exercise</h2>
+      <button class="modal-close" onclick="closeAddExercise()" aria-label="Close">×</button>
+    </div>
+    <div class="picker-search">
+      <input id="addExerciseSearch" type="text" placeholder="Search exercises..." oninput="filterAddExercise(this.value)" />
+    </div>
+    <div id="addExerciseList"></div>
+  </div>
+</div>
+
+<!-- ===== PASSWORD GATE ===== -->
+<div class="lock-screen" id="lockScreen" style="display:none;">
+  <div class="lock-logo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="5" y="11" width="14" height="9" rx="2"/>
+      <path d="M8 11V8a4 4 0 0 1 8 0v3"/>
+    </svg>
+  </div>
+  <h1 class="lock-title" id="lockTitle">Boulder<span class="accent">.fit</span></h1>
+  <p class="lock-sub" id="lockSub">Enter your password to unlock the app.</p>
+  <input type="password" id="lockPasswordInput" class="lock-input" placeholder="Password" autocomplete="off" inputmode="text" />
+  <div class="lock-error" id="lockError"></div>
+  <button class="lock-submit" id="lockSubmit" onclick="handleLockSubmit()">Unlock</button>
+  <button class="lock-forgot" onclick="forgotPassword()">Forgot password (resets app)</button>
+  <p class="lock-disclaimer">Heads up: this is a soft lock, not real security. Anyone with browser DevTools can bypass it. Don't use this app for anything that needs real protection.</p>
+</div>
 
 <!-- ===== BOTTOM NAVIGATION ===== -->
 <nav class="bottom-nav" role="navigation" aria-label="Primary">
