@@ -124,15 +124,30 @@
     padding: 22px;
     margin-bottom: 18px;
     overflow: hidden;
+    background-size: cover;
+    background-position: center top;
+    background-repeat: no-repeat;
+    transition: background-image 0.3s ease;
+  }
+  .hero-today::before {
+    /* dark legibility overlay between photo and content */
+    content: "";
+    position: absolute; inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(180deg, rgba(11,27,43,0.50) 0%, rgba(11,27,43,0.82) 100%);
+    z-index: 0;
+    pointer-events: none;
   }
   .hero-today::after {
-    /* soft inner glow ring */
+    /* soft inner glow ring (kept on top of overlay, below content) */
     content: "";
     position: absolute; inset: 0;
     border-radius: inherit;
     pointer-events: none;
     background: radial-gradient(120% 80% at 100% 0%, rgba(255,224,0,0.18), transparent 55%);
+    z-index: 0;
   }
+  .hero-today > * { position: relative; z-index: 1; }
   .hero-today .hero-eyebrow {
     font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase;
     color: var(--accent); font-weight: 700;
@@ -929,6 +944,15 @@
     margin: 8px 0 14px;
     border: 1px solid var(--border);
   }
+  .howto-iframe-wrap.portrait {
+    /* YouTube Shorts — play the video upright */
+    aspect-ratio: 9/16;
+    max-height: 70vh;
+    width: auto;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
   .howto-iframe-wrap iframe { width: 100%; height: 100%; border: 0; }
   .howto-fallback {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -1509,10 +1533,10 @@ const EX = {
   face_pull: { name: "Cable face pull", sets: "3 x 12-15", rest: "60 s", why: "Most important antagonist drill — shoulder health", target: "Rear delts, external rotators", link: "https://www.youtube.com/shorts/MChHOiaCR7s", group: "antagonist" },
   reverse_pec_deck: { name: "Reverse pec deck", sets: "3 x 12-15", rest: "60 s", why: "Rear delt isolation on a machine", target: "Rear delts", link: "https://www.youtube.com/shorts/H5UxZFl0lgk", group: "antagonist" },
   band_pull_apart: { name: "Band pull-apart", sets: "3 x 20", rest: "30 s", why: "Climber's secret — rear delts and posture", target: "Rear delts, traps", link: "https://www.youtube.com/shorts/MxQlSph7Zug", group: "antagonist" },
-  y_raise: { name: "Y-raise (DB or band)", sets: "3 x 12", rest: "60 s", why: "Lower trap activation, posture fix", target: "Lower traps, rear delts", link: "https://www.youtube.com/results?search_query=y+raise+exercise+form", group: "antagonist" },
+  y_raise: { name: "Y-raise (DB or band)", sets: "3 x 12", rest: "60 s", why: "Lower trap activation, posture fix", target: "Lower traps, rear delts", link: "https://www.youtube.com/shorts/BvxuWwQOj_E", group: "antagonist" },
   external_rotation: { name: "Cable external rotation", sets: "3 x 12/side", rest: "60 s", why: "Rotator cuff strength for climbers", target: "Rotator cuff", link: "https://www.youtube.com/shorts/6wHaXpM6JgE", group: "antagonist" },
 
-  cable_fly: { name: "Cable chest fly", sets: "3 x 12", rest: "60 s", why: "Opens up chest, counters climber's hunch", target: "Chest", link: "https://www.youtube.com/watch?v=XgekALiC8Ik", group: "push_chest" },
+  cable_fly: { name: "Cable chest fly", sets: "3 x 12", rest: "60 s", why: "Opens up chest, counters climber's hunch", target: "Chest", link: "https://www.youtube.com/shorts/y4RJDSOBEl8", group: "push_chest" },
   pec_deck: { name: "Pec deck machine", sets: "3 x 12", rest: "60 s", why: "Stable chest isolation", target: "Chest", link: "https://www.youtube.com/shorts/fgXSA2-o0NM", group: "push_chest" },
   db_fly: { name: "Dumbbell fly", sets: "3 x 12", rest: "60 s", why: "Free-weight chest stretch and contraction", target: "Chest", link: "https://www.youtube.com/shorts/95g8rULJSfY", group: "push_chest" },
 
@@ -1540,7 +1564,7 @@ const EX = {
   leg_extension: { name: "Leg extension", sets: "3 x 12-15", rest: "60 s", why: "Quad isolation", target: "Quads", link: "https://www.youtube.com/shorts/uM86QE59Tgc", group: "legs_quads" },
 
   rdl: { name: "Romanian deadlift", sets: "3 x 8-10", rest: "2 min", why: "Posterior chain — heel hooks, high steps", target: "Hamstrings, glutes", link: "https://www.youtube.com/shorts/8tm3JW1UpAs", group: "legs_hamstrings" },
-  conventional_dl: { name: "Conventional deadlift", sets: "3 x 5", rest: "3 min", why: "Total-body strength builder", target: "Posterior chain, traps", link: "https://www.youtube.com/watch?v=ZaTM37cfiDs", group: "legs_hamstrings" },
+  conventional_dl: { name: "Conventional deadlift", sets: "3 x 5", rest: "3 min", why: "Total-body strength builder", target: "Posterior chain, traps", link: "https://www.youtube.com/shorts/xNwpvDuZJ3k", group: "legs_hamstrings" },
   single_leg_rdl: { name: "Single-leg RDL", sets: "3 x 10/leg", rest: "90 s", why: "Hamstring strength + balance", target: "Hamstrings, glutes", link: "https://www.youtube.com/shorts/wHktyQBgejo", group: "legs_hamstrings" },
   leg_curl: { name: "Leg curl machine", sets: "3 x 12", rest: "60 s", why: "Hamstring isolation", target: "Hamstrings", link: "https://www.youtube.com/shorts/_lgE0gPvbik", group: "legs_hamstrings" },
   good_morning: { name: "Good morning", sets: "3 x 10", rest: "90 s", why: "Hip-hinge pattern + erectors", target: "Hamstrings, erectors", link: "https://www.youtube.com/shorts/4LYL84PV3AY", group: "legs_hamstrings" },
@@ -2174,6 +2198,9 @@ function openHowTo(url, name) {
     // Embed video inline. ?playsinline=1 for iOS, ?rel=0 to hide unrelated suggestions.
     iframe.src = `https://www.youtube.com/embed/${videoId}?playsinline=1&rel=0`;
     iframeWrap.style.display = "";
+    // If the source is a YouTube Short, render in portrait 9:16
+    const isShort = /youtube\.com\/shorts\//i.test(url || "");
+    iframeWrap.classList.toggle("portrait", isShort);
     fallback.style.display = "none";
     openOnYT.style.display = "";
     ytLink.href = url;
@@ -2822,6 +2849,21 @@ function renderOverview() {
 
 // ===== v4 home dashboard renderers =====
 // Updates ALL hero blocks (home + calendar) using data-hero attributes.
+const HERO_IMG_BASE = 'https://cdn.jsdelivr.net/gh/xander-netizen/boulder-fit@main/images/';
+const HERO_IMAGES = {
+  gymA:     'asset_64977ce5-c300-4743-bd68-82c1f0935600.webp',  // side plank — push/core
+  gymB:     'asset_5d65fdee-2e35-4a7c-9779-d0abdf502b0a.webp',  // dead hang — pull/grip
+  climb:    'asset_4e87d132-3dd5-43f2-a6cc-cd89075911af.webp',  // high leg lift — climbing
+  custom:   'asset_8da54f77-05dd-4f4d-b8f1-91f55c1f1392.webp',  // sprint — anything-goes
+  calendar: 'asset_cee4c0cd-5afa-4df8-96c1-49bbf19de59f.webp',  // superman — rest / free day
+};
+function setHeroBackground(view) {
+  const file = HERO_IMAGES[view] || HERO_IMAGES.calendar;
+  const url = `url('${HERO_IMG_BASE}${file}')`;
+  document.querySelectorAll('[data-hero-block]').forEach(el => {
+    el.style.backgroundImage = url;
+  });
+}
 function renderHero(match, todayDow) {
   const setAll = (sel, txt) => {
     document.querySelectorAll(`[data-hero="${sel}"]`).forEach(el => { el.textContent = txt; });
@@ -2833,6 +2875,7 @@ function renderHero(match, todayDow) {
     setAll("sub", "Nothing scheduled. Build a custom session or log a climb.");
     setAll("cta-label", "Build session");
     document.querySelectorAll('[data-hero="cta"]').forEach(el => el.setAttribute("data-target", "custom"));
+    setHeroBackground("calendar");
     return;
   }
   const titles = { gymA: "Push & Core", gymB: "Legs & Pull", climb: "Climb day", custom: "Custom session", overview: "Today" };
@@ -2848,6 +2891,7 @@ function renderHero(match, todayDow) {
   setAll("sub",   subs[v]   || (match.focus || "Today's training"));
   setAll("cta-label", ctas[v] || "Open");
   document.querySelectorAll('[data-hero="cta"]').forEach(el => el.setAttribute("data-target", v));
+  setHeroBackground(v);
 }
 
 // Called from the clicked CTA button — uses its own data-target so home and calendar both work.
