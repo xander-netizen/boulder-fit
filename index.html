@@ -256,6 +256,53 @@
     .tab { flex-shrink: 0; }
   }
 
+  /* ===== SESSION FOCUS HEADER ===== */
+  .session-focus-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    margin: 0 -18px 14px;
+    background: rgba(13,15,10,0.78);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border-bottom: 1px solid var(--border-bright);
+  }
+  @supports not ((backdrop-filter: blur(20px)) or (-webkit-backdrop-filter: blur(20px))) {
+    .session-focus-header { background: rgba(13,15,10,0.96); }
+  }
+  @media (min-width: 760px) {
+    .session-focus-header { margin: 0 -28px 14px; }
+  }
+  .sfh-back {
+    width: 38px; height: 38px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: rgba(184,255,0,0.08); border: 1px solid var(--border-bright);
+    color: var(--accent); border-radius: 12px; cursor: pointer; padding: 0; min-height: 0;
+    flex-shrink: 0;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .sfh-back:hover { background: rgba(184,255,0,0.16); border-color: var(--accent); }
+  .sfh-back svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+  .sfh-title { flex: 1; min-width: 0; }
+  .sfh-title .sfh-eyebrow { font-size: 9px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--muted); font-weight: 700; line-height: 1.2; }
+  .sfh-title .sfh-name { font-size: 14px; font-weight: 700; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sfh-progress {
+    font-size: 12px; color: var(--accent); font-weight: 700;
+    padding: 6px 12px; border: 1px solid var(--border-bright); border-radius: 999px;
+    background: rgba(184,255,0,0.06);
+    flex-shrink: 0;
+  }
+  .sfh-progress .label { color: var(--muted); font-weight: 600; margin-left: 4px; font-size: 10px; }
+
+  /* When in a focused session view, hide the top tab strip on small screens */
+  @media (max-width: 760px) {
+    body.session-focus .tabs { display: none; }
+  }
+
   /* ===== ANIMATIONS ===== */
   @keyframes pulseGlow {
     0%, 100% { box-shadow: 0 0 0 1px rgba(184,255,0,0.3), 0 12px 24px -8px rgba(184,255,0,0.45); }
@@ -350,46 +397,59 @@
   .chip.mobility { background: rgba(139,92,246,0.15); color: #8b5cf6; }
 
   /* Exercise card layout (replaces table) */
-  .exercise-list { display: flex; flex-direction: column; gap: 14px; margin-top: 12px; }
+  .exercise-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
   .exercise {
-    background: var(--panel-2);
+    background: linear-gradient(165deg, rgba(184,255,0,0.04), rgba(31,35,25,0.7));
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
+    border-radius: 18px;
+    padding: 18px;
     position: relative;
+    transition: border-color 0.2s ease, transform 0.18s ease;
+  }
+  .exercise:hover { border-color: rgba(184,255,0,0.22); }
+  .exercise.is-done {
+    border-color: rgba(184,255,0,0.35);
+    background: linear-gradient(165deg, rgba(184,255,0,0.08), rgba(31,35,25,0.7));
   }
   .exercise-header { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
   .exercise-title { flex: 1; }
-  .exercise-name { font-weight: 600; font-size: 15px; }
-  .exercise-why { color: var(--muted); font-size: 12px; margin-top: 4px; line-height: 1.4; }
+  .exercise-name { font-weight: 700; font-size: 16px; letter-spacing: -0.2px; }
+  .exercise-why { color: var(--muted); font-size: 12px; margin-top: 4px; line-height: 1.45; }
   .exercise-meta { display: flex; gap: 14px; font-size: 12px; color: var(--muted); margin-top: 10px; flex-wrap: wrap; }
-  .exercise-meta strong { color: var(--text); }
+  .exercise-meta strong { color: var(--text); font-weight: 700; }
   .done-toggle {
-    width: 28px; height: 28px; border-radius: 8px; border: 1.5px solid var(--border);
-    background: var(--panel); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; color: transparent; flex-shrink: 0;
+    width: 32px; height: 32px; border-radius: 10px; border: 1.5px solid var(--border);
+    background: rgba(13,15,10,0.6); cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+    font-size: 16px; color: transparent; flex-shrink: 0; font-weight: 800;
+    transition: all 0.18s ease;
   }
-  .done-toggle.done { background: var(--success); border-color: var(--success); color: #0f1115; }
+  .done-toggle:hover { border-color: var(--accent); }
+  .done-toggle.done {
+    background: var(--accent); border-color: var(--accent); color: #0d0f0a;
+    box-shadow: 0 0 0 1px rgba(184,255,0,0.4), 0 0 16px var(--accent-glow);
+  }
 
-  .exercise-actions { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+  .exercise-actions { display: flex; gap: 6px; margin-top: 14px; flex-wrap: wrap; }
   .pill-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 7px 14px;
-    min-height: 28px;
+    padding: 8px 14px;
+    min-height: 30px;
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 600;
     line-height: 1;
     border-radius: 999px;
-    background: var(--panel);
-    color: var(--accent-2);
+    background: rgba(13,15,10,0.5);
+    color: var(--text);
     text-decoration: none;
-    border: 1px solid rgba(76,201,240,0.25);
+    border: 1px solid var(--border);
     cursor: pointer;
     font-family: inherit;
+    transition: all 0.15s ease;
   }
-  .pill-btn:hover { background: rgba(76,201,240,0.12); }
-  .pill-btn.alt { color: var(--warn); border-color: rgba(250,204,21,0.3); }
+  .pill-btn:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  .pill-btn.alt { color: var(--warn); border-color: rgba(250,204,21,0.25); }
   .pill-btn.alt:hover { background: rgba(250,204,21,0.1); }
   .pill-btn.repeat { color: var(--success); border-color: rgba(74,222,128,0.3); }
   .pill-btn.repeat:hover { background: rgba(74,222,128,0.1); }
@@ -838,6 +898,16 @@
 
 <!-- GYM A -->
 <section class="view" id="gymA">
+  <div class="session-focus-header">
+    <button class="sfh-back" onclick="switchView('overview')" aria-label="Back to home">
+      <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>
+    </button>
+    <div class="sfh-title">
+      <div class="sfh-eyebrow">Session</div>
+      <div class="sfh-name">Gym A · Push & Core</div>
+    </div>
+    <div class="sfh-progress" id="gymAProgress">0<span class="label">/0</span></div>
+  </div>
   <div class="card">
     <h2 id="gymATitle">Gym A — Push, Antagonists and Core</h2>
     <p class="tip">Goal: balance all the pulling you do climbing. Strong push, rear-delt, and core make you injury-proof and shoulder-stable on hard moves. ~60 min.</p>
@@ -864,6 +934,16 @@
 
 <!-- GYM B -->
 <section class="view" id="gymB">
+  <div class="session-focus-header">
+    <button class="sfh-back" onclick="switchView('overview')" aria-label="Back to home">
+      <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>
+    </button>
+    <div class="sfh-title">
+      <div class="sfh-eyebrow">Session</div>
+      <div class="sfh-name">Gym B · Legs & Pull</div>
+    </div>
+    <div class="sfh-progress" id="gymBProgress">0<span class="label">/0</span></div>
+  </div>
   <div class="card">
     <h2 id="gymBTitle">Gym B — Legs, Pull Power and Grip</h2>
     <p class="tip">Goal: heavy lower-body, weighted pulls for finger-independent pulling power, grip and core carries. ~60 min.</p>
@@ -890,6 +970,16 @@
 
 <!-- CUSTOM SESSION -->
 <section class="view" id="custom">
+  <div class="session-focus-header">
+    <button class="sfh-back" onclick="switchView('overview')" aria-label="Back to home">
+      <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>
+    </button>
+    <div class="sfh-title">
+      <div class="sfh-eyebrow">Session</div>
+      <div class="sfh-name">Custom · Build your own</div>
+    </div>
+    <div class="sfh-progress" id="customProgress">0<span class="label">/0</span></div>
+  </div>
   <div class="card">
     <h2>Build your session</h2>
     <p class="tip">Pick the muscle groups you want to train. I'll build a session that fits your time and pulls exercises from a wide library — different from your standard Gym A and B.</p>
@@ -1573,7 +1663,7 @@ function renderWorkout(key) {
     const prThreshold = getBestE1RM(resolvedExId, todayKey()); // best e1RM strictly before today
 
     const card = document.createElement("div");
-    card.className = "exercise";
+    card.className = "exercise" + (entry.done ? " is-done" : "");
 
     let setsHTML = "";
     sets.forEach((s, sIdx) => {
@@ -1637,6 +1727,15 @@ function renderWorkout(key) {
     `;
     container.appendChild(card);
   });
+
+  // Update sticky session focus header progress count (X done / N total)
+  const progressEl = document.getElementById(key + "Progress");
+  if (progressEl) {
+    const total = slots.length;
+    let done = 0;
+    slots.forEach((_, idx) => { if (log[idx] && log[idx].done) done++; });
+    progressEl.innerHTML = done + '<span class="label">/' + total + '</span>';
+  }
 }
 
 function ensureLog(key, slotIdx) {
