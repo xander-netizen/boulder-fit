@@ -100,6 +100,28 @@
   }
   .card h2 { margin: 0 0 12px; font-size: 18px; font-weight: 700; letter-spacing: -0.2px; }
   .card h3 { margin: 18px 0 8px; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
+  /* Collapsible cards (used on Custom view to hide picker/combos after generating) */
+  .card.collapsible > h2 {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    user-select: none;
+  }
+  .card.collapsible > h2::after {
+    content: "";
+    width: 10px; height: 10px;
+    border-right: 2px solid var(--muted);
+    border-bottom: 2px solid var(--muted);
+    transform: rotate(45deg);
+    transition: transform 0.2s ease;
+    margin-right: 4px;
+    flex-shrink: 0;
+  }
+  .card.collapsible.is-collapsed > h2 { margin-bottom: 0; }
+  .card.collapsible.is-collapsed > h2::after { transform: rotate(-45deg); }
+  .card.collapsible.is-collapsed > *:not(h2) { display: none; }
 
   /* ===== LIQUID GLASS LAYER ===== */
   .glass {
@@ -1253,8 +1275,8 @@
     </div>
     <div class="sfh-progress" id="customProgress">0<span class="label">/0</span></div>
   </div>
-  <div class="card">
-    <h2>Build your session</h2>
+  <div class="card collapsible" id="customBuildCard">
+    <h2 onclick="toggleCustomCard('customBuildCard')">Build your session</h2>
     <p class="tip">Pick the muscle groups you want to train. I'll build a session that fits your time and pulls exercises from a wide library — different from your standard programs.</p>
 
     <h3 style="margin-top: 18px;">1. What do you want to train?</h3>
@@ -1272,8 +1294,8 @@
     </div>
   </div>
 
-  <div class="card">
-    <h2>Smart combos</h2>
+  <div class="card collapsible" id="customCombosCard">
+    <h2 onclick="toggleCustomCard('customCombosCard')">Smart combos</h2>
     <p class="tip">Tested combinations that work well together. Tap one to load it.</p>
     <div class="combo-suggestions" id="comboSuggestions"></div>
   </div>
@@ -2623,6 +2645,25 @@ function renderCombos() {
   `).join("");
 }
 
+function toggleCustomCard(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle("is-collapsed");
+}
+function collapseCustomBuildPicker() {
+  ["customBuildCard","customCombosCard"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add("is-collapsed");
+  });
+}
+function scrollToCustomSession() {
+  const target = document.getElementById("customSessionCard");
+  if (!target) return;
+  // Allow the show/hide layout pass to settle before scrolling
+  setTimeout(() => {
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 60);
+}
+
 function loadCombo(idx) {
   const c = COMBO_SUGGESTIONS[idx];
   state.customSession.groups = c.groups.slice();
@@ -2663,6 +2704,10 @@ function generateCustom() {
   document.getElementById("customSessionCard").style.display = "";
   document.getElementById("customSessionTitle").textContent = `Your custom session (${duration} min, ${slots.length} exercises)`;
   renderWorkout("custom");
+
+  // Fold up the picker + combos and scroll to the new session
+  collapseCustomBuildPicker();
+  scrollToCustomSession();
 }
 
 function regenerateCustom() {
@@ -3094,6 +3139,7 @@ function renderAll() {
     document.getElementById("customSessionCard").style.display = "";
     document.getElementById("customSessionTitle").textContent = `Your custom session (${state.customSession.duration} min, ${state.customSession.slots.length} exercises)`;
     renderWorkout("custom");
+    collapseCustomBuildPicker();
   }
   renderMuscleGrid();
   renderCombos();
