@@ -9,38 +9,62 @@
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="Boulder Fit" />
 <title>Boulder Fit — Your Training Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0f1115;
-    --panel: #161a22;
-    --panel-2: #1d2230;
-    --border: #272c38;
-    --text: #e7ecf3;
-    --muted: #9aa4b2;
-    --accent: #ff7a45;
-    --accent-2: #4cc9f0;
-    --success: #4ade80;
+    /* v4 — dark/neon palette per design brief */
+    --bg: #0d0f0a;
+    --bg-deep: #07080a;
+    --panel: #1a1d16;
+    --panel-2: #1f2319;
+    --panel-3: #262b1d;
+    --border: #2a3022;
+    --border-bright: rgba(184,255,0,0.18);
+    --text: #ffffff;
+    --muted: #8a8a8a;
+    --muted-2: #6a6a6a;
+    --accent: #B8FF00;
+    --accent-soft: rgba(184,255,0,0.14);
+    --accent-glow: rgba(184,255,0,0.45);
+    --accent-2: #B8FF00;
+    --success: #B8FF00;
     --warn: #facc15;
     --danger: #f87171;
-    --climb: #8b5cf6;
-    --gym: #ff7a45;
+    --climb: #c084fc;
+    --gym: #B8FF00;
     --rest: #475569;
     --cardio: #4cc9f0;
   }
   * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; }
-  a { color: var(--accent-2); }
+  html, body {
+    margin: 0; padding: 0; background: var(--bg); color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  /* Subtle radial glow under everything — gives the dark a tinted, lived-in feel */
+  body {
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(184,255,0,0.06), transparent 60%), var(--bg);
+    background-attachment: fixed;
+  }
+  a { color: var(--accent); }
   header {
-    padding: 20px 28px;
+    padding: 18px 22px 16px;
     border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: linear-gradient(180deg, rgba(255,122,69,0.08), transparent);
+    background: transparent;
   }
-  header h1 { margin: 0; font-size: 20px; letter-spacing: 0.2px; }
+  header h1 {
+    margin: 0; font-size: 22px; letter-spacing: -0.3px; font-weight: 800;
+  }
+  header h1 .accent { color: var(--accent); }
   header .tagline { color: var(--muted); font-size: 13px; margin-top: 2px; }
-  .wrap { padding: 24px 28px 80px; max-width: 1320px; margin: 0 auto; }
+  .wrap { padding: 18px 18px calc(110px + env(safe-area-inset-bottom)); max-width: 1320px; margin: 0 auto; }
+  @media (min-width: 760px) { .wrap { padding-left: 28px; padding-right: 28px; } }
   .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 24px; }
   .tab {
     background: var(--panel);
@@ -53,19 +77,207 @@
     transition: all 0.15s ease;
   }
   .tab:hover { background: var(--panel-2); }
-  .tab.active { background: var(--accent); border-color: var(--accent); color: #14110d; font-weight: 600; }
+  .tab.active { background: var(--accent); border-color: var(--accent); color: #0d0f0a; font-weight: 700; box-shadow: 0 0 18px var(--accent-glow); }
   .view { display: none; }
-  .view.active { display: block; }
+  .view.active { display: block; animation: fadeSlide 0.32s cubic-bezier(0.2, 0.7, 0.2, 1); }
 
   .card {
     background: var(--panel);
     border: 1px solid var(--border);
-    border-radius: 14px;
+    border-radius: 18px;
     padding: 20px;
-    margin-bottom: 18px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.02) inset, 0 12px 32px -16px rgba(0,0,0,0.6);
   }
-  .card h2 { margin: 0 0 12px; font-size: 17px; }
-  .card h3 { margin: 18px 0 8px; font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; }
+  .card h2 { margin: 0 0 12px; font-size: 18px; font-weight: 700; letter-spacing: -0.2px; }
+  .card h3 { margin: 18px 0 8px; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
+
+  /* ===== LIQUID GLASS LAYER ===== */
+  .glass {
+    background: linear-gradient(160deg, rgba(184,255,0,0.08), rgba(20,24,15,0.55));
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border: 1px solid var(--border-bright);
+    box-shadow:
+      0 1px 0 rgba(184,255,0,0.18) inset,
+      0 -1px 0 rgba(255,255,255,0.04) inset,
+      0 18px 48px -20px rgba(0,0,0,0.7),
+      0 0 0 1px rgba(255,255,255,0.02);
+  }
+  @supports not ((backdrop-filter: blur(20px)) or (-webkit-backdrop-filter: blur(20px))) {
+    .glass { background: linear-gradient(160deg, rgba(184,255,0,0.10), rgba(26,29,22,0.92)); }
+  }
+
+  /* ===== HERO CTA — today's session ===== */
+  .hero-today {
+    position: relative;
+    border-radius: 22px;
+    padding: 22px;
+    margin-bottom: 18px;
+    overflow: hidden;
+  }
+  .hero-today::after {
+    /* soft inner glow ring */
+    content: "";
+    position: absolute; inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(120% 80% at 100% 0%, rgba(184,255,0,0.18), transparent 55%);
+  }
+  .hero-today .hero-eyebrow {
+    font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase;
+    color: var(--accent); font-weight: 700;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .hero-today .hero-eyebrow .dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+    box-shadow: 0 0 12px var(--accent-glow);
+    animation: pulseDot 2s ease-in-out infinite;
+  }
+  .hero-today .hero-title {
+    font-size: 26px; font-weight: 800; margin: 8px 0 4px;
+    letter-spacing: -0.6px; line-height: 1.15;
+  }
+  .hero-today .hero-sub {
+    color: var(--muted); font-size: 13px; margin-bottom: 18px; line-height: 1.5;
+  }
+  .hero-today .hero-cta {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--accent); color: #0d0f0a; font-weight: 700;
+    padding: 14px 22px; border-radius: 14px; border: none;
+    font-size: 15px; cursor: pointer; font-family: inherit;
+    box-shadow: 0 0 0 1px rgba(184,255,0,0.3), 0 12px 24px -8px var(--accent-glow);
+    animation: pulseGlow 2.4s ease-in-out infinite;
+    position: relative; z-index: 1;
+  }
+  .hero-today .hero-cta:hover { filter: brightness(1.08); }
+  .hero-today .hero-cta .arrow { font-size: 18px; line-height: 1; transform: translateY(-1px); }
+  .hero-today .hero-secondary {
+    background: transparent; color: var(--text); border: 1px solid var(--border-bright);
+    padding: 12px 16px; margin-left: 8px; border-radius: 14px; font-size: 13px;
+    cursor: pointer; font-family: inherit; font-weight: 500;
+  }
+  .hero-today .hero-secondary:hover { background: var(--accent-soft); border-color: var(--accent); }
+
+  /* ===== RING STAT CARDS ===== */
+  .ring-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px;
+  }
+  @media (min-width: 720px) { .ring-grid { grid-template-columns: repeat(4, 1fr); } }
+  .ring-card {
+    position: relative; padding: 16px; border-radius: 18px;
+    cursor: pointer; min-height: 138px;
+    display: flex; flex-direction: column; gap: 10px; justify-content: space-between;
+    transition: transform 0.18s ease, border-color 0.18s ease;
+  }
+  .ring-card:hover { transform: translateY(-1px); border-color: var(--accent); }
+  .ring-card .rc-label { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .ring-card .rc-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .ring-card .rc-value { font-size: 26px; font-weight: 800; letter-spacing: -0.6px; line-height: 1; }
+  .ring-card .rc-value .unit { font-size: 13px; font-weight: 600; color: var(--muted); margin-left: 3px; }
+  .ring-card .rc-sub { font-size: 11px; color: var(--muted-2); }
+  .ring-card .ring-svg { width: 56px; height: 56px; flex-shrink: 0; }
+  .ring-card .ring-bg { stroke: rgba(255,255,255,0.06); }
+  .ring-card .ring-fg {
+    stroke: var(--accent);
+    stroke-linecap: round;
+    transform: rotate(-90deg); transform-origin: 50% 50%;
+    transition: stroke-dashoffset 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+    filter: drop-shadow(0 0 4px var(--accent-glow));
+  }
+  .ring-card .ring-center {
+    font-size: 11px; font-weight: 700; fill: var(--text);
+  }
+  .ring-card.is-positive .rc-value { color: var(--accent); }
+
+  /* ===== HORIZONTAL DAY STRIP ===== */
+  .day-strip {
+    display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin: 0 -2px 14px;
+    scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .day-strip::-webkit-scrollbar { display: none; }
+  .day-pill {
+    flex: 0 0 auto; min-width: 60px;
+    padding: 10px 8px; border-radius: 14px;
+    background: var(--panel); border: 1px solid var(--border);
+    text-align: center; cursor: pointer; scroll-snap-align: start;
+    transition: all 0.18s ease;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  .day-pill .dp-dow { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
+  .day-pill .dp-label { font-size: 12px; font-weight: 700; }
+  .day-pill .dp-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted-2); margin-top: 2px; }
+  .day-pill.t-gym .dp-dot { background: var(--gym); box-shadow: 0 0 8px var(--accent-glow); }
+  .day-pill.t-climb .dp-dot { background: var(--climb); }
+  .day-pill.t-rest .dp-dot { background: var(--rest); }
+  .day-pill.t-cardio .dp-dot { background: var(--cardio); }
+  .day-pill.is-today {
+    background: linear-gradient(160deg, rgba(184,255,0,0.16), rgba(184,255,0,0.04));
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px rgba(184,255,0,0.25), 0 0 18px -4px var(--accent-glow);
+  }
+  .day-pill.is-today .dp-dow { color: var(--accent); }
+
+  /* ===== BOTTOM NAV ===== */
+  .bottom-nav {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    z-index: 50;
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+    padding: 8px 10px max(8px, env(safe-area-inset-bottom));
+    background: linear-gradient(180deg, rgba(13,15,10,0.5), rgba(13,15,10,0.92));
+    backdrop-filter: blur(22px) saturate(140%);
+    -webkit-backdrop-filter: blur(22px) saturate(140%);
+    border-top: 1px solid rgba(184,255,0,0.12);
+  }
+  @supports not ((backdrop-filter: blur(20px)) or (-webkit-backdrop-filter: blur(20px))) {
+    .bottom-nav { background: rgba(13,15,10,0.96); }
+  }
+  .bn-item {
+    background: transparent; border: none; color: var(--muted-2);
+    padding: 6px 4px 4px; border-radius: 12px;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.3px;
+    cursor: pointer; font-family: inherit; transition: color 0.15s ease;
+  }
+  .bn-item svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .bn-item:hover { color: var(--text); }
+  .bn-item.active { color: var(--accent); }
+  .bn-item.active svg { filter: drop-shadow(0 0 6px var(--accent-glow)); }
+
+  /* Hide top tab strip on small screens — bottom nav takes over */
+  @media (max-width: 760px) {
+    .tabs {
+      display: flex; overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch;
+      scrollbar-width: none; padding-bottom: 4px;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab { flex-shrink: 0; }
+  }
+
+  /* ===== ANIMATIONS ===== */
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 0 1px rgba(184,255,0,0.3), 0 12px 24px -8px rgba(184,255,0,0.45); }
+    50%      { box-shadow: 0 0 0 1px rgba(184,255,0,0.5), 0 12px 36px -6px rgba(184,255,0,0.7); }
+  }
+  @keyframes pulseDot {
+    0%, 100% { box-shadow: 0 0 12px var(--accent-glow); transform: scale(1); }
+    50%      { box-shadow: 0 0 20px var(--accent-glow); transform: scale(1.18); }
+  }
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes shimmer {
+    0%   { background-position: -180% 0; }
+    100% { background-position: 180% 0; }
+  }
+  .shimmer {
+    background: linear-gradient(90deg, transparent 25%, rgba(184,255,0,0.18) 50%, transparent 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.6s linear infinite;
+  }
   .grid { display: grid; gap: 16px; }
   .grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
   .grid-3 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
@@ -454,8 +666,8 @@
 
 <header>
   <div>
-    <h1>Boulder Fit — Your Training Dashboard</h1>
-    <div class="tagline">Climb stronger, build muscle where it counts, lose fat, stay injury-free</div>
+    <h1>Boulder<span class="accent">·</span>Fit</h1>
+    <div class="tagline">Climb stronger · build where it counts · stay injury-free</div>
   </div>
   <div class="row">
     <span class="pill" id="todayPill">Today: —</span>
@@ -480,27 +692,81 @@
 
 <!-- OVERVIEW -->
 <section class="view active" id="overview">
-  <div class="grid grid-4">
-    <div class="metric" onclick="openStatsModal('week')">
-      <div class="label">This week</div>
-      <div class="value" id="overviewCompleted">0/4</div>
-      <div class="sub">Tap for details</div>
+
+  <!-- Hero CTA: today's session -->
+  <div class="hero-today glass" id="heroToday">
+    <div class="hero-eyebrow"><span class="dot"></span><span>Today · <span id="heroDow">—</span></span></div>
+    <div class="hero-title" id="heroTitle">Loading…</div>
+    <div class="hero-sub" id="heroSub">—</div>
+    <div>
+      <button class="hero-cta" id="heroCta" onclick="heroCtaAction()"><span id="heroCtaLabel">Start</span> <span class="arrow">→</span></button>
+      <button class="hero-secondary" onclick="switchView('schedule')">See week</button>
     </div>
-    <div class="metric" onclick="openStatsModal('streak')">
-      <div class="label">Streak</div>
-      <div class="value" id="overviewStreak">0</div>
-      <div class="sub">Tap for details</div>
+  </div>
+
+  <!-- 4 ring stat cards -->
+  <div class="ring-grid">
+    <div class="ring-card glass" onclick="openStatsModal('week')">
+      <div class="rc-label">This week</div>
+      <div class="rc-row">
+        <div>
+          <div class="rc-value" id="overviewCompleted">0/4</div>
+          <div class="rc-sub">sessions</div>
+        </div>
+        <svg class="ring-svg" viewBox="0 0 60 60" aria-hidden="true">
+          <circle class="ring-bg" cx="30" cy="30" r="24" fill="none" stroke-width="6"/>
+          <circle class="ring-fg" cx="30" cy="30" r="24" fill="none" stroke-width="6" stroke-dasharray="150.8" stroke-dashoffset="150.8" id="rcSessionsRing"/>
+        </svg>
+      </div>
     </div>
-    <div class="metric" onclick="openStatsModal('weight')">
-      <div class="label">Weight trend</div>
-      <div class="value" id="overviewWeight">—</div>
-      <div class="sub">Tap for details</div>
+
+    <div class="ring-card glass" onclick="openStatsModal('streak')">
+      <div class="rc-label">Streak</div>
+      <div class="rc-row">
+        <div>
+          <div class="rc-value"><span id="overviewStreak">0</span><span class="unit">w</span></div>
+          <div class="rc-sub">in a row</div>
+        </div>
+        <svg class="ring-svg" viewBox="0 0 60 60" aria-hidden="true">
+          <circle class="ring-bg" cx="30" cy="30" r="24" fill="none" stroke-width="6"/>
+          <circle class="ring-fg" cx="30" cy="30" r="24" fill="none" stroke-width="6" stroke-dasharray="150.8" stroke-dashoffset="150.8" id="rcStreakRing"/>
+        </svg>
+      </div>
     </div>
-    <div class="metric" onclick="openStatsModal('grade')">
-      <div class="label">Hardest send</div>
-      <div class="value" id="overviewGrade">—</div>
-      <div class="sub">Tap for details</div>
+
+    <div class="ring-card glass" onclick="openStatsModal('weight')">
+      <div class="rc-label">Weight</div>
+      <div class="rc-row">
+        <div>
+          <div class="rc-value"><span id="overviewWeight">—</span></div>
+          <div class="rc-sub" id="rcWeightSub">last entry</div>
+        </div>
+        <svg class="ring-svg" viewBox="0 0 60 60" aria-hidden="true">
+          <circle class="ring-bg" cx="30" cy="30" r="24" fill="none" stroke-width="6"/>
+          <circle class="ring-fg" cx="30" cy="30" r="24" fill="none" stroke-width="6" stroke-dasharray="150.8" stroke-dashoffset="0" id="rcWeightRing" style="opacity:0.55"/>
+        </svg>
+      </div>
     </div>
+
+    <div class="ring-card glass" onclick="openStatsModal('grade')">
+      <div class="rc-label">Hardest send</div>
+      <div class="rc-row">
+        <div>
+          <div class="rc-value" id="overviewGrade">—</div>
+          <div class="rc-sub">latest</div>
+        </div>
+        <svg class="ring-svg" viewBox="0 0 60 60" aria-hidden="true">
+          <circle class="ring-bg" cx="30" cy="30" r="24" fill="none" stroke-width="6"/>
+          <circle class="ring-fg" cx="30" cy="30" r="24" fill="none" stroke-width="6" stroke-dasharray="150.8" stroke-dashoffset="0" id="rcGradeRing" style="opacity:0.55"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Horizontal day strip -->
+  <div class="card" style="padding: 14px 14px 12px;">
+    <h3 style="margin: 0 0 10px; padding-left: 4px;">Your week</h3>
+    <div class="day-strip" id="dayStrip"></div>
   </div>
 
   <div class="card">
@@ -1107,7 +1373,42 @@ document.querySelectorAll(".tab").forEach(t => {
 function switchView(v) {
   document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.view === v));
   document.querySelectorAll(".view").forEach(s => s.classList.toggle("active", s.id === v));
+  document.querySelectorAll(".bn-item").forEach(b => b.classList.toggle("active", bnGroupForView(v) === b.dataset.bn));
   window.scrollTo(0, 0);
+}
+
+// ==================== BOTTOM NAV ROUTING ====================
+// Map a view ID → which bottom-nav group should highlight.
+function bnGroupForView(v) {
+  if (v === "overview") return "home";
+  if (v === "schedule" || v === "gymA" || v === "gymB" || v === "custom" || v === "mobility") return "train";
+  if (v === "climb") return "climb";
+  if (v === "progress" || v === "principles") return "progress";
+  if (v === "nutrition") return "nutrition";
+  return null;
+}
+
+// Bottom-nav tap handler — routes "train" to today's session intelligently.
+function bnGo(group) {
+  if (group === "home") return switchView("overview");
+  if (group === "climb") return switchView("climb");
+  if (group === "progress") return switchView("progress");
+  if (group === "nutrition") return switchView("nutrition");
+  if (group === "train") {
+    const v = todaysTrainView();
+    return switchView(v);
+  }
+}
+
+// Pick the most natural "training" view based on today's scheduled day.
+function todaysTrainView() {
+  const names = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const today = names[new Date().getDay()];
+  const match = getSchedule().find(d => d.dow === today);
+  if (!match) return "schedule";
+  if (match.view === "gymA" || match.view === "gymB") return match.view;
+  if (match.view === "climb") return "schedule"; // climb has its own tab
+  return "schedule";
 }
 
 // ==================== WEEKLY SCHEDULE (with drag-drop) ====================
@@ -1832,6 +2133,83 @@ function renderOverview() {
       <div class="log-item"><div>Body-weight entries</div><div>${state.bodyweight.length}</div></div>
     `;
   }
+
+  // ---- v4: hero CTA, ring fills, day strip
+  renderHero(match, today);
+  renderRings(completed);
+  renderDayStrip(today);
+}
+
+// ===== v4 home dashboard renderers =====
+function renderHero(match, todayDow) {
+  const hero = document.getElementById("heroToday");
+  if (!hero) return;
+  const dowEl = document.getElementById("heroDow");
+  const titleEl = document.getElementById("heroTitle");
+  const subEl = document.getElementById("heroSub");
+  const ctaEl = document.getElementById("heroCta");
+  const ctaLabelEl = document.getElementById("heroCtaLabel");
+  if (dowEl) dowEl.textContent = todayDow || "—";
+  if (!match) {
+    if (titleEl) titleEl.textContent = "Free day";
+    if (subEl) subEl.textContent = "Nothing scheduled. Build a custom session or log a climb.";
+    if (ctaLabelEl) ctaLabelEl.textContent = "Build session";
+    ctaEl && ctaEl.setAttribute("data-target", "custom");
+    return;
+  }
+  const titles = { gymA: "Gym A · Push & Core", gymB: "Gym B · Legs & Pull", climb: "Climb day", custom: "Custom session", overview: "Today" };
+  const subs = {
+    gymA: "Push, antagonists, core. About 60 minutes.",
+    gymB: "Legs, pull power, grip. About 60 minutes.",
+    climb: "Project, flash, or volume — your call. Log it after.",
+    custom: "Pick muscle groups and a duration; we'll generate the session."
+  };
+  const ctas = { gymA: "Start Gym A", gymB: "Start Gym B", climb: "Log climb", custom: "Build session" };
+  const v = match.view;
+  if (titleEl) titleEl.textContent = titles[v] || (match.label || "Today");
+  if (subEl)   subEl.textContent   = subs[v]   || (match.focus || "Today's training");
+  if (ctaLabelEl) ctaLabelEl.textContent = ctas[v] || "Open";
+  ctaEl && ctaEl.setAttribute("data-target", v);
+}
+
+function heroCtaAction() {
+  const cta = document.getElementById("heroCta");
+  const target = (cta && cta.getAttribute("data-target")) || "schedule";
+  switchView(target);
+}
+
+function renderRings(completedSessions) {
+  // Ring circumference: 2 * pi * r, with r=24 → 150.796...
+  const C = 150.8;
+  const setRing = (id, frac) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const f = Math.max(0, Math.min(1, frac));
+    el.setAttribute("stroke-dashoffset", (C * (1 - f)).toFixed(2));
+  };
+  setRing("rcSessionsRing", completedSessions / 4);
+  // Streak ring caps at 8 weeks visually
+  const streak = parseInt(document.getElementById("overviewStreak").textContent) || 0;
+  setRing("rcStreakRing", streak / 8);
+  // Weight + grade rings stay decorative (full outline at lower opacity)
+}
+
+function renderDayStrip(todayDow) {
+  const strip = document.getElementById("dayStrip");
+  if (!strip) return;
+  const sched = getSchedule();
+  strip.innerHTML = "";
+  sched.forEach(d => {
+    const pill = document.createElement("button");
+    pill.className = "day-pill t-" + d.type + (d.dow === todayDow ? " is-today" : "");
+    pill.innerHTML = `
+      <div class="dp-dow">${d.dow}</div>
+      <div class="dp-label">${d.label}</div>
+      <div class="dp-dot"></div>
+    `;
+    pill.addEventListener("click", () => switchView(d.view));
+    strip.appendChild(pill);
+  });
 }
 
 function computeStreak() {
@@ -1981,8 +2359,40 @@ function renderAll() {
 document.getElementById("bwDate").value = todayKey();
 migrateExerciseIds();
 renderAll();
+// Initialise bottom-nav active state to match the currently-active view
+(function initBottomNav() {
+  const active = document.querySelector(".view.active");
+  if (active) {
+    const group = bnGroupForView(active.id);
+    document.querySelectorAll(".bn-item").forEach(b => b.classList.toggle("active", b.dataset.bn === group));
+  }
+})();
 window.addEventListener("resize", renderBodyweight);
 </script>
+
+<!-- ===== BOTTOM NAVIGATION ===== -->
+<nav class="bottom-nav" role="navigation" aria-label="Primary">
+  <button class="bn-item" data-bn="home" onclick="bnGo('home')">
+    <svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>
+    Home
+  </button>
+  <button class="bn-item" data-bn="train" onclick="bnGo('train')">
+    <svg viewBox="0 0 24 24"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg>
+    Train
+  </button>
+  <button class="bn-item" data-bn="climb" onclick="bnGo('climb')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><path d="M12 7v4l-4 3v6m4-9 4 3v6m-8 0h8"/></svg>
+    Climb
+  </button>
+  <button class="bn-item" data-bn="progress" onclick="bnGo('progress')">
+    <svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16"/><path d="M8 16v-4M12 16V9M16 16v-7"/></svg>
+    Progress
+  </button>
+  <button class="bn-item" data-bn="nutrition" onclick="bnGo('nutrition')">
+    <svg viewBox="0 0 24 24"><path d="M12 4c4 0 7 3 7 7 0 5-4 9-7 9s-7-4-7-9c0-4 3-7 7-7Z"/><path d="M12 4c-1.5 2-1.5 5 0 7"/></svg>
+    Nutrition
+  </button>
+</nav>
 
 </body>
 </html>
