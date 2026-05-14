@@ -179,6 +179,43 @@
   .pill-btn:hover { background: rgba(76,201,240,0.12); }
   .pill-btn.alt { color: var(--warn); border-color: rgba(250,204,21,0.3); }
   .pill-btn.alt:hover { background: rgba(250,204,21,0.1); }
+  .pill-btn.repeat { color: var(--success); border-color: rgba(74,222,128,0.3); }
+  .pill-btn.repeat:hover { background: rgba(74,222,128,0.1); }
+
+  .last-time {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  .last-time strong { color: var(--text); font-weight: 600; }
+  .last-time .ago { opacity: 0.75; margin-left: 6px; }
+
+  .pr-line {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: -2px 0 8px 34px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--success);
+    letter-spacing: 0.3px;
+  }
+  .pr-line .pr-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1px 6px;
+    border-radius: 999px;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    background: rgba(74,222,128,0.15);
+    color: var(--success);
+    border: 1px solid rgba(74,222,128,0.4);
+  }
+
+  .set-row input::placeholder { color: rgba(154,164,178,0.45); font-style: italic; }
 
   .sets-section { margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--border); }
   .sets-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
@@ -1228,23 +1265,41 @@ function renderWorkout(key) {
     if (!ex) return;
     const entry = log[slotIdx] || {};
     const sets = entry.sets || [{ weight: "", reps: "", warmup: false }];
-    const lastWeight = getLastWeight(key, slotIdx);
+
+    // History lookups (by resolved exercise ID — works across sessions, alts, shuffles)
+    const resolvedExId = getResolvedExerciseId(key, slotIdx);
+    const lastSession = getLastSession(resolvedExId);
+    const prThreshold = getBestE1RM(resolvedExId, todayKey()); // best e1RM strictly before today
 
     const card = document.createElement("div");
     card.className = "exercise";
 
     let setsHTML = "";
     sets.forEach((s, sIdx) => {
+      // Per-set placeholder from the corresponding set last time (if any).
+      const lastSet = lastSession && lastSession.sets[sIdx];
+      const wPh = (lastSet && (lastSet.weight + "").trim()) || "kg";
+      const rPh = (lastSet && (lastSet.reps + "").trim()) || "reps";
+
+      // PR detection: today's set beats prior best e1RM?
+      const e1 = setE1RM(s);
+      const isPR = e1 != null && (prThreshold == null || e1 > prThreshold + 0.01);
+
       setsHTML += `
         <div class="set-row">
           <div class="set-num ${s.warmup ? 'warmup' : ''}">${s.warmup ? 'W' : sIdx + 1 - sets.slice(0, sIdx).filter(x => x.warmup).length}</div>
-          <input type="text" inputmode="decimal" placeholder="kg" value="${s.weight || ''}" onchange="updateSet('${key}', ${slotIdx}, ${sIdx}, 'weight', this.value)" />
-          <input type="text" inputmode="numeric" placeholder="reps" value="${s.reps || ''}" onchange="updateSet('${key}', ${slotIdx}, ${sIdx}, 'reps', this.value)" />
+          <input type="text" inputmode="decimal" placeholder="${wPh}" value="${s.weight || ''}" onchange="updateSet('${key}', ${slotIdx}, ${sIdx}, 'weight', this.value)" />
+          <input type="text" inputmode="numeric" placeholder="${rPh}" value="${s.reps || ''}" onchange="updateSet('${key}', ${slotIdx}, ${sIdx}, 'reps', this.value)" />
           <button class="set-tag-btn ${s.warmup ? 'active' : ''}" onclick="toggleWarmup('${key}', ${slotIdx}, ${sIdx})" title="Mark as warm-up">W</button>
           <button class="set-del-btn" onclick="deleteSet('${key}', ${slotIdx}, ${sIdx})" title="Delete set">x</button>
         </div>
+        ${isPR ? `<div class="pr-line"><span class="pr-tag">PR</span>New personal best</div>` : ''}
       `;
     });
+
+    const lastTimeHTML = lastSession
+      ? `<div class="last-time">Last time: <strong>${formatLastSets(lastSession.sets)}</strong><span class="ago">${daysAgo(lastSession.date)}</span></div>`
+      : `<div class="last-time" style="opacity:0.6">Last time: <strong>—</strong><span class="ago">no history yet</span></div>`;
 
     card.innerHTML = `
       <div class="exercise-header">
@@ -1254,14 +1309,15 @@ function renderWorkout(key) {
           <div class="exercise-meta">
             <span><strong>${ex.sets}</strong> prescribed</span>
             <span>rest <strong>${ex.rest}</strong></span>
-            ${lastWeight ? `<span>last: <strong>${lastWeight} kg</strong></span>` : ''}
           </div>
+          ${lastTimeHTML}
         </div>
         <button class="done-toggle ${entry.done ? 'done' : ''}" onclick="toggleDone('${key}', ${slotIdx})" title="Mark done">&check;</button>
       </div>
 
       <div class="exercise-actions">
         <button class="pill-btn alt" onclick="cycleAlternative('${key}', ${slotIdx})">Alternative</button>
+        ${lastSession ? `<button class="pill-btn repeat" onclick="repeatLastSession('${key}', ${slotIdx})">Repeat last</button>` : ''}
         ${ex.link ? `<a class="pill-btn" href="${ex.link}" target="_blank" rel="noopener">How-to</a>` : ''}
       </div>
 
@@ -1287,6 +1343,11 @@ function ensureLog(key, slotIdx) {
   if (!state[key + "Log"][today]) state[key + "Log"][today] = {};
   if (!state[key + "Log"][today][slotIdx]) state[key + "Log"][today][slotIdx] = { sets: [{ weight: "", reps: "", warmup: false }] };
   if (!state[key + "Log"][today][slotIdx].sets) state[key + "Log"][today][slotIdx].sets = [{ weight: "", reps: "", warmup: false }];
+  // Stamp the resolved exercise ID so we can find this entry later by exercise (across sessions, alts, shuffles).
+  if (!state[key + "Log"][today][slotIdx].exerciseId) {
+    const exId = getResolvedExerciseId(key, slotIdx);
+    if (exId) state[key + "Log"][today][slotIdx].exerciseId = exId;
+  }
   return state[key + "Log"][today][slotIdx];
 }
 
@@ -1350,6 +1411,161 @@ function getLastWeight(key, slotIdx) {
     }
   }
   return "";
+}
+
+// ==================== EXERCISE HISTORY (cross-session) ====================
+// Resolve current exercise ID for a slot, accounting for alternative cycling.
+function getResolvedExerciseId(sessionKey, slotIdx) {
+  const slots = getSessionSlots(sessionKey);
+  const baseId = slots[slotIdx];
+  if (!baseId) return null;
+  const baseEx = EX[baseId];
+  if (!baseEx) return null;
+  const altKey = `${sessionKey}_${slotIdx}`;
+  const altIdx = state.altIndex[altKey];
+  if (!altIdx) return baseId;
+  const sameGroup = POOL[baseEx.group].filter(id => id !== baseId);
+  if (sameGroup.length === 0) return baseId;
+  return sameGroup[(altIdx - 1) % sameGroup.length];
+}
+
+// Find the most recent session entry (across gymA/gymB/custom) for this exercise.
+// Returns { date, sets, sessionKey } or null. Excludes today.
+function getLastSession(targetExId) {
+  if (!targetExId) return null;
+  const today = todayKey();
+  const allLogKeys = ['gymALog', 'gymBLog', 'customLog'];
+  let best = null;
+  for (const lk of allLogKeys) {
+    const log = state[lk] || {};
+    for (const d of Object.keys(log)) {
+      if (d === today) continue;
+      if (d.startsWith('_')) continue;
+      const day = log[d];
+      if (!day || typeof day !== 'object') continue;
+      for (const slotKey of Object.keys(day)) {
+        if (slotKey.startsWith('_')) continue;
+        const entry = day[slotKey];
+        if (!entry || typeof entry !== 'object') continue;
+        if (entry.exerciseId !== targetExId) continue;
+        if (!Array.isArray(entry.sets)) continue;
+        const realSets = entry.sets.filter(s => !s.warmup && (s.weight || s.reps));
+        if (!realSets.length) continue;
+        if (!best || d > best.date) best = { date: d, sets: realSets, sessionKey: lk };
+      }
+    }
+  }
+  return best;
+}
+
+// Highest estimated 1RM (Epley) for this exercise across all dates strictly before `beforeDate`.
+function getBestE1RM(targetExId, beforeDate) {
+  if (!targetExId) return null;
+  const cutoff = beforeDate || todayKey();
+  const allLogKeys = ['gymALog', 'gymBLog', 'customLog'];
+  let best = null;
+  for (const lk of allLogKeys) {
+    const log = state[lk] || {};
+    for (const d of Object.keys(log)) {
+      if (d >= cutoff) continue;
+      const day = log[d];
+      if (!day || typeof day !== 'object') continue;
+      for (const slotKey of Object.keys(day)) {
+        if (slotKey.startsWith('_')) continue;
+        const entry = day[slotKey];
+        if (!entry || entry.exerciseId !== targetExId) continue;
+        if (!Array.isArray(entry.sets)) continue;
+        for (const s of entry.sets) {
+          if (s.warmup) continue;
+          const w = parseFloat(s.weight);
+          const r = parseInt(s.reps);
+          if (isNaN(w) || isNaN(r) || w <= 0 || r <= 0) continue;
+          const e1 = w * (1 + r / 30);
+          if (best === null || e1 > best) best = e1;
+        }
+      }
+    }
+  }
+  return best;
+}
+
+function setE1RM(s) {
+  if (!s || s.warmup) return null;
+  const w = parseFloat(s.weight);
+  const r = parseInt(s.reps);
+  if (isNaN(w) || isNaN(r) || w <= 0 || r <= 0) return null;
+  return w * (1 + r / 30);
+}
+
+function daysAgo(dateStr) {
+  const today = new Date(todayKey() + "T00:00:00");
+  const past = new Date(dateStr + "T00:00:00");
+  const diff = Math.round((today - past) / 86400000);
+  if (diff <= 0) return "today";
+  if (diff === 1) return "yesterday";
+  if (diff < 7) return diff + "d ago";
+  if (diff < 14) return "last week";
+  if (diff < 30) return Math.round(diff / 7) + "w ago";
+  return Math.round(diff / 30) + "mo ago";
+}
+
+function formatLastSets(sets) {
+  // "60×8, 60×8, 60×7" — drops fields that are missing
+  return sets.map(s => {
+    const w = (s.weight + "").trim();
+    const r = (s.reps + "").trim();
+    if (w && r) return w + "×" + r;
+    if (w) return w + "kg";
+    if (r) return r + " reps";
+    return "—";
+  }).join(", ");
+}
+
+// Copy last session's sets into today's entry. Triggered by the "Repeat last" button.
+function repeatLastSession(key, slotIdx) {
+  const exId = getResolvedExerciseId(key, slotIdx);
+  if (!exId) return;
+  const last = getLastSession(exId);
+  if (!last) return;
+  const e = ensureLog(key, slotIdx);
+  e.sets = last.sets.map(s => ({
+    weight: (s.weight + "").trim(),
+    reps: (s.reps + "").trim(),
+    warmup: false
+  }));
+  e.exerciseId = exId;
+  saveState();
+  renderWorkout(key);
+}
+
+// One-time migration: stamp exerciseId on legacy log entries where we can do so confidently.
+// "Confidently" = the slot has no custom override and no alternative cycle for that key.
+function migrateExerciseIds() {
+  let touched = false;
+  ['gymA', 'gymB'].forEach(key => {
+    const log = state[key + 'Log'] || {};
+    const hasCustomSession = !!(state.customSlots && state.customSlots[key]);
+    const defaultSlots = (PROGRAM[key] && PROGRAM[key].slots) || [];
+    Object.keys(log).forEach(date => {
+      if (date.startsWith('_')) return;
+      const day = log[date];
+      if (!day || typeof day !== 'object') return;
+      Object.keys(day).forEach(slotKey => {
+        if (slotKey.startsWith('_')) return;
+        const entry = day[slotKey];
+        if (!entry || typeof entry !== 'object') return;
+        if (entry.exerciseId) return;
+        const slotIdx = parseInt(slotKey);
+        if (isNaN(slotIdx)) return;
+        if (hasCustomSession) return;
+        const altKey = key + '_' + slotIdx;
+        if (state.altIndex && state.altIndex[altKey]) return;
+        const exId = defaultSlots[slotIdx];
+        if (exId) { entry.exerciseId = exId; touched = true; }
+      });
+    });
+  });
+  if (touched) saveState();
 }
 
 function completeSession(key) {
@@ -1763,6 +1979,7 @@ function renderAll() {
   renderOverview();
 }
 document.getElementById("bwDate").value = todayKey();
+migrateExerciseIds();
 renderAll();
 window.addEventListener("resize", renderBodyweight);
 </script>
