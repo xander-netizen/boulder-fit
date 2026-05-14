@@ -888,71 +888,6 @@
   .picker-item .pi-meta { font-size: 11px; color: var(--muted); }
   .picker-search input { width: 100%; }
 
-  /* ===== PASSWORD GATE ===== */
-  .lock-screen {
-    position: fixed; inset: 0;
-    background:
-      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(184,255,0,0.28), transparent 70%),
-      radial-gradient(ellipse 60% 40% at 50% 100%, rgba(184,255,0,0.12), transparent 65%),
-      var(--bg);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    z-index: 1000;
-    padding: 32px 24px;
-    text-align: center;
-  }
-  body.is-locked { overflow: hidden; }
-  body.is-locked > *:not(.lock-screen) { display: none !important; }
-  .lock-logo {
-    width: 72px; height: 72px; border-radius: 20px;
-    background: linear-gradient(160deg, var(--accent), #7eb800);
-    display: flex; align-items: center; justify-content: center;
-    color: #0d0f0a; margin-bottom: 18px;
-    box-shadow: 0 0 0 1px rgba(184,255,0,0.5), 0 16px 36px -8px var(--accent-glow);
-  }
-  .lock-logo svg { width: 38px; height: 38px; }
-  .lock-title { font-size: 24px; font-weight: 800; letter-spacing: -0.4px; margin: 0 0 4px; }
-  .lock-title .accent { color: var(--accent); }
-  .lock-sub { color: var(--muted); font-size: 14px; margin: 0 0 22px; max-width: 320px; line-height: 1.5; }
-  .lock-input {
-    width: 100%; max-width: 320px;
-    background: var(--panel);
-    border: 1.5px solid var(--border);
-    color: var(--text);
-    border-radius: 12px;
-    padding: 14px 16px;
-    font-size: 16px;
-    text-align: center;
-    letter-spacing: 0.1em;
-    font-family: inherit;
-    margin-bottom: 10px;
-  }
-  .lock-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(184,255,0,0.18); }
-  .lock-input.error { border-color: var(--danger); animation: shake 0.4s ease; }
-  @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-6px); }
-    75% { transform: translateX(6px); }
-  }
-  .lock-error { color: var(--danger); font-size: 12px; min-height: 18px; margin-bottom: 6px; }
-  .lock-submit {
-    width: 100%; max-width: 320px;
-    background: var(--accent); color: #0d0f0a; font-weight: 700;
-    padding: 14px 18px; border-radius: 12px; border: none;
-    font-size: 15px; cursor: pointer; font-family: inherit;
-    box-shadow: 0 0 0 1px rgba(184,255,0,0.3), 0 12px 24px -8px var(--accent-glow);
-    margin-bottom: 12px;
-  }
-  .lock-forgot {
-    background: transparent; color: var(--muted); border: none;
-    font-size: 12px; cursor: pointer; padding: 8px; font-family: inherit;
-    text-decoration: underline;
-  }
-  .lock-forgot:hover { color: var(--text); }
-  .lock-disclaimer {
-    color: var(--muted-2); font-size: 11px; margin-top: 28px;
-    max-width: 340px; line-height: 1.5; opacity: 0.7;
-  }
-
   @media (max-width: 900px) {
     .week { grid-template-columns: 1fr 1fr; }
   }
@@ -3023,122 +2958,10 @@ function bootApp() {
 }
 window.addEventListener("resize", renderBodyweight);
 
-// ===== PASSWORD GATE =====
-const PW_HASH_KEY = "boulderFit_pwHash_v1";
+// Clean up any leftover password hash from the brief Stage 2 password-gate experiment
+try { localStorage.removeItem("boulderFit_pwHash_v1"); } catch (e) {}
 
-async function sha256(text) {
-  const enc = new TextEncoder().encode(text);
-  const hash = await crypto.subtle.digest("SHA-256", enc);
-  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, "0")).join("");
-}
-
-function showLockError(msg) {
-  const errEl = document.getElementById("lockError");
-  const inp = document.getElementById("lockPasswordInput");
-  errEl.textContent = msg;
-  inp.classList.add("error");
-  setTimeout(() => inp.classList.remove("error"), 500);
-}
-
-function clearLockError() {
-  document.getElementById("lockError").textContent = "";
-}
-
-async function handleLockSubmit() {
-  const inp = document.getElementById("lockPasswordInput");
-  const submitBtn = document.getElementById("lockSubmit");
-  const pw = inp.value;
-  if (!pw || pw.length < 4) {
-    showLockError("Password must be at least 4 characters.");
-    return;
-  }
-  const stored = localStorage.getItem(PW_HASH_KEY);
-  if (!stored) {
-    // First-time setup
-    if (submitBtn.dataset.confirm === "1") {
-      // This is the confirm step
-      const firstHash = submitBtn.dataset.firstHash;
-      const confirmHash = await sha256(pw);
-      if (firstHash !== confirmHash) {
-        showLockError("Passwords don't match. Try again.");
-        inp.value = "";
-        // Reset to step 1
-        submitBtn.dataset.confirm = "0";
-        delete submitBtn.dataset.firstHash;
-        document.getElementById("lockSub").textContent = "Set a password for the app. Don't forget it — there's no recovery.";
-        submitBtn.textContent = "Set password";
-        return;
-      }
-      localStorage.setItem(PW_HASH_KEY, confirmHash);
-      unlockApp();
-    } else {
-      // First step — capture hash, ask for confirm
-      const h = await sha256(pw);
-      submitBtn.dataset.confirm = "1";
-      submitBtn.dataset.firstHash = h;
-      inp.value = "";
-      clearLockError();
-      document.getElementById("lockSub").textContent = "Confirm your password.";
-      submitBtn.textContent = "Confirm and unlock";
-    }
-  } else {
-    // Unlock flow
-    const h = await sha256(pw);
-    if (h === stored) {
-      unlockApp();
-    } else {
-      showLockError("Wrong password.");
-      inp.value = "";
-    }
-  }
-}
-
-function unlockApp() {
-  document.body.classList.remove("is-locked");
-  document.getElementById("lockScreen").style.display = "none";
-  document.getElementById("lockPasswordInput").value = "";
-  bootApp();
-}
-
-function forgotPassword() {
-  if (!confirm("This will WIPE all local data: workouts, climbs, body-weight log, PRs — and reset the password. Continue?")) return;
-  // Wipe everything
-  localStorage.clear();
-  location.reload();
-}
-
-function initPasswordGate() {
-  const lockScreen = document.getElementById("lockScreen");
-  const inp = document.getElementById("lockPasswordInput");
-  const sub = document.getElementById("lockSub");
-  const btn = document.getElementById("lockSubmit");
-  document.body.classList.add("is-locked");
-  lockScreen.style.display = "flex";
-  const stored = localStorage.getItem(PW_HASH_KEY);
-  if (!stored) {
-    sub.textContent = "Welcome. Set a password to protect your training data. Don't forget it — there's no recovery.";
-    btn.textContent = "Set password";
-    btn.dataset.confirm = "0";
-  } else {
-    sub.textContent = "Enter your password to unlock the app.";
-    btn.textContent = "Unlock";
-    btn.dataset.confirm = "0";
-  }
-  // Enter key submits
-  inp.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") { e.preventDefault(); handleLockSubmit(); }
-    else if (e.key !== "Tab") { clearLockError(); }
-  });
-  setTimeout(() => inp.focus(), 100);
-}
-
-// Lock immediately so nothing flashes; finish setup after DOM is parsed
-document.body.classList.add("is-locked");
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initPasswordGate);
-} else {
-  initPasswordGate();
-}
+bootApp();
 </script>
 
 <!-- ===== DELETE / REPLACE POPUP ===== -->
@@ -3182,23 +3005,6 @@ if (document.readyState === "loading") {
     </div>
     <div id="addExerciseList"></div>
   </div>
-</div>
-
-<!-- ===== PASSWORD GATE ===== -->
-<div class="lock-screen" id="lockScreen" style="display:none;">
-  <div class="lock-logo">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="5" y="11" width="14" height="9" rx="2"/>
-      <path d="M8 11V8a4 4 0 0 1 8 0v3"/>
-    </svg>
-  </div>
-  <h1 class="lock-title" id="lockTitle">Boulder<span class="accent">.fit</span></h1>
-  <p class="lock-sub" id="lockSub">Enter your password to unlock the app.</p>
-  <input type="password" id="lockPasswordInput" class="lock-input" placeholder="Password" autocomplete="off" inputmode="text" />
-  <div class="lock-error" id="lockError"></div>
-  <button class="lock-submit" id="lockSubmit" onclick="handleLockSubmit()">Unlock</button>
-  <button class="lock-forgot" onclick="forgotPassword()">Forgot password (resets app)</button>
-  <p class="lock-disclaimer">Heads up: this is a soft lock, not real security. Anyone with browser DevTools can bypass it. Don't use this app for anything that needs real protection.</p>
 </div>
 
 <!-- ===== BOTTOM NAVIGATION ===== -->
