@@ -150,7 +150,12 @@
     background-position: center top;
     background-repeat: no-repeat;
     transition: background-image 0.3s ease;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    flex-direction: column;
   }
+  .hero-today > *:last-child { margin-top: auto; }
+  .hero-today .hero-sub { margin-bottom: 12px; }
   .hero-today::before {
     /* dark legibility overlay between photo and content */
     content: "";
@@ -891,6 +896,38 @@
     z-index: 5;
   }
   .modal-close:hover { color: var(--text); background: transparent; }
+
+  /* ===== Rest-day train prompt ===== */
+  .restday-actions { display: flex; flex-direction: column; gap: 10px; }
+  .restday-btn {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+    width: 100%; padding: 14px 16px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    color: var(--text);
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+    text-align: left;
+  }
+  .restday-btn:hover {
+    border-color: var(--accent);
+    background: var(--panel-3);
+  }
+  .restday-btn .rd-title { font-size: 15px; font-weight: 700; letter-spacing: -0.2px; }
+  .restday-btn .rd-sub { font-size: 12px; color: var(--muted); font-weight: 500; }
+  .restday-cancel {
+    margin-top: 4px;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 13px;
+    padding: 8px;
+    cursor: pointer;
+  }
+  .restday-cancel:hover { color: var(--text); }
 
   /* Muscle group picker */
   .muscle-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 12px; }
@@ -1766,6 +1803,13 @@ function bnGo(group) {
   if (group === "calendar") return switchView("calendar");
   if (group === "settings") return switchView("settings");
   if (group === "train") {
+    const names = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    const today = names[new Date().getDay()];
+    const match = getSchedule().find(d => d.dow === today);
+    // On a rest day, ask if the user wants to train anyway and let them pick a session.
+    if (match && match.type === "rest") {
+      return openRestDayPrompt(match);
+    }
     const v = todaysTrainView();
     return switchView(v);
   }
@@ -1780,6 +1824,24 @@ function todaysTrainView() {
   if (match.view === "gymA" || match.view === "gymB") return match.view;
   if (match.view === "climb") return "climb";
   return "calendar";
+}
+
+// ===== Rest-day train prompt =====
+function openRestDayPrompt(match) {
+  const subEl = document.getElementById("restDayPromptSub");
+  if (subEl && match) {
+    subEl.textContent = "Scheduled: " + (match.label || "Rest") + ". Want to train anyway? Pick a session.";
+  }
+  const m = document.getElementById("restDayModal");
+  if (m) m.classList.add("open");
+}
+function closeRestDayPrompt() {
+  const m = document.getElementById("restDayModal");
+  if (m) m.classList.remove("open");
+}
+function pickRestDayWorkout(view) {
+  closeRestDayPrompt();
+  switchView(view);
 }
 
 // ==================== WEEKLY SCHEDULE (with drag-drop) ====================
@@ -3238,6 +3300,28 @@ bootApp();
     </div>
     <div id="howToOpenOnYT" style="display:none; margin-top: 10px; text-align: center;">
       <a id="howToYTLink" href="#" target="_blank" rel="noopener" style="font-size: 12px; color: var(--muted); text-decoration: underline;">Open on YouTube ↗</a>
+    </div>
+  </div>
+</div>
+
+<!-- ===== REST-DAY TRAIN PROMPT ===== -->
+<div class="modal-backdrop" id="restDayModal" onclick="if(event.target===this) closeRestDayPrompt()">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="restDayTitle">
+    <div class="modal-header">
+      <h2 id="restDayTitle">Today is your rest day</h2>
+      <button class="modal-close" onclick="closeRestDayPrompt()" aria-label="Close">×</button>
+    </div>
+    <p id="restDayPromptSub" style="margin: 6px 0 16px; color: var(--muted); font-size: 14px; line-height: 1.5;">Want to start a workout anyway? Pick a session below.</p>
+    <div class="restday-actions">
+      <button class="restday-btn" onclick="pickRestDayWorkout('gymA')">
+        <span class="rd-title">Push &amp; Core</span>
+        <span class="rd-sub">Push, antagonists, core · ~60 min</span>
+      </button>
+      <button class="restday-btn" onclick="pickRestDayWorkout('gymB')">
+        <span class="rd-title">Legs &amp; Pull</span>
+        <span class="rd-sub">Legs, pull power, grip · ~60 min</span>
+      </button>
+      <button class="restday-cancel" onclick="closeRestDayPrompt()">Keep resting</button>
     </div>
   </div>
 </div>
