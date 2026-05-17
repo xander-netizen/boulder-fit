@@ -1400,7 +1400,6 @@
     <h2>Log a climbing session</h2>
 
     <h3 style="margin-top: 4px;">Session type</h3>
-    <div id="climbFocusSuggest"></div>
     <div class="climb-tiles" id="climbTypeTiles">
       <button type="button" class="climb-tile is-selected" data-value="Session"><span class="ct-name">Session</span><span class="ct-sub">Regular</span></button>
       <button type="button" class="climb-tile" data-value="Projects"><span class="ct-name">Projects</span><span class="ct-sub">Hard attempts</span></button>
@@ -3043,7 +3042,6 @@ function logClimb() {
 }
 
 function renderClimbLog() {
-  renderClimbFocusSuggest();
   const c = document.getElementById("climbLog");
   if (!state.climbLog.length) { c.innerHTML = '<p class="tip">No sessions logged yet.</p>'; return; }
   c.innerHTML = state.climbLog.slice(0, 20).map(e => `
