@@ -1324,7 +1324,7 @@
 <!-- GYM A -->
 <section class="view" id="gymA">
   <div class="session-focus-header">
-    <button class="sfh-back" onclick="switchView('overview')" aria-label="Back to home">
+    <button class="sfh-back" onclick="openSessionPicker(suggestSession())" aria-label="Switch session">
       <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>
     </button>
     <div class="sfh-title">
@@ -1339,7 +1339,6 @@
     <div class="train-action-row">
       <button class="pill-btn" onclick="shuffleSession('gymA')">Shuffle</button>
       <button class="pill-btn" onclick="openAddExercise('gymA')">+ Add exercise</button>
-      <button class="pill-btn" onclick="switchView('custom')">Custom session</button>
     </div>
     <div class="carousel-meta">
       <span id="gymACarouselCounter">Exercise 1 of —</span>
@@ -1369,7 +1368,7 @@
 <!-- GYM B -->
 <section class="view" id="gymB">
   <div class="session-focus-header">
-    <button class="sfh-back" onclick="switchView('overview')" aria-label="Back to home">
+    <button class="sfh-back" onclick="openSessionPicker(suggestSession())" aria-label="Switch session">
       <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>
     </button>
     <div class="sfh-title">
@@ -1384,7 +1383,6 @@
     <div class="train-action-row">
       <button class="pill-btn" onclick="shuffleSession('gymB')">Shuffle</button>
       <button class="pill-btn" onclick="openAddExercise('gymB')">+ Add exercise</button>
-      <button class="pill-btn" onclick="switchView('custom')">Custom session</button>
     </div>
     <div class="carousel-meta">
       <span id="gymBCarouselCounter">Exercise 1 of —</span>
@@ -1414,7 +1412,7 @@
 <!-- CUSTOM SESSION -->
 <section class="view" id="custom">
   <div class="session-focus-header">
-    <button class="sfh-back" onclick="switchView('overview')" aria-label="Back to home">
+    <button class="sfh-back" onclick="openSessionPicker(suggestSession())" aria-label="Switch session">
       <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>
     </button>
     <div class="sfh-title">
