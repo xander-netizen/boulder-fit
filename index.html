@@ -1247,77 +1247,6 @@
     </button>
   </div>
 
-  <!-- 4 ring stat cards -->
-  <div class="ring-grid">
-    <div class="ring-card glass" onclick="openStatsModal('week')">
-      <div class="rc-label">This week</div>
-      <div class="rc-row">
-        <div>
-          <div class="rc-value" id="overviewCompleted">0/4</div>
-          <div class="rc-sub">sessions</div>
-        </div>
-        <svg class="ring-svg" viewBox="0 0 60 60" aria-hidden="true">
-          <circle class="ring-bg" cx="30" cy="30" r="24" fill="none" stroke-width="6"/>
-          <circle class="ring-fg" cx="30" cy="30" r="24" fill="none" stroke-width="6" stroke-dasharray="150.8" stroke-dashoffset="150.8" id="rcSessionsRing"/>
-        </svg>
-      </div>
-    </div>
-
-    <div class="ring-card glass" onclick="openStatsModal('streak')">
-      <div class="rc-label">Streak</div>
-      <div class="rc-row">
-        <div>
-          <div class="rc-value"><span id="overviewStreak">0</span><span class="unit">w</span></div>
-          <div class="rc-sub">in a row</div>
-        </div>
-        <svg class="ring-svg" viewBox="0 0 60 60" aria-hidden="true">
-          <circle class="ring-bg" cx="30" cy="30" r="24" fill="none" stroke-width="6"/>
-          <circle class="ring-fg" cx="30" cy="30" r="24" fill="none" stroke-width="6" stroke-dasharray="150.8" stroke-dashoffset="150.8" id="rcStreakRing"/>
-        </svg>
-      </div>
-    </div>
-
-    <div class="ring-card glass" onclick="openStatsModal('grade')">
-      <div class="rc-label">Hardest send</div>
-      <div class="rc-row">
-        <div>
-          <div class="rc-value" id="overviewGrade">—</div>
-          <div class="rc-sub">latest</div>
-        </div>
-        <svg class="ring-svg" viewBox="0 0 60 60" aria-hidden="true">
-          <circle class="ring-bg" cx="30" cy="30" r="24" fill="none" stroke-width="6"/>
-          <circle class="ring-fg" cx="30" cy="30" r="24" fill="none" stroke-width="6" stroke-dasharray="150.8" stroke-dashoffset="0" id="rcGradeRing" style="opacity:0.55"/>
-        </svg>
-      </div>
-    </div>
-
-    <div class="ring-card glass" onclick="switchView('settings')">
-      <div class="rc-label">Latest PR</div>
-      <div class="rc-row">
-        <div>
-          <div class="rc-value" id="overviewPRValue">—</div>
-          <div class="rc-sub" id="overviewPRSub">no PR yet</div>
-        </div>
-        <svg class="ring-svg" viewBox="0 0 60 60" aria-hidden="true">
-          <circle class="ring-bg" cx="30" cy="30" r="24" fill="none" stroke-width="6"/>
-          <circle class="ring-fg" cx="30" cy="30" r="24" fill="none" stroke-width="6" stroke-dasharray="150.8" stroke-dashoffset="0" id="rcPRRing" style="opacity:0.85"/>
-        </svg>
-      </div>
-    </div>
-  </div>
-
-  <!-- Personal records: all-time totals + key lifts -->
-  <div class="card">
-    <h2>Personal records</h2>
-    <p class="tip">All-time totals from your logs, plus your key lifts and climbing milestones.</p>
-
-    <h3 style="margin-top: 14px;">All-time totals</h3>
-    <div class="grid grid-3" id="prTotalsGrid"></div>
-
-    <h3 style="margin-top: 18px;">Key lifts</h3>
-    <div class="grid grid-3" id="prGrid"></div>
-  </div>
-
 </section>
 
 
@@ -1590,17 +1519,78 @@
   </div>
 </section>
 
-<!-- CALENDAR (was PROGRESS) -->
+<!-- HISTORY (was CALENDAR) -->
 <section class="view" id="calendar">
-  <!-- Hero CTA: today's pick — mirrors home -->
-  <div class="hero-today glass" data-hero-block>
-    <div class="hero-eyebrow"><span class="dot"></span><span>Today's pick</span></div>
-    <div class="hero-title" data-hero="title">Loading…</div>
-    <div class="hero-sub" data-hero="sub">—</div>
-    <div>
-      <button class="hero-cta" data-hero="cta" onclick="heroCtaAction(this)"><span data-hero="cta-label">Start</span> <span class="arrow">→</span></button>
-      <button class="hero-secondary" onclick="switchView('overview')">Home</button>
+
+  <!-- 4 ring stat cards -->
+  <div class="ring-grid">
+    <div class="ring-card glass" onclick="openStatsModal('week')">
+      <div class="rc-label">This week</div>
+      <div class="rc-row">
+        <div>
+          <div class="rc-value" id="overviewCompleted">0/4</div>
+          <div class="rc-sub">sessions</div>
+        </div>
+        <svg class="ring-svg" viewBox="0 0 60 60" aria-hidden="true">
+          <circle class="ring-bg" cx="30" cy="30" r="24" fill="none" stroke-width="6"/>
+          <circle class="ring-fg" cx="30" cy="30" r="24" fill="none" stroke-width="6" stroke-dasharray="150.8" stroke-dashoffset="150.8" id="rcSessionsRing"/>
+        </svg>
+      </div>
     </div>
+
+    <div class="ring-card glass" onclick="openStatsModal('streak')">
+      <div class="rc-label">Streak</div>
+      <div class="rc-row">
+        <div>
+          <div class="rc-value"><span id="overviewStreak">0</span><span class="unit">w</span></div>
+          <div class="rc-sub">in a row</div>
+        </div>
+        <svg class="ring-svg" viewBox="0 0 60 60" aria-hidden="true">
+          <circle class="ring-bg" cx="30" cy="30" r="24" fill="none" stroke-width="6"/>
+          <circle class="ring-fg" cx="30" cy="30" r="24" fill="none" stroke-width="6" stroke-dasharray="150.8" stroke-dashoffset="150.8" id="rcStreakRing"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="ring-card glass" onclick="openStatsModal('grade')">
+      <div class="rc-label">Hardest send</div>
+      <div class="rc-row">
+        <div>
+          <div class="rc-value" id="overviewGrade">—</div>
+          <div class="rc-sub">latest</div>
+        </div>
+        <svg class="ring-svg" viewBox="0 0 60 60" aria-hidden="true">
+          <circle class="ring-bg" cx="30" cy="30" r="24" fill="none" stroke-width="6"/>
+          <circle class="ring-fg" cx="30" cy="30" r="24" fill="none" stroke-width="6" stroke-dasharray="150.8" stroke-dashoffset="0" id="rcGradeRing" style="opacity:0.55"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="ring-card glass" onclick="switchView('settings')">
+      <div class="rc-label">Latest PR</div>
+      <div class="rc-row">
+        <div>
+          <div class="rc-value" id="overviewPRValue">—</div>
+          <div class="rc-sub" id="overviewPRSub">no PR yet</div>
+        </div>
+        <svg class="ring-svg" viewBox="0 0 60 60" aria-hidden="true">
+          <circle class="ring-bg" cx="30" cy="30" r="24" fill="none" stroke-width="6"/>
+          <circle class="ring-fg" cx="30" cy="30" r="24" fill="none" stroke-width="6" stroke-dasharray="150.8" stroke-dashoffset="0" id="rcPRRing" style="opacity:0.85"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Personal records: all-time totals + key lifts -->
+  <div class="card">
+    <h2>Personal records</h2>
+    <p class="tip">All-time totals from your logs, plus your key lifts and climbing milestones.</p>
+
+    <h3 style="margin-top: 14px;">All-time totals</h3>
+    <div class="grid grid-3" id="prTotalsGrid"></div>
+
+    <h3 style="margin-top: 18px;">Key lifts</h3>
+    <div class="grid grid-3" id="prGrid"></div>
   </div>
 
   <div class="card">
