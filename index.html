@@ -609,14 +609,15 @@
     width: 100%;
     background: var(--accent);
     color: var(--on-accent);
-    border: none;
-    font-weight: 800;
-    font-size: 16px;
-    padding: 16px;
-    border-radius: 14px;
+    border: 1px solid var(--accent);
+    border-radius: 999px;            /* pill shape — same as .pill-btn */
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 14px;                 /* match ghost button height */
+    padding: 10px 16px;
+    line-height: 1.2;
     cursor: pointer;
-    letter-spacing: -0.2px;
-    box-shadow: 0 10px 24px -10px var(--accent-glow), 0 0 0 1px rgba(255,224,0,0.35);
+    box-shadow: 0 6px 16px -10px var(--accent-glow);
     transition: filter 0.15s ease, transform 0.1s ease;
   }
   .train-footer .primary-cta:hover { filter: brightness(1.06); }
@@ -1230,6 +1231,9 @@
   .picker-item:hover { border-color: var(--accent); background: var(--accent-soft); }
   .picker-item .pi-name { font-weight: 600; font-size: 13px; }
   .picker-item .pi-meta { font-size: 11px; color: var(--muted); }
+  .picker-item.is-used { opacity: 0.45; cursor: not-allowed; }
+  .picker-item.is-used:hover { border-color: var(--border); background: var(--panel-2); }
+  .picker-item .pi-used { color: var(--accent); font-weight: 600; font-size: 11px; }
   .picker-search input { width: 100%; }
 
   @media (max-width: 900px) {
@@ -2248,16 +2252,33 @@ function cycleAlternative(sessionKey, slotIdx) {
     alert("No alternatives available for this muscle group.");
     return;
   }
+  // IDs currently resolved in OTHER slots (so we can skip duplicates)
+  const otherIds = new Set();
+  slots.forEach((_, idx) => {
+    if (idx === slotIdx) return;
+    const id = getResolvedExerciseId(sessionKey, idx);
+    if (id) otherIds.add(id);
+  });
+
   const altKey = `${sessionKey}_${slotIdx}`;
   const cur = state.altIndex[altKey] || 0;
-  const next = (cur + 1) % (sameGroup.length + 1); // +1 to include "back to original"
-  if (next === 0) {
-    delete state.altIndex[altKey];
-  } else {
-    state.altIndex[altKey] = next;
+  const totalPositions = sameGroup.length + 1; // +1 for "back to original"
+  // Walk forward through cycle positions, skipping any that would duplicate another slot
+  let candidate = cur;
+  for (let i = 0; i < totalPositions; i++) {
+    candidate = (candidate + 1) % totalPositions;
+    const resolvedId = (candidate === 0) ? exId : sameGroup[(candidate - 1) % sameGroup.length];
+    if (otherIds.has(resolvedId)) continue; // would duplicate — skip
+    if (candidate === 0) {
+      delete state.altIndex[altKey];
+    } else {
+      state.altIndex[altKey] = candidate;
+    }
+    saveState();
+    renderWorkout(sessionKey);
+    return;
   }
-  saveState();
-  renderWorkout(sessionKey);
+  alert("No unique alternatives available — every variant in this muscle group is already in the session.");
 }
 
 function renderWorkout(key) {
@@ -2609,6 +2630,13 @@ function closeHowTo() {
 function openAddExercise(key) {
   const modal = document.getElementById("addExerciseModal");
   modal.dataset.key = key;
+  // Compute IDs already in this session so we can disable them in the picker.
+  const slotsForKey = getSessionSlots(key);
+  const usedIds = new Set();
+  slotsForKey.forEach((_, idx) => {
+    const id = getResolvedExerciseId(key, idx);
+    if (id) usedIds.add(id);
+  });
   // Build picker grouped by muscle group
   const groups = {};
   Object.entries(EX).forEach(([id, ex]) => {
@@ -2626,12 +2654,14 @@ function openAddExercise(key) {
     <div class="picker-group">
       <h4>${groupNameMap[g] || g}</h4>
       <div class="picker-list">
-        ${groups[g].map(({id, ex}) => `
-          <button class="picker-item" onclick="addExerciseToSession('${id}')">
-            <span class="pi-name">${ex.name}</span>
+        ${groups[g].map(({id, ex}) => {
+          const used = usedIds.has(id);
+          return `
+          <button class="picker-item${used ? ' is-used' : ''}" ${used ? 'disabled aria-disabled="true"' : ''} onclick="addExerciseToSession('${id}')">
+            <span class="pi-name">${ex.name}${used ? ' <span class="pi-used">· already in session</span>' : ''}</span>
             <span class="pi-meta">${ex.sets} · rest ${ex.rest}</span>
           </button>
-        `).join("")}
+        `;}).join("")}
       </div>
     </div>
   `).join("");
@@ -2658,7 +2688,17 @@ function addExerciseToSession(exId) {
   const modal = document.getElementById("addExerciseModal");
   const key = modal.dataset.key;
   if (!key) return;
+  // Block duplicates — compare against currently-resolved exercise IDs (so alts count too).
   let slots = getSessionSlots(key).slice();
+  const usedIds = new Set();
+  slots.forEach((_, idx) => {
+    const id = getResolvedExerciseId(key, idx);
+    if (id) usedIds.add(id);
+  });
+  if (usedIds.has(exId)) {
+    alert("That exercise is already in this session.");
+    return;
+  }
   slots.push(exId);
   if (key === "custom") {
     state.customSession.slots = slots;
@@ -3108,14 +3148,20 @@ function confirmClearTodayLog(key) {
 // ==================== SHUFFLE ====================
 function shuffleSession(key) {
   const slots = PROGRAM[key].slots;
-  const shuffled = slots.map(exId => {
+  const picked = [];
+  slots.forEach(exId => {
     const baseEx = EX[exId];
-    const sameGroup = POOL[baseEx.group];
-    if (sameGroup.length <= 1) return exId;
-    // Pick a random one (not necessarily different from the original)
-    return sameGroup[Math.floor(Math.random() * sameGroup.length)];
+    const sameGroup = (POOL[baseEx.group] || [exId]);
+    // Don't pick something already chosen in this shuffle.
+    const available = sameGroup.filter(id => !picked.includes(id));
+    if (available.length === 0) {
+      // Group is exhausted — fall back to the original (very unlikely; tiny groups).
+      picked.push(exId);
+    } else {
+      picked.push(available[Math.floor(Math.random() * available.length)]);
+    }
   });
-  state.customSlots[key] = shuffled;
+  state.customSlots[key] = picked;
   state.altIndex = Object.fromEntries(Object.entries(state.altIndex).filter(([k]) => !k.startsWith(key + "_")));
   saveState();
   renderWorkout(key);
