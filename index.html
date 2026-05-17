@@ -596,9 +596,56 @@
     white-space: nowrap;
   }
   .train-footer-row {
-    display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;
+    display: flex; gap: 10px; margin-top: 0; flex-wrap: wrap;
   }
   .train-footer-row button { flex: 1 1 0; min-width: 0; }
+
+  /* ===== Session footer (sits BELOW the session card) ===== */
+  .train-footer {
+    display: flex; flex-direction: column; gap: 10px;
+    margin: 16px 0 12px;
+  }
+  .train-footer .primary-cta {
+    width: 100%;
+    background: var(--accent);
+    color: var(--on-accent);
+    border: none;
+    font-weight: 800;
+    font-size: 16px;
+    padding: 16px;
+    border-radius: 14px;
+    cursor: pointer;
+    letter-spacing: -0.2px;
+    box-shadow: 0 10px 24px -10px var(--accent-glow), 0 0 0 1px rgba(255,224,0,0.35);
+    transition: filter 0.15s ease, transform 0.1s ease;
+  }
+  .train-footer .primary-cta:hover { filter: brightness(1.06); }
+  .train-footer .primary-cta:active { transform: translateY(1px); }
+
+  /* ===== Confirm modal Yes/Cancel button row ===== */
+  .confirm-actions {
+    display: flex; gap: 10px; margin-top: 4px;
+  }
+  .confirm-actions button {
+    flex: 1 1 0; min-width: 0;
+    padding: 12px;
+    font-weight: 700;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .confirm-actions .confirm-cancel {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .confirm-actions .confirm-yes {
+    background: var(--danger);
+    border: 1px solid var(--danger);
+    color: #fff;
+  }
+  .confirm-actions .confirm-cancel:hover { border-color: var(--accent); color: var(--accent); }
+  .confirm-actions .confirm-yes:hover { filter: brightness(1.05); }
 
   .carousel-meta {
     display: flex; justify-content: space-between; align-items: center;
@@ -1320,22 +1367,13 @@
     </div>
     <div id="gymAExercises" class="exercise-list"></div>
     <div class="carousel-dots" id="gymACarouselDots"></div>
-    <div class="train-footer-row">
-      <button class="ghost" onclick="resetSession('gymA')">Reset to default</button>
-      <button class="ghost" onclick="clearTodayLog('gymA')">Clear today's log</button>
-      <button class="secondary" onclick="completeSession('gymA')">Mark complete ✓</button>
-    </div>
   </div>
-  <div class="card">
-    <h3>Warm-up (5-8 min)</h3>
-    <ul class="tip" style="line-height:1.8;">
-      <li>3 min easy row or bike</li>
-      <li>Band pull-aparts x 20</li>
-      <li>Scap push-ups x 10</li>
-      <li>Wall slides x 10</li>
-      <li>Cat-cow + thoracic rotations x 8/side</li>
-    </ul>
-    <p class="tip" style="margin-top: 10px;">Optional upgrade: swap this for a <a href="https://www.gowod.app/sports/climbing" target="_blank" rel="noopener" class="pill-btn">GOWOD ACTIVATE</a> routine — more targeted for climbers.</p>
+  <div class="train-footer">
+    <button class="primary-cta" onclick="completeSession('gymA')">Mark complete ✓</button>
+    <div class="train-footer-row">
+      <button class="ghost" onclick="confirmResetSession('gymA')">Reset to default</button>
+      <button class="ghost" onclick="confirmClearTodayLog('gymA')">Clear today's log</button>
+    </div>
   </div>
 </section>
 
@@ -1364,22 +1402,13 @@
     </div>
     <div id="gymBExercises" class="exercise-list"></div>
     <div class="carousel-dots" id="gymBCarouselDots"></div>
-    <div class="train-footer-row">
-      <button class="ghost" onclick="resetSession('gymB')">Reset to default</button>
-      <button class="ghost" onclick="clearTodayLog('gymB')">Clear today's log</button>
-      <button class="secondary" onclick="completeSession('gymB')">Mark complete ✓</button>
-    </div>
   </div>
-  <div class="card">
-    <h3>Warm-up (5-8 min)</h3>
-    <ul class="tip" style="line-height:1.8;">
-      <li>3 min easy bike</li>
-      <li>Bodyweight squats x 15</li>
-      <li>Walking lunges x 10/side</li>
-      <li>Glute bridges x 15</li>
-      <li>Dead bugs x 8/side</li>
-    </ul>
-    <p class="tip" style="margin-top: 10px;">Optional upgrade: swap this for a <a href="https://www.gowod.app/sports/climbing" target="_blank" rel="noopener" class="pill-btn">GOWOD ACTIVATE</a> routine.</p>
+  <div class="train-footer">
+    <button class="primary-cta" onclick="completeSession('gymB')">Mark complete ✓</button>
+    <div class="train-footer-row">
+      <button class="ghost" onclick="confirmResetSession('gymB')">Reset to default</button>
+      <button class="ghost" onclick="confirmClearTodayLog('gymB')">Clear today's log</button>
+    </div>
   </div>
 </section>
 
@@ -1432,9 +1461,11 @@
     </div>
     <div id="customExercises" class="exercise-list"></div>
     <div class="carousel-dots" id="customCarouselDots"></div>
+  </div>
+  <div class="train-footer">
+    <button class="primary-cta" onclick="completeSession('custom')">Mark complete ✓</button>
     <div class="train-footer-row">
-      <button class="ghost" onclick="clearTodayLog('custom')">Clear today's log</button>
-      <button class="secondary" onclick="completeSession('custom')">Mark complete ✓</button>
+      <button class="ghost" onclick="confirmClearTodayLog('custom')">Clear today's log</button>
     </div>
   </div>
 </section>
@@ -3025,7 +3056,6 @@ function completeSession(key) {
 }
 
 function clearTodayLog(key) {
-  if (!confirm("Clear today's log for this session?")) return;
   delete state[key + "Log"][todayKey()];
   saveState();
   renderWorkout(key);
@@ -3037,6 +3067,47 @@ function resetSession(key) {
   state.altIndex = Object.fromEntries(Object.entries(state.altIndex).filter(([k]) => !k.startsWith(key + "_")));
   saveState();
   renderWorkout(key);
+}
+
+// ===== In-app confirm dialog (replaces browser confirm()) =====
+// `onConfirm` runs only if the user taps the confirm button.
+let _confirmHandler = null;
+function confirmDialog(title, message, onConfirm, confirmLabel) {
+  _confirmHandler = onConfirm;
+  const html = `
+    <p class="tip" style="margin: 0 0 16px; line-height: 1.55; color: var(--text);">${message}</p>
+    <div class="confirm-actions">
+      <button type="button" class="confirm-cancel" onclick="closeModal()">Cancel</button>
+      <button type="button" class="confirm-yes" onclick="_runConfirm()">${confirmLabel || "Yes"}</button>
+    </div>
+  `;
+  openModal(title, html);
+}
+function _runConfirm() {
+  const fn = _confirmHandler;
+  _confirmHandler = null;
+  closeModal();
+  if (typeof fn === "function") fn();
+}
+
+function confirmResetSession(key) {
+  const label = key === "gymA" ? "Push & Core" : key === "gymB" ? "Legs & Pull" : key;
+  confirmDialog(
+    "Reset to default?",
+    "This will restore the default exercises for <strong>" + label + "</strong> and undo any alternative picks. Sets you've already logged today are kept.",
+    () => resetSession(key),
+    "Reset"
+  );
+}
+
+function confirmClearTodayLog(key) {
+  const label = key === "gymA" ? "Push & Core" : key === "gymB" ? "Legs & Pull" : key === "custom" ? "Custom" : key;
+  confirmDialog(
+    "Clear today's log?",
+    "This will remove every set and note you've logged today for <strong>" + label + "</strong>. This can't be undone.",
+    () => clearTodayLog(key),
+    "Clear log"
+  );
 }
 
 // ==================== SHUFFLE ====================
