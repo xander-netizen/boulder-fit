@@ -794,9 +794,54 @@
 
   .sets-section { margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--border); }
   .sets-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+
+  /* ===== Swipe-to-delete wrapper for set rows ===== */
+  .swipe-wrap {
+    position: relative;
+    margin-bottom: 6px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .swipe-bg {
+    position: absolute;
+    inset: 0;
+    background: var(--danger);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 16px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .swipe-bg::before {
+    content: "🗑";
+    margin-right: 6px;
+    font-size: 14px;
+  }
+  .swipe-wrap .set-row {
+    position: relative;
+    z-index: 1;
+    background: var(--panel-2);
+    padding: 4px 6px;
+    border-radius: 6px;
+    margin-bottom: 0;
+    transition: transform 0.2s ease;
+    touch-action: pan-y;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .swipe-wrap .set-row.is-swiping { transition: none; }
+  .swipe-wrap.is-deleting { transition: max-height 0.2s ease, opacity 0.2s ease, margin 0.2s ease; max-height: 0; opacity: 0; margin-bottom: 0; }
+  .swipe-wrap.is-deleting .set-row { transform: translateX(-100%); }
+
   .set-row {
     display: grid;
-    grid-template-columns: 26px 1fr 1fr 30px 30px;
+    grid-template-columns: 26px 1fr 1fr 30px;
     gap: 8px;
     align-items: center;
     margin-bottom: 6px;
@@ -1169,7 +1214,7 @@
     .exercise-list { margin: 14px -16px 0; padding: 6px 16px 14px; }
     .train-action-row .pill-btn { font-size: 11px; padding: 8px 6px; min-height: 34px; }
     .train-footer-row button { font-size: 13px; padding: 10px 12px; min-height: 40px; }
-    .set-row { grid-template-columns: 22px 1fr 1fr 28px 28px; }
+    .set-row { grid-template-columns: 22px 1fr 1fr 28px; }
     .set-row input { font-size: 16px; padding: 8px 10px; }
     button { padding: 12px 16px; font-size: 15px; min-height: 44px; }
     button.full-mobile { width: 100%; }
@@ -2221,12 +2266,14 @@ function renderWorkout(key) {
       const isPR = e1 != null && (prThreshold == null || e1 > prThreshold + 0.01);
 
       setsHTML += `
-        <div class="set-row">
-          <div class="set-num ${s.warmup ? 'warmup' : ''}">${s.warmup ? 'W' : sIdx + 1 - sets.slice(0, sIdx).filter(x => x.warmup).length}</div>
-          <input type="text" inputmode="decimal" placeholder="${wPh}" value="${s.weight || ''}" onchange="updateSet('${key}', ${slotIdx}, ${sIdx}, 'weight', this.value)" />
-          <input type="text" inputmode="numeric" placeholder="${rPh}" value="${s.reps || ''}" onchange="updateSet('${key}', ${slotIdx}, ${sIdx}, 'reps', this.value)" />
-          <button class="set-tag-btn ${s.warmup ? 'active' : ''}" onclick="toggleWarmup('${key}', ${slotIdx}, ${sIdx})" title="Mark as warm-up">W</button>
-          <button class="set-del-btn" onclick="deleteSet('${key}', ${slotIdx}, ${sIdx})" title="Delete set">x</button>
+        <div class="swipe-wrap" data-set-key="${key}" data-set-slot="${slotIdx}" data-set-sidx="${sIdx}">
+          <div class="swipe-bg">Delete</div>
+          <div class="set-row">
+            <div class="set-num ${s.warmup ? 'warmup' : ''}">${s.warmup ? 'W' : sIdx + 1 - sets.slice(0, sIdx).filter(x => x.warmup).length}</div>
+            <input type="text" inputmode="decimal" placeholder="${wPh}" value="${s.weight || ''}" onchange="updateSet('${key}', ${slotIdx}, ${sIdx}, 'weight', this.value)" />
+            <input type="text" inputmode="numeric" placeholder="${rPh}" value="${s.reps || ''}" onchange="updateSet('${key}', ${slotIdx}, ${sIdx}, 'reps', this.value)" />
+            <button class="set-tag-btn ${s.warmup ? 'active' : ''}" onclick="toggleWarmup('${key}', ${slotIdx}, ${sIdx})" title="Mark as warm-up">W</button>
+          </div>
         </div>
         ${isPR ? `<div class="pr-line"><span class="pr-tag">PR</span>New personal best</div>` : ''}
       `;
@@ -2308,6 +2355,9 @@ function renderWorkout(key) {
     slots.forEach((_, idx) => { if (log[idx] && log[idx].done) done++; });
     progressEl.innerHTML = done + '<span class="label">/' + total + '</span>';
   }
+
+  // Wire up swipe-to-delete on every set row in this session
+  wireSwipeToDelete(container);
 
   // Wire up carousel counter + dots + scroll observer
   setupCarousel(key);
@@ -2637,6 +2687,110 @@ function deleteSet(key, slotIdx, sIdx) {
   e.sets.splice(sIdx, 1);
   saveState();
   renderWorkout(key);
+}
+
+// ===== Swipe-to-delete on set rows =====
+// Touch: drag the row left; release past threshold → animate out + deleteSet().
+// Pointer (mouse / pen): same handlers via Pointer Events for desktop support.
+function wireSwipeToDelete(container) {
+  if (!container) return;
+  const wraps = container.querySelectorAll(".swipe-wrap");
+  wraps.forEach(wrap => {
+    if (wrap._swipeWired) return;
+    wrap._swipeWired = true;
+    const row = wrap.querySelector(".set-row");
+    if (!row) return;
+
+    let startX = 0;
+    let startY = 0;
+    let dx = 0;
+    let active = false;
+    let captured = false;
+    const THRESHOLD = 80; // px to trigger delete
+    const MAX_PULL = 160;
+
+    const onDown = (e) => {
+      // Skip if the touch started on an input/button — let normal interaction happen.
+      const tgt = e.target;
+      if (tgt && (tgt.tagName === "INPUT" || tgt.tagName === "BUTTON" || tgt.closest("input,button"))) return;
+      const pt = e.touches ? e.touches[0] : e;
+      startX = pt.clientX;
+      startY = pt.clientY;
+      dx = 0;
+      active = true;
+      captured = false;
+      row.classList.add("is-swiping");
+    };
+
+    const onMove = (e) => {
+      if (!active) return;
+      const pt = e.touches ? e.touches[0] : e;
+      const ddx = pt.clientX - startX;
+      const ddy = pt.clientY - startY;
+      // If the gesture is more vertical than horizontal early on, abandon and let the page scroll.
+      if (!captured) {
+        if (Math.abs(ddy) > Math.abs(ddx) && Math.abs(ddy) > 8) {
+          active = false;
+          row.classList.remove("is-swiping");
+          row.style.transform = "";
+          return;
+        }
+        if (Math.abs(ddx) > 6) captured = true;
+      }
+      if (!captured) return;
+      // Only allow left swipe.
+      dx = Math.min(0, Math.max(-MAX_PULL, ddx));
+      row.style.transform = `translateX(${dx}px)`;
+      if (e.cancelable && e.touches) e.preventDefault();
+    };
+
+    const onUp = () => {
+      if (!active) return;
+      active = false;
+      row.classList.remove("is-swiping");
+      if (dx <= -THRESHOLD) {
+        // Commit delete with a small slide-out animation, then remove from data.
+        const key = wrap.getAttribute("data-set-key");
+        const slotIdx = parseInt(wrap.getAttribute("data-set-slot"), 10);
+        const sIdx = parseInt(wrap.getAttribute("data-set-sidx"), 10);
+        // Only delete if it's not the last set.
+        const e = (state[key + "Log"] && state[key + "Log"][todayKey()] && state[key + "Log"][todayKey()][slotIdx]);
+        if (e && Array.isArray(e.sets) && e.sets.length <= 1) {
+          // Snap back — can't delete the last set.
+          row.style.transform = "";
+          return;
+        }
+        wrap.style.maxHeight = wrap.offsetHeight + "px";
+        // Force reflow for the transition to pick up.
+        void wrap.offsetHeight;
+        wrap.classList.add("is-deleting");
+        setTimeout(() => {
+          deleteSet(key, slotIdx, sIdx);
+        }, 180);
+      } else {
+        row.style.transform = "";
+      }
+    };
+
+    row.addEventListener("touchstart", onDown, { passive: true });
+    row.addEventListener("touchmove", onMove, { passive: false });
+    row.addEventListener("touchend", onUp);
+    row.addEventListener("touchcancel", onUp);
+
+    // Desktop / pointer support
+    row.addEventListener("pointerdown", (e) => {
+      if (e.pointerType === "touch") return; // touch path handles it
+      onDown(e);
+      const move = (ev) => onMove(ev);
+      const up = () => {
+        onUp();
+        window.removeEventListener("pointermove", move);
+        window.removeEventListener("pointerup", up);
+      };
+      window.addEventListener("pointermove", move);
+      window.addEventListener("pointerup", up);
+    });
+  });
 }
 
 function toggleDone(key, slotIdx) {
