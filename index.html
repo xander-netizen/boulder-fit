@@ -273,9 +273,12 @@
   /* ===== SESSION PICKER CARDS (home) ===== */
   .session-cards {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 10px;
     margin: 6px 0 16px;
+  }
+  @media (min-width: 720px) {
+    .session-cards { grid-template-columns: repeat(4, 1fr); }
   }
   .session-card {
     display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
@@ -1000,7 +1003,7 @@
     box-shadow: 0 0 0 1px var(--accent-soft) inset;
   }
   .restday-btn.is-scheduled .rd-title::after {
-    content: " · scheduled";
+    content: " · suggested";
     color: var(--accent);
     font-weight: 600;
     font-size: 11px;
@@ -1203,7 +1206,6 @@
   <button class="tab active" data-view="overview">Home</button>
   <button class="tab" data-view="gymA">Push &amp; Core</button>
   <button class="tab" data-view="gymB">Legs &amp; Pull</button>
-  <button class="tab" data-view="custom">Custom</button>
   <button class="tab" data-view="climb">Climb</button>
   <button class="tab" data-view="mobility">Mobility</button>
   <button class="tab" data-view="calendar">History</button>
@@ -1238,6 +1240,10 @@
     <button class="session-card" data-view="climb" onclick="switchView('climb')">
       <div class="sc-label">Climb</div>
       <div class="sc-sub">Log a climbing session</div>
+    </button>
+    <button class="session-card" data-view="custom" onclick="switchView('custom')">
+      <div class="sc-label">Custom</div>
+      <div class="sc-sub">Build your own session</div>
     </button>
   </div>
 
@@ -3576,6 +3582,10 @@ bootApp();
       <button class="restday-btn" data-view="climb" onclick="pickRestDayWorkout('climb')">
         <span class="rd-title">Climb</span>
         <span class="rd-sub">Bouldering session · ~90 min</span>
+      </button>
+      <button class="restday-btn" data-view="custom" onclick="pickRestDayWorkout('custom')">
+        <span class="rd-title">Custom</span>
+        <span class="rd-sub">Build your own from muscle groups</span>
       </button>
       <button class="restday-cancel" id="restDayCancelBtn" onclick="closeRestDayPrompt()">Cancel</button>
     </div>
