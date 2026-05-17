@@ -270,6 +270,84 @@
   }
   .day-pill.is-today .dp-dow { color: var(--accent); }
 
+  /* ===== SESSION PICKER CARDS (home) ===== */
+  .session-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 6px 0 16px;
+  }
+  .session-card {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+    padding: 14px 12px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    color: var(--text);
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+    min-height: 76px;
+  }
+  .session-card:hover { background: var(--panel-3); border-color: var(--accent-2); }
+  .session-card:active { transform: scale(0.98); }
+  .session-card .sc-label { font-size: 14px; font-weight: 800; letter-spacing: -0.2px; }
+  .session-card .sc-sub { font-size: 11px; color: var(--muted); font-weight: 500; }
+  .session-card.is-suggested {
+    border-color: var(--accent);
+    background: linear-gradient(160deg, rgba(255,224,0,0.10), var(--panel-2));
+    box-shadow: 0 0 0 1px rgba(255,224,0,0.20) inset;
+  }
+  .session-card.is-suggested .sc-label::after {
+    content: " ★";
+    color: var(--accent);
+  }
+  @media (max-width: 480px) {
+    .session-card { padding: 12px 10px; min-height: 68px; }
+    .session-card .sc-label { font-size: 13px; }
+    .session-card .sc-sub { font-size: 10px; }
+  }
+
+  /* ===== PROGRESSION NUDGE (train view) ===== */
+  .suggest-line {
+    font-size: 12px;
+    color: var(--muted);
+    margin: 4px 0 8px;
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .suggest-line strong { color: var(--accent); font-weight: 700; }
+  .suggest-line .suggest-use {
+    background: rgba(255,224,0,0.14);
+    color: var(--accent);
+    border: 1px solid rgba(255,224,0,0.30);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .suggest-line .suggest-use:hover { background: rgba(255,224,0,0.25); }
+  .pr-near {
+    font-size: 11px;
+    color: var(--accent-hot);
+    margin: 2px 0 6px;
+    font-weight: 600;
+  }
+
+  /* ===== CLIMB FOCUS SUGGESTION ===== */
+  .climb-focus-suggest {
+    margin: 0 0 10px;
+    padding: 10px 12px;
+    background: rgba(43,182,224,0.10);
+    border: 1px solid rgba(43,182,224,0.30);
+    border-radius: 10px;
+    font-size: 13px;
+    color: var(--text);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .climb-focus-suggest strong { color: var(--climb); }
+
   /* ===== BOTTOM NAV ===== */
   .bottom-nav {
     position: fixed; left: 0; right: 0; bottom: 0;
@@ -1128,7 +1206,7 @@
   <button class="tab" data-view="custom">Custom</button>
   <button class="tab" data-view="climb">Climb</button>
   <button class="tab" data-view="mobility">Mobility</button>
-  <button class="tab" data-view="calendar">Calendar</button>
+  <button class="tab" data-view="calendar">History</button>
   <button class="tab" data-view="settings">Settings</button>
   <button class="tab" data-view="principles">Principles</button>
 </div>
@@ -1136,15 +1214,31 @@
 <!-- OVERVIEW -->
 <section class="view active" id="overview">
 
-  <!-- Hero CTA: today's session -->
+  <!-- Hero CTA: today's pick (smart suggestion based on recent history) -->
   <div class="hero-today glass" data-hero-block>
-    <div class="hero-eyebrow"><span class="dot"></span><span>Today · <span data-hero="dow">—</span></span></div>
+    <div class="hero-eyebrow"><span class="dot"></span><span>Today's pick</span></div>
     <div class="hero-title" data-hero="title">Loading…</div>
     <div class="hero-sub" data-hero="sub">—</div>
     <div>
       <button class="hero-cta" data-hero="cta" onclick="heroCtaAction(this)"><span data-hero="cta-label">Start</span> <span class="arrow">→</span></button>
-      <button class="hero-secondary" onclick="switchView('calendar')">See week</button>
+      <button class="hero-secondary" onclick="switchView('calendar')">See history</button>
     </div>
+  </div>
+
+  <!-- Always-available session picker -->
+  <div class="session-cards">
+    <button class="session-card" data-view="gymA" onclick="switchView('gymA')">
+      <div class="sc-label">Push &amp; Core</div>
+      <div class="sc-sub">Push · antagonists · core</div>
+    </button>
+    <button class="session-card" data-view="gymB" onclick="switchView('gymB')">
+      <div class="sc-label">Legs &amp; Pull</div>
+      <div class="sc-sub">Legs · pull · grip</div>
+    </button>
+    <button class="session-card" data-view="climb" onclick="switchView('climb')">
+      <div class="sc-label">Climb</div>
+      <div class="sc-sub">Log a climbing session</div>
+    </button>
   </div>
 
   <!-- 4 ring stat cards -->
@@ -1373,6 +1467,7 @@
     <h2>Log a climbing session</h2>
 
     <h3 style="margin-top: 4px;">Session type</h3>
+    <div id="climbFocusSuggest"></div>
     <div class="climb-tiles" id="climbTypeTiles">
       <button type="button" class="climb-tile is-selected" data-value="Session"><span class="ct-name">Session</span><span class="ct-sub">Regular</span></button>
       <button type="button" class="climb-tile" data-value="Projects"><span class="ct-name">Projects</span><span class="ct-sub">Hard attempts</span></button>
@@ -1493,9 +1588,9 @@
 
 <!-- CALENDAR (was PROGRESS) -->
 <section class="view" id="calendar">
-  <!-- Hero CTA: today's session — mirrors home -->
+  <!-- Hero CTA: today's pick — mirrors home -->
   <div class="hero-today glass" data-hero-block>
-    <div class="hero-eyebrow"><span class="dot"></span><span>Today · <span data-hero="dow">—</span></span></div>
+    <div class="hero-eyebrow"><span class="dot"></span><span>Today's pick</span></div>
     <div class="hero-title" data-hero="title">Loading…</div>
     <div class="hero-sub" data-hero="sub">—</div>
     <div>
@@ -1505,12 +1600,9 @@
   </div>
 
   <div class="card">
-    <h2>Your week</h2>
-    <p class="tip">Tap a day to jump to that workout. Use the up/down arrows to reorder. Your custom order is remembered.</p>
-    <div class="week" id="weekGrid"></div>
-    <div style="margin-top: 12px;">
-      <button class="ghost" onclick="resetSchedule()">Reset to default order</button>
-    </div>
+    <h2>Recent sessions</h2>
+    <p class="tip">Tap any session to jump back into it.</p>
+    <div id="historyList"></div>
   </div>
 
 </section>
@@ -1814,12 +1906,9 @@ function bnGo(group) {
   if (group === "calendar") return switchView("calendar");
   if (group === "settings") return switchView("settings");
   if (group === "train") {
-    const names = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-    const today = names[new Date().getDay()];
-    const match = getSchedule().find(d => d.dow === today);
-    // Always let the user pick a session, regardless of what's scheduled.
-    // (Rest day → train anyway. Climb day → switch to gym. Gym day → switch to climb. Etc.)
-    return openSessionPicker(match);
+    // Always open the session picker — the suggestion engine highlights the recommended pick,
+    // but the user can start any session at any time.
+    return openSessionPicker(suggestSession());
   }
 }
 
@@ -1834,48 +1923,28 @@ function todaysTrainView() {
   return "calendar";
 }
 
-// ===== Session picker (works for any day type) =====
-// Lets the user start ANY session regardless of what's scheduled:
-// rest day → train anyway, climb day → switch to gym, gym day → switch to climb, etc.
-function openSessionPicker(match) {
+// ===== Session picker =====
+// Always lets the user start any session. The suggestion engine highlights the recommended pick,
+// but everything is one tap away.
+function openSessionPicker(suggestion) {
   const titleEl = document.getElementById("restDayTitle");
   const subEl = document.getElementById("restDayPromptSub");
   const cancelEl = document.getElementById("restDayCancelBtn");
-  const type = match && match.type ? match.type : "rest";
-  const label = match && match.label ? match.label : "Rest";
 
-  let title = "Pick today's session";
-  let sub = "Choose what you want to do right now.";
-  let cancelText = "Cancel";
-
-  if (type === "rest") {
-    title = "Today is your rest day";
-    sub = "Scheduled: " + label + ". Want to train anyway? Pick a session.";
-    cancelText = "Keep resting";
-  } else if (type === "climb") {
-    title = "Today is climb day";
-    sub = "Scheduled: " + label + ". Stick with climbing or switch to a gym session.";
-    cancelText = "Stick with climb";
-  } else if (type === "gym") {
-    title = "Today is gym day";
-    sub = "Scheduled: " + label + ". Stick with the plan or switch to climb or the other gym day.";
-    cancelText = "Stick with the plan";
-  } else if (type === "cardio") {
-    title = "Today is cardio day";
-    sub = "Scheduled: " + label + ". Switch to a real session if you have the energy.";
-    cancelText = "Stick with cardio";
+  if (titleEl) titleEl.textContent = "Pick today's session";
+  if (subEl) {
+    subEl.textContent = suggestion && suggestion.reason
+      ? "Suggested: " + suggestion.label + " — " + suggestion.reason
+      : "Pick whatever you feel like doing.";
   }
+  if (cancelEl) cancelEl.textContent = "Cancel";
 
-  if (titleEl) titleEl.textContent = title;
-  if (subEl) subEl.textContent = sub;
-  if (cancelEl) cancelEl.textContent = cancelText;
-
-  // Highlight today's scheduled session inside the picker.
+  // Highlight the suggested session.
   const buttons = document.querySelectorAll("#restDayModal .restday-btn");
   buttons.forEach(btn => {
     btn.classList.remove("is-scheduled");
     const v = btn.getAttribute("data-view");
-    if (match && v && (v === match.view || (v === "climb" && match.view === "climb"))) {
+    if (suggestion && v && v === suggestion.view) {
       btn.classList.add("is-scheduled");
     }
   });
@@ -1885,7 +1954,10 @@ function openSessionPicker(match) {
 }
 
 // Backward-compatible aliases (the old rest-day modal API).
-function openRestDayPrompt(match) { return openSessionPicker(match); }
+function openRestDayPrompt(match) {
+  // If something old-style still calls this, fall through to the new suggestion-based picker.
+  return openSessionPicker(suggestSession());
+}
 function closeRestDayPrompt() {
   const m = document.getElementById("restDayModal");
   if (m) m.classList.remove("open");
@@ -1893,6 +1965,118 @@ function closeRestDayPrompt() {
 function pickRestDayWorkout(view) {
   closeRestDayPrompt();
   switchView(view);
+}
+
+// ===== Suggestion engine =====
+// Returns the most recent date a session of given type was completed.
+// type: 'gymA' | 'gymB' | 'custom' | 'climb'
+function lastSessionDate(type) {
+  if (type === "climb") {
+    if (!state.climbLog || !state.climbLog.length) return null;
+    return state.climbLog.reduce((max, e) => (!max || (e.date && e.date > max)) ? e.date : max, null);
+  }
+  const log = state[type + "Log"] || {};
+  let latest = null;
+  for (const d of Object.keys(log)) {
+    if (d.startsWith("_")) continue;
+    const v = log[d];
+    if (!v || typeof v !== "object" || !v._completed) continue;
+    if (!latest || d > latest) latest = d;
+  }
+  return latest;
+}
+
+function daysSince(dateStr) {
+  if (!dateStr) return Infinity;
+  const today = new Date(todayKey() + "T00:00:00");
+  const past = new Date(dateStr + "T00:00:00");
+  return Math.max(0, Math.round((today - past) / 86400000));
+}
+
+// Decide today's suggested session based on recent history.
+// Returns { view, label, reason }
+function suggestSession() {
+  const dC = daysSince(lastSessionDate("climb"));
+  const dA = daysSince(lastSessionDate("gymA"));
+  const dB = daysSince(lastSessionDate("gymB"));
+
+  // No history at all — start with a climb.
+  if (dC === Infinity && dA === Infinity && dB === Infinity) {
+    return { view: "climb", label: "Climb", reason: "Fresh start — log your first session." };
+  }
+
+  // Climbed today or yesterday → recover with gym (whichever's been longest).
+  if (dC <= 1) {
+    const which = dA >= dB ? "gymA" : "gymB";
+    return {
+      view: which,
+      label: which === "gymA" ? "Push & Core" : "Legs & Pull",
+      reason: "You climbed " + (dC === 0 ? "today" : "yesterday") + " — give the fingers and shoulders a break."
+    };
+  }
+
+  // Two consecutive gym days → go climb.
+  if (dA <= 1 && dB <= 1) {
+    return { view: "climb", label: "Climb", reason: "Two gym days in a row — get on the wall." };
+  }
+
+  // Long climb gap → suggest climb.
+  if (dC >= 3 && dC !== Infinity) {
+    return { view: "climb", label: "Climb", reason: dC + " days since you last climbed." };
+  }
+
+  // Otherwise alternate gym: pick the one that's been longer.
+  if (dA > dB) {
+    const txt = dA === Infinity ? "no Push & Core on record" : dA + " days since Push & Core";
+    return { view: "gymA", label: "Push & Core", reason: txt + "." };
+  }
+  if (dB > dA) {
+    const txt = dB === Infinity ? "no Legs & Pull on record" : dB + " days since Legs & Pull";
+    return { view: "gymB", label: "Legs & Pull", reason: txt + "." };
+  }
+
+  // Tie → climb.
+  return { view: "climb", label: "Climb", reason: "Mix it up with a climb." };
+}
+
+// Per-exercise progression nudge: bump weight if last session was productive.
+function suggestNextSet(lastSession) {
+  if (!lastSession || !Array.isArray(lastSession.sets) || !lastSession.sets.length) return null;
+  // Take the heaviest set as the "working" set.
+  let heaviest = null;
+  for (const s of lastSession.sets) {
+    if (s.warmup) continue;
+    const w = parseFloat(s.weight);
+    const r = parseInt(s.reps);
+    if (isNaN(w) || isNaN(r) || w <= 0 || r <= 0) continue;
+    if (!heaviest || w > heaviest.w || (w === heaviest.w && r > heaviest.r)) {
+      heaviest = { w, r };
+    }
+  }
+  if (!heaviest) return null;
+  // Default progression: +2.5kg, same reps.
+  return { weight: +(heaviest.w + 2.5).toFixed(2), reps: heaviest.r, prevWeight: heaviest.w, prevReps: heaviest.r };
+}
+
+// Apply a suggested next set to today's entry for this slot.
+function applySuggestion(key, slotIdx, weight, reps) {
+  const e = ensureLog(key, slotIdx);
+  const exId = getResolvedExerciseId(key, slotIdx);
+  if (exId) e.exerciseId = exId;
+  // If the first set is empty, fill it; otherwise add a new one.
+  if (!Array.isArray(e.sets) || !e.sets.length) {
+    e.sets = [{ weight: String(weight), reps: String(reps), warmup: false }];
+  } else {
+    const first = e.sets[0];
+    if (!first.weight && !first.reps) {
+      first.weight = String(weight);
+      first.reps = String(reps);
+    } else {
+      e.sets.push({ weight: String(weight), reps: String(reps), warmup: false });
+    }
+  }
+  saveState();
+  renderWorkout(key);
 }
 
 // ==================== WEEKLY SCHEDULE (with drag-drop) ====================
@@ -1920,74 +2104,71 @@ function swapDays(fromIdx, toIdx) {
   renderWeek();
 }
 
-function renderWeek() {
-  const grid = document.getElementById("weekGrid");
-  const today = new Date().toLocaleDateString("en-US", { weekday: "short" });
-  const schedule = getSchedule();
-  grid.innerHTML = "";
-  schedule.forEach((day, idx) => {
-    const el = document.createElement("div");
-    el.className = "day " + day.type;
-    el.draggable = true;
-    el.dataset.idx = idx;
-    el.innerHTML = `
-      <div class="day-controls">
-        <button class="day-arrow" data-action="up" ${idx === 0 ? 'disabled' : ''} title="Move up">&uarr;</button>
-        <button class="day-arrow" data-action="down" ${idx === schedule.length - 1 ? 'disabled' : ''} title="Move down">&darr;</button>
-      </div>
-      <div class="dow">${day.dow}${day.dow === today ? " (today)" : ""}</div>
-      <div class="label">${day.label}</div>
-      <div class="type"><span class="chip ${day.type}">${day.type}</span></div>
-      <div class="focus">${day.focus}</div>
-    `;
+// Legacy no-op: the weekly schedule grid was removed in favor of a smart-suggestion home + history view.
+// Kept as an empty function because other places used to call it during render passes.
+function renderWeek() { /* removed */ }
 
-    // Arrow buttons for explicit swap (works on mobile + desktop)
-    el.querySelectorAll(".day-arrow").forEach(btn => {
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const action = btn.dataset.action;
-        if (action === "up") swapDays(idx, idx - 1);
-        else if (action === "down") swapDays(idx, idx + 1);
-      });
-    });
+// ===== History view (replaces the old weekly schedule) =====
+function renderHistory() {
+  const el = document.getElementById("historyList");
+  if (!el) return;
 
-    // Click-to-navigate (with drag protection)
-    el.addEventListener("click", (e) => {
-      if (dragJustHappened) { dragJustHappened = false; return; }
-      if (e.target.closest(".day-arrow")) return;
-      switchView(day.view);
-    });
-
-    // Desktop HTML5 drag-drop (still supported as a bonus)
-    el.addEventListener("dragstart", (e) => {
-      dragSrcIdx = idx;
-      el.classList.add("dragging");
-      e.dataTransfer.effectAllowed = "move";
-      // Required for Firefox
-      try { e.dataTransfer.setData("text/plain", String(idx)); } catch(_) {}
-    });
-    el.addEventListener("dragend", () => {
-      el.classList.remove("dragging");
-      document.querySelectorAll(".day").forEach(d => d.classList.remove("drag-over"));
-      dragSrcIdx = null;
-    });
-    el.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = "move";
-      if (dragSrcIdx !== null && dragSrcIdx !== idx) el.classList.add("drag-over");
-    });
-    el.addEventListener("dragleave", () => el.classList.remove("drag-over"));
-    el.addEventListener("drop", (e) => {
-      e.preventDefault();
-      el.classList.remove("drag-over");
-      if (dragSrcIdx === null || dragSrcIdx === idx) return;
-      dragJustHappened = true;
-      setTimeout(() => { dragJustHappened = false; }, 200);
-      swapDays(dragSrcIdx, idx);
-    });
-
-    grid.appendChild(el);
+  const items = [];
+  Object.entries(state.gymALog || {}).forEach(([d, v]) => {
+    if (d.startsWith("_") || !v || typeof v !== "object" || !v._completed) return;
+    items.push({ date: d, view: "gymA", label: "Push & Core", detail: summarizeSessionLog(v) });
   });
+  Object.entries(state.gymBLog || {}).forEach(([d, v]) => {
+    if (d.startsWith("_") || !v || typeof v !== "object" || !v._completed) return;
+    items.push({ date: d, view: "gymB", label: "Legs & Pull", detail: summarizeSessionLog(v) });
+  });
+  Object.entries(state.customLog || {}).forEach(([d, v]) => {
+    if (d.startsWith("_") || !v || typeof v !== "object" || !v._completed) return;
+    items.push({ date: d, view: "custom", label: "Custom", detail: summarizeSessionLog(v) });
+  });
+  (state.climbLog || []).forEach(e => {
+    const grade = (e.grade && e.grade !== "—") ? " · " + e.grade : "";
+    const dur = e.duration ? " · " + e.duration + " min" : "";
+    items.push({ date: e.date, view: "climb", label: "Climb" + (e.type ? " · " + e.type : "") + grade, detail: (e.notes || "").slice(0, 80) + dur });
+  });
+
+  items.sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+
+  if (!items.length) {
+    el.innerHTML = '<p class="tip">No sessions logged yet. Tap a session card above or the Train button to start.</p>';
+    return;
+  }
+
+  el.innerHTML = items.slice(0, 60).map(it => `
+    <div class="log-item" onclick="switchView('${it.view}')" style="cursor:pointer;">
+      <div>
+        <strong>${it.label}</strong>
+        ${it.detail ? `<div class="tip" style="font-size:11px; margin-top:2px;">${it.detail}</div>` : ''}
+      </div>
+      <div class="when">${daysAgo(it.date)}<br><span style="font-size:10px; opacity:0.7;">${it.date}</span></div>
+    </div>
+  `).join("");
+}
+
+// Quick summary line for a gym/custom session log entry.
+function summarizeSessionLog(v) {
+  if (!v || typeof v !== "object") return "";
+  let totalSets = 0, totalReps = 0, maxW = 0;
+  Object.keys(v).forEach(k => {
+    if (k.startsWith("_")) return;
+    const e = v[k];
+    if (!e || !Array.isArray(e.sets)) return;
+    e.sets.forEach(s => {
+      const w = parseFloat(s.weight), r = parseInt(s.reps);
+      if (!isNaN(w) && !isNaN(r) && w > 0 && r > 0) {
+        totalSets++;
+        totalReps += r;
+        if (w > maxW) maxW = w;
+      }
+    });
+  });
+  if (!totalSets) return "";
+  return totalSets + " sets · " + totalReps + " reps" + (maxW ? " · top " + maxW + "kg" : "");
 }
 
 // ==================== WORKOUT RENDER ====================
@@ -2086,6 +2267,26 @@ function renderWorkout(key) {
       ? `<div class="last-time">Last time: <strong>${formatLastSets(lastSession.sets)}</strong><span class="ago">${daysAgo(lastSession.date)}</span></div>`
       : `<div class="last-time" style="opacity:0.6">Last time: <strong>—</strong><span class="ago">no history yet</span></div>`;
 
+    // Progression nudge — bump weight by 2.5kg, same reps as last heaviest working set.
+    const suggestion = suggestNextSet(lastSession);
+    const hasLoggedToday = sets.some(s => (s.weight + "").trim() || (s.reps + "").trim());
+    const suggestHTML = (suggestion && !hasLoggedToday)
+      ? `<div class="suggest-line">Try today: <strong>${suggestion.weight}kg × ${suggestion.reps}</strong> <button class="suggest-use" onclick="applySuggestion('${key}', ${slotIdx}, ${suggestion.weight}, ${suggestion.reps})">Use</button></div>`
+      : '';
+
+    // PR-near alert — if one more rep at heaviest current set would beat the prior best e1RM.
+    let prNearHTML = '';
+    if (prThreshold && lastSession) {
+      const last = suggestion ? { w: suggestion.prevWeight, r: suggestion.prevReps } : null;
+      if (last) {
+        const oneMore = last.w * (1 + (last.r + 1) / 30);
+        const bumped = (last.w + 2.5) * (1 + last.r / 30);
+        if (oneMore > prThreshold + 0.01 || bumped > prThreshold + 0.01) {
+          prNearHTML = `<div class="pr-near">★ PR within reach — one more rep or +2.5kg beats your best.</div>`;
+        }
+      }
+    }
+
     const safeName = (ex.name || '').replace(/'/g, "\\'");
     const safeLink = (ex.link || '').replace(/'/g, "\\'");
     card.innerHTML = `
@@ -2099,6 +2300,8 @@ function renderWorkout(key) {
             <span>rest <strong>${ex.rest}</strong></span>
           </div>
           ${lastTimeHTML}
+          ${suggestHTML}
+          ${prNearHTML}
         </div>
       </div>
 
@@ -2846,6 +3049,7 @@ function logClimb() {
 }
 
 function renderClimbLog() {
+  renderClimbFocusSuggest();
   const c = document.getElementById("climbLog");
   if (!state.climbLog.length) { c.innerHTML = '<p class="tip">No sessions logged yet.</p>'; return; }
   c.innerHTML = state.climbLog.slice(0, 20).map(e => `
@@ -2857,6 +3061,32 @@ function renderClimbLog() {
       <div class="when">${e.date} · ${e.duration} min</div>
     </div>
   `).join("");
+}
+
+// Suggest a climb focus (Projects vs Technique) based on last climb's type, and pre-select it.
+function suggestClimbFocus() {
+  const last = (state.climbLog && state.climbLog[0]) || null;
+  if (!last) return { type: "Session", reason: "First climb — start with a regular session." };
+  const t = last.type || "Session";
+  if (t === "Projects") return { type: "Technique", reason: "Last climb was Projects — go volume / technique today." };
+  if (t === "Technique" || t === "Endurance") return { type: "Projects", reason: "Last climb was " + t + " — push hard today." };
+  if (t === "Session") return { type: "Projects", reason: "Last climb was a regular Session — try a Projects day." };
+  return { type: "Session", reason: "Mix it up with a regular session." };
+}
+
+function renderClimbFocusSuggest() {
+  const el = document.getElementById("climbFocusSuggest");
+  if (!el) return;
+  const s = suggestClimbFocus();
+  el.innerHTML = `<div class="climb-focus-suggest">★ Suggested: <strong>${s.type}</strong> — ${s.reason} <button class="text-link" style="margin-left:auto;" onclick="selectClimbType('${s.type}')">Pick</button></div>`;
+}
+
+// Programmatically select a climb-type tile (used by the suggestion's "Pick" button).
+function selectClimbType(value) {
+  const tiles = document.querySelectorAll("#climbTypeTiles .climb-tile");
+  tiles.forEach(t => t.classList.toggle("is-selected", t.dataset.value === value));
+  const hidden = document.getElementById("climbType");
+  if (hidden) hidden.value = value;
 }
 
 // ==================== BODYWEIGHT ====================
@@ -2991,17 +3221,12 @@ function renderOverview() {
   document.getElementById("overviewGrade").textContent = climbs[0]?.grade || "—";
   document.getElementById("overviewStreak").textContent = computeStreak();
 
-  const names = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-  const today = names[new Date().getDay()];
-  const match = getSchedule().find(d => d.dow === today);
-  document.getElementById("todayPill").textContent = "Today: " + (match ? match.label + " — " + match.focus : today);
-
   // (Weekly summary card removed — totals now live in the Personal Records card on home.)
 
-  // ---- v4: hero CTA, ring fills, day strip
-  renderHero(match, today);
+  // ---- Smart-suggestion hero + history list
+  renderHero(suggestSession());
   renderRings(completed);
-  renderDayStrip(today);
+  renderHistory();
   renderPRs(); // keep the all-time totals tile in sync after any action
 }
 
@@ -3022,34 +3247,27 @@ function setHeroBackground(view) {
     el.style.backgroundImage = url;
   });
 }
-function renderHero(match, todayDow) {
+function renderHero(suggestion) {
   const setAll = (sel, txt) => {
     document.querySelectorAll(`[data-hero="${sel}"]`).forEach(el => { el.textContent = txt; });
   };
-  setAll("dow", todayDow || "—");
 
-  if (!match) {
-    setAll("title", "Free day");
-    setAll("sub", "Nothing scheduled. Build a custom session or log a climb.");
-    setAll("cta-label", "Build session");
-    document.querySelectorAll('[data-hero="cta"]').forEach(el => el.setAttribute("data-target", "custom"));
-    setHeroBackground("calendar");
-    return;
-  }
-  const titles = { gymA: "Push & Core", gymB: "Legs & Pull", climb: "Climb day", custom: "Custom session", overview: "Today" };
-  const subs = {
-    gymA: "Push, antagonists, core. About 60 minutes.",
-    gymB: "Legs, pull power, grip. About 60 minutes.",
-    climb: "Project, flash, or volume — your call. Log it after.",
-    custom: "Pick muscle groups and a duration; we'll generate the session."
-  };
-  const ctas = { gymA: "Start session", gymB: "Start session", climb: "Log climb", custom: "Build session" };
-  const v = match.view;
-  setAll("title", titles[v] || (match.label || "Today"));
-  setAll("sub",   subs[v]   || (match.focus || "Today's training"));
-  setAll("cta-label", ctas[v] || "Open");
+  const s = suggestion || suggestSession();
+  const v = s.view;
+  const ctaLabels = { gymA: "Start Push & Core", gymB: "Start Legs & Pull", climb: "Log climb", custom: "Build session" };
+
+  setAll("title", s.label || "Today's pick");
+  setAll("sub", s.reason || "Choose a session below.");
+  setAll("cta-label", ctaLabels[v] || "Start");
+
   document.querySelectorAll('[data-hero="cta"]').forEach(el => el.setAttribute("data-target", v));
   setHeroBackground(v);
+
+  // Highlight the suggested session card on home.
+  document.querySelectorAll(".session-card").forEach(card => {
+    const cv = card.getAttribute("data-view");
+    card.classList.toggle("is-suggested", cv === v);
+  });
 }
 
 // Called from the clicked CTA button — uses its own data-target so home and calendar both work.
@@ -3096,25 +3314,8 @@ function renderRings(completedSessions) {
   setRing("rcPRRing", pr ? 1 : 0);
 }
 
-function renderDayStrip(todayDow) {
-  const sched = getSchedule();
-  ["dayStrip","dayStripCal"].forEach(stripId => {
-    const strip = document.getElementById(stripId);
-    if (!strip) return;
-    strip.innerHTML = "";
-    sched.forEach(d => {
-      const pill = document.createElement("button");
-      pill.className = "day-pill t-" + d.type + (d.dow === todayDow ? " is-today" : "");
-      pill.innerHTML = `
-        <div class="dp-dow">${d.dow}</div>
-        <div class="dp-label">${d.label}</div>
-        <div class="dp-dot"></div>
-      `;
-      pill.addEventListener("click", () => switchView(d.view));
-      strip.appendChild(pill);
-    });
-  });
-}
+// Legacy no-op: the per-day horizontal strip was retired with the weekly schedule.
+function renderDayStrip() { /* removed */ }
 
 function computeStreak() {
   const weeks = {};
@@ -3410,8 +3611,8 @@ bootApp();
     Climb
   </button>
   <button class="bn-item" data-bn="calendar" onclick="bnGo('calendar')">
-    <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>
-    Calendar
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+    History
   </button>
   <button class="bn-item" data-bn="settings" onclick="bnGo('settings')">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h.1a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v.1a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
