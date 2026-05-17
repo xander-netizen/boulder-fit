@@ -855,8 +855,8 @@
     background: var(--danger);
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    padding-right: 16px;
+    justify-content: flex-start;
+    padding-left: 16px;
     color: #fff;
     font-weight: 700;
     font-size: 12px;
@@ -864,11 +864,6 @@
     text-transform: uppercase;
     pointer-events: none;
     z-index: 0;
-  }
-  .swipe-bg::before {
-    content: "🗑";
-    margin-right: 6px;
-    font-size: 14px;
   }
   .swipe-wrap .set-row {
     position: relative;
@@ -884,7 +879,7 @@
   }
   .swipe-wrap .set-row.is-swiping { transition: none; }
   .swipe-wrap.is-deleting { transition: max-height 0.2s ease, opacity 0.2s ease, margin 0.2s ease; max-height: 0; opacity: 0; margin-bottom: 0; }
-  .swipe-wrap.is-deleting .set-row { transform: translateX(-100%); }
+  .swipe-wrap.is-deleting .set-row { transform: translateX(100%); }
 
   .set-row {
     display: grid;
@@ -2769,8 +2764,8 @@ function wireSwipeToDelete(container) {
         if (Math.abs(ddx) > 6) captured = true;
       }
       if (!captured) return;
-      // Only allow left swipe.
-      dx = Math.min(0, Math.max(-MAX_PULL, ddx));
+      // Only allow right swipe.
+      dx = Math.max(0, Math.min(MAX_PULL, ddx));
       row.style.transform = `translateX(${dx}px)`;
       if (e.cancelable && e.touches) e.preventDefault();
     };
@@ -2779,7 +2774,7 @@ function wireSwipeToDelete(container) {
       if (!active) return;
       active = false;
       row.classList.remove("is-swiping");
-      if (dx <= -THRESHOLD) {
+      if (dx >= THRESHOLD) {
         // Commit delete with a small slide-out animation, then remove from data.
         const key = wrap.getAttribute("data-set-key");
         const slotIdx = parseInt(wrap.getAttribute("data-set-slot"), 10);
