@@ -666,6 +666,82 @@
     flex: 0 0 8px;
   }
   .carousel-dot.active { background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); transform: scale(1.4); }
+  .carousel-dot.is-overview { background: rgba(43,182,224,0.45); }
+  .carousel-dot.is-overview.active { background: var(--accent-2); box-shadow: 0 0 8px rgba(43,182,224,0.6); }
+
+  /* ===== Session overview card (first card in the carousel) ===== */
+  .overview-card {
+    background: linear-gradient(165deg, rgba(43,182,224,0.10), rgba(20,43,63,0.85)) !important;
+    border: 1px solid rgba(43,182,224,0.30);
+  }
+  .overview-card .ov-eyebrow {
+    font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase;
+    color: var(--accent-2); font-weight: 700;
+  }
+  .overview-card .ov-title {
+    font-size: 22px; font-weight: 800; margin-top: 4px;
+    letter-spacing: -0.4px;
+  }
+  .overview-card .ov-sub {
+    font-size: 12px; color: var(--muted); margin-top: 2px;
+  }
+  .ov-list {
+    margin-top: 14px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .ov-row {
+    display: flex; align-items: stretch; gap: 6px;
+  }
+  .ov-row-main {
+    flex: 1; min-width: 0;
+    display: grid;
+    grid-template-columns: 26px 1fr auto;
+    align-items: center;
+    gap: 10px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: inherit;
+    padding: 10px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .ov-row-main:hover { background: var(--panel-3); border-color: var(--accent-2); }
+  .ov-row.is-done .ov-row-main { opacity: 0.55; }
+  .ov-row.is-done .ov-row-main .ov-name { text-decoration: line-through; }
+  .ov-num {
+    width: 22px; height: 22px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: rgba(43,182,224,0.18);
+    color: var(--accent-2);
+    border-radius: 50%;
+    font-size: 11px; font-weight: 800;
+  }
+  .ov-row.is-done .ov-num { background: rgba(52,211,153,0.22); color: var(--success); }
+  .ov-name { font-size: 14px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ov-meta { font-size: 11px; color: var(--muted); font-weight: 500; white-space: nowrap; }
+  .ov-alt-btn {
+    flex: 0 0 40px;
+    width: 40px; min-width: 40px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: inherit;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: all 0.15s ease;
+  }
+  .ov-alt-btn:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+  .ov-hint {
+    margin-top: 12px;
+    font-size: 11px;
+    color: var(--muted);
+  }
 
   /* Exercise card layout — horizontal scroll-snap carousel */
   .exercise-list {
@@ -2288,6 +2364,38 @@ function renderWorkout(key) {
   const log = state[key + "Log"][todayKey()] || {};
   container.innerHTML = "";
 
+  // ===== Overview card (first card in the carousel) =====
+  if (slots.length > 0) {
+    const overview = document.createElement("div");
+    overview.className = "exercise overview-card";
+    const sessionTitle = key === "gymA" ? "Push & Core" : key === "gymB" ? "Legs & Pull" : key === "custom" ? "Custom session" : "Today's session";
+    const doneCount = slots.reduce((n, _, i) => n + ((log[i] && log[i].done) ? 1 : 0), 0);
+    const rowsHTML = slots.map((slotId, idx) => {
+      const ex = getResolvedExercise(slotId, idx, key);
+      if (!ex) return "";
+      const isDone = !!(log[idx] && log[idx].done);
+      const groupBadge = ex.group || "";
+      return `
+        <div class="ov-row ${isDone ? 'is-done' : ''}">
+          <button class="ov-row-main" onclick="scrollToSlot('${key}', ${idx})" aria-label="Jump to ${ex.name.replace(/"/g, '\\"')}">
+            <span class="ov-num">${isDone ? '✓' : idx + 1}</span>
+            <span class="ov-name">${ex.name}</span>
+            <span class="ov-meta">${ex.sets || ''}${groupBadge ? ' · ' + groupBadge : ''}</span>
+          </button>
+          <button class="ov-alt-btn" onclick="cycleAlternative('${key}', ${idx})" title="Pick alternative" aria-label="Pick alternative">↻</button>
+        </div>
+      `;
+    }).join("");
+    overview.innerHTML = `
+      <div class="ov-eyebrow">Today's plan</div>
+      <div class="ov-title">${sessionTitle}</div>
+      <div class="ov-sub">${slots.length} exercise${slots.length === 1 ? '' : 's'}${doneCount ? ' · ' + doneCount + ' done' : ''}</div>
+      <div class="ov-list">${rowsHTML}</div>
+      <div class="ov-hint">Tap an exercise to jump to its card · ↻ swaps to an alternative</div>
+    `;
+    container.appendChild(overview);
+  }
+
   slots.forEach((slotId, slotIdx) => {
     const ex = getResolvedExercise(slotId, slotIdx, key);
     if (!ex) return;
@@ -2416,6 +2524,8 @@ function setupCarousel(key) {
   if (!container) return;
   const cards = container.querySelectorAll(".exercise");
   const total = cards.length;
+  const hasOverview = total > 0 && cards[0].classList.contains("overview-card");
+  const exTotal = hasOverview ? total - 1 : total;
 
   // Build dots
   const dotsEl = document.getElementById(key + "CarouselDots");
@@ -2423,15 +2533,21 @@ function setupCarousel(key) {
     if (total <= 1) {
       dotsEl.innerHTML = "";
     } else {
-      dotsEl.innerHTML = Array.from(cards).map((_, i) =>
-        `<button class="carousel-dot${i === 0 ? ' active' : ''}" data-idx="${i}" onclick="scrollCarouselTo('${key}', ${i})" aria-label="Go to exercise ${i + 1}"></button>`
-      ).join("");
+      dotsEl.innerHTML = Array.from(cards).map((_, i) => {
+        const isOv = hasOverview && i === 0;
+        const label = isOv ? "Overview" : `Exercise ${hasOverview ? i : i + 1}`;
+        return `<button class="carousel-dot${i === 0 ? ' active' : ''}${isOv ? ' is-overview' : ''}" data-idx="${i}" onclick="scrollCarouselTo('${key}', ${i})" aria-label="Go to ${label}"></button>`;
+      }).join("");
     }
   }
 
   // Initial counter
   const counterEl = document.getElementById(key + "CarouselCounter");
-  if (counterEl) counterEl.textContent = total === 0 ? "No exercises yet" : `Exercise 1 of ${total}`;
+  if (counterEl) {
+    if (total === 0) counterEl.textContent = "No exercises yet";
+    else if (hasOverview) counterEl.textContent = "Overview";
+    else counterEl.textContent = `Exercise 1 of ${exTotal}`;
+  }
   if (total === 0) return;
 
   // Attach scroll listener only once per container (innerHTML resets don't remove listeners)
@@ -2466,8 +2582,13 @@ function updateCarouselIndicator(key) {
     const d = Math.abs(mid - cMid);
     if (d < closestDist) { closestDist = d; closestIdx = i; }
   });
+  const hasOverview = cards[0].classList.contains("overview-card");
+  const exTotal = hasOverview ? cards.length - 1 : cards.length;
   const counterEl = document.getElementById(key + "CarouselCounter");
-  if (counterEl) counterEl.textContent = `Exercise ${closestIdx + 1} of ${cards.length}`;
+  if (counterEl) {
+    if (hasOverview && closestIdx === 0) counterEl.textContent = "Overview";
+    else counterEl.textContent = `Exercise ${hasOverview ? closestIdx : closestIdx + 1} of ${exTotal}`;
+  }
   const dotsEl = document.getElementById(key + "CarouselDots");
   if (dotsEl) {
     dotsEl.querySelectorAll(".carousel-dot").forEach((d, i) => d.classList.toggle("active", i === closestIdx));
@@ -2484,6 +2605,16 @@ function scrollCarouselTo(key, idx) {
   container.scrollTo({ left: target, behavior: "smooth" });
 }
 
+// Scroll to a SLOT index (an exercise position). Accounts for the overview card
+// at carousel index 0 so the rest of the code can keep using 0-based slot indices.
+function scrollToSlot(key, slotIdx) {
+  const container = document.getElementById(key + "Exercises");
+  if (!container) return;
+  const cards = container.querySelectorAll(".exercise");
+  const offset = (cards[0] && cards[0].classList.contains("overview-card")) ? 1 : 0;
+  scrollCarouselTo(key, slotIdx + offset);
+}
+
 // ===== Train action row: Start session, Add exercise, Delete popup =====
 function startSession(key) {
   const log = state[key + "Log"][todayKey()] || {};
@@ -2493,7 +2624,7 @@ function startSession(key) {
   for (let i = 0; i < slots.length; i++) {
     if (!log[i] || !log[i].done) { target = i; break; }
   }
-  scrollCarouselTo(key, target);
+  scrollToSlot(key, target);
   const container = document.getElementById(key + "Exercises");
   if (container) container.classList.add("session-started");
 }
@@ -2709,7 +2840,7 @@ function addExerciseToSession(exId) {
   closeAddExercise();
   renderWorkout(key);
   // Scroll to the new last card
-  setTimeout(() => scrollCarouselTo(key, slots.length - 1), 60);
+  setTimeout(() => scrollToSlot(key, slots.length - 1), 60);
 }
 
 function ensureLog(key, slotIdx) {
