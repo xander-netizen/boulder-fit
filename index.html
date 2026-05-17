@@ -917,6 +917,17 @@
   }
   .restday-btn .rd-title { font-size: 15px; font-weight: 700; letter-spacing: -0.2px; }
   .restday-btn .rd-sub { font-size: 12px; color: var(--muted); font-weight: 500; }
+  .restday-btn.is-scheduled {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent-soft) inset;
+  }
+  .restday-btn.is-scheduled .rd-title::after {
+    content: " · scheduled";
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.2px;
+  }
   .restday-cancel {
     margin-top: 4px;
     background: transparent;
@@ -1806,12 +1817,9 @@ function bnGo(group) {
     const names = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
     const today = names[new Date().getDay()];
     const match = getSchedule().find(d => d.dow === today);
-    // On a rest day, ask if the user wants to train anyway and let them pick a session.
-    if (match && match.type === "rest") {
-      return openRestDayPrompt(match);
-    }
-    const v = todaysTrainView();
-    return switchView(v);
+    // Always let the user pick a session, regardless of what's scheduled.
+    // (Rest day → train anyway. Climb day → switch to gym. Gym day → switch to climb. Etc.)
+    return openSessionPicker(match);
   }
 }
 
@@ -1826,15 +1834,58 @@ function todaysTrainView() {
   return "calendar";
 }
 
-// ===== Rest-day train prompt =====
-function openRestDayPrompt(match) {
+// ===== Session picker (works for any day type) =====
+// Lets the user start ANY session regardless of what's scheduled:
+// rest day → train anyway, climb day → switch to gym, gym day → switch to climb, etc.
+function openSessionPicker(match) {
+  const titleEl = document.getElementById("restDayTitle");
   const subEl = document.getElementById("restDayPromptSub");
-  if (subEl && match) {
-    subEl.textContent = "Scheduled: " + (match.label || "Rest") + ". Want to train anyway? Pick a session.";
+  const cancelEl = document.getElementById("restDayCancelBtn");
+  const type = match && match.type ? match.type : "rest";
+  const label = match && match.label ? match.label : "Rest";
+
+  let title = "Pick today's session";
+  let sub = "Choose what you want to do right now.";
+  let cancelText = "Cancel";
+
+  if (type === "rest") {
+    title = "Today is your rest day";
+    sub = "Scheduled: " + label + ". Want to train anyway? Pick a session.";
+    cancelText = "Keep resting";
+  } else if (type === "climb") {
+    title = "Today is climb day";
+    sub = "Scheduled: " + label + ". Stick with climbing or switch to a gym session.";
+    cancelText = "Stick with climb";
+  } else if (type === "gym") {
+    title = "Today is gym day";
+    sub = "Scheduled: " + label + ". Stick with the plan or switch to climb or the other gym day.";
+    cancelText = "Stick with the plan";
+  } else if (type === "cardio") {
+    title = "Today is cardio day";
+    sub = "Scheduled: " + label + ". Switch to a real session if you have the energy.";
+    cancelText = "Stick with cardio";
   }
+
+  if (titleEl) titleEl.textContent = title;
+  if (subEl) subEl.textContent = sub;
+  if (cancelEl) cancelEl.textContent = cancelText;
+
+  // Highlight today's scheduled session inside the picker.
+  const buttons = document.querySelectorAll("#restDayModal .restday-btn");
+  buttons.forEach(btn => {
+    btn.classList.remove("is-scheduled");
+    const v = btn.getAttribute("data-view");
+    if (match && v && (v === match.view || (v === "climb" && match.view === "climb"))) {
+      btn.classList.add("is-scheduled");
+    }
+  });
+
   const m = document.getElementById("restDayModal");
   if (m) m.classList.add("open");
 }
+
+// Backward-compatible aliases (the old rest-day modal API).
+function openRestDayPrompt(match) { return openSessionPicker(match); }
 function closeRestDayPrompt() {
   const m = document.getElementById("restDayModal");
   if (m) m.classList.remove("open");
@@ -3304,24 +3355,28 @@ bootApp();
   </div>
 </div>
 
-<!-- ===== REST-DAY TRAIN PROMPT ===== -->
+<!-- ===== SESSION PICKER (works for any day type — rest, climb, gym, cardio) ===== -->
 <div class="modal-backdrop" id="restDayModal" onclick="if(event.target===this) closeRestDayPrompt()">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="restDayTitle">
     <div class="modal-header">
-      <h2 id="restDayTitle">Today is your rest day</h2>
+      <h2 id="restDayTitle">Pick today's session</h2>
       <button class="modal-close" onclick="closeRestDayPrompt()" aria-label="Close">×</button>
     </div>
-    <p id="restDayPromptSub" style="margin: 6px 0 16px; color: var(--muted); font-size: 14px; line-height: 1.5;">Want to start a workout anyway? Pick a session below.</p>
+    <p id="restDayPromptSub" style="margin: 6px 0 16px; color: var(--muted); font-size: 14px; line-height: 1.5;">Choose what you want to do right now.</p>
     <div class="restday-actions">
-      <button class="restday-btn" onclick="pickRestDayWorkout('gymA')">
+      <button class="restday-btn" data-view="gymA" onclick="pickRestDayWorkout('gymA')">
         <span class="rd-title">Push &amp; Core</span>
         <span class="rd-sub">Push, antagonists, core · ~60 min</span>
       </button>
-      <button class="restday-btn" onclick="pickRestDayWorkout('gymB')">
+      <button class="restday-btn" data-view="gymB" onclick="pickRestDayWorkout('gymB')">
         <span class="rd-title">Legs &amp; Pull</span>
         <span class="rd-sub">Legs, pull power, grip · ~60 min</span>
       </button>
-      <button class="restday-cancel" onclick="closeRestDayPrompt()">Keep resting</button>
+      <button class="restday-btn" data-view="climb" onclick="pickRestDayWorkout('climb')">
+        <span class="rd-title">Climb</span>
+        <span class="rd-sub">Bouldering session · ~90 min</span>
+      </button>
+      <button class="restday-cancel" id="restDayCancelBtn" onclick="closeRestDayPrompt()">Cancel</button>
     </div>
   </div>
 </div>
