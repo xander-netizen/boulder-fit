@@ -278,7 +278,7 @@
     margin: 6px 0 16px;
   }
   @media (min-width: 720px) {
-    .session-cards { grid-template-columns: repeat(4, 1fr); }
+    .session-cards { grid-template-columns: repeat(5, 1fr); }
   }
   .session-card {
     display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
@@ -1378,6 +1378,7 @@
   <button class="tab active" data-view="overview">Home</button>
   <button class="tab" data-view="gymA">Push &amp; Core</button>
   <button class="tab" data-view="gymB">Legs &amp; Pull</button>
+  <button class="tab" data-view="fullBody">Full Body</button>
   <button class="tab" data-view="climb">Climb</button>
   <button class="tab" data-view="mobility">Mobility</button>
   <button class="tab" data-view="calendar">History</button>
@@ -1408,6 +1409,10 @@
     <button class="session-card" data-view="gymB" onclick="switchView('gymB')">
       <div class="sc-label">Legs &amp; Pull</div>
       <div class="sc-sub">Legs · pull · grip</div>
+    </button>
+    <button class="session-card" data-view="fullBody" onclick="switchView('fullBody')">
+      <div class="sc-label">Full Body</div>
+      <div class="sc-sub">Everything in one session</div>
     </button>
     <button class="session-card" data-view="climb" onclick="switchView('climb')">
       <div class="sc-label">Climb</div>
@@ -1488,6 +1493,41 @@
     <div class="train-footer-row">
       <button class="ghost" onclick="confirmResetSession('gymB')">Reset to default</button>
       <button class="ghost" onclick="confirmClearTodayLog('gymB')">Clear today's log</button>
+    </div>
+  </div>
+</section>
+
+<!-- FULL BODY -->
+<section class="view" id="fullBody">
+  <div class="session-focus-header">
+    <button class="sfh-back" onclick="openSessionPicker(suggestSession())" aria-label="Switch session">
+      <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>
+    </button>
+    <div class="sfh-title">
+      <div class="sfh-eyebrow">Session</div>
+      <div class="sfh-name">Full Body</div>
+    </div>
+    <div class="sfh-progress" id="fullBodyProgress">0<span class="label">/0</span></div>
+  </div>
+  <div class="card">
+    <h2 id="fullBodyTitle">Full Body</h2>
+    <p class="tip">One session, everything hit. Compound lifts across squat, hinge, push, pull, plus core and grip. ~60 min.</p>
+    <div class="train-action-row">
+      <button class="pill-btn" onclick="shuffleSession('fullBody')">Shuffle</button>
+      <button class="pill-btn" onclick="openAddExercise('fullBody')">+ Add exercise</button>
+    </div>
+    <div class="carousel-meta">
+      <span id="fullBodyCarouselCounter">Exercise 1 of —</span>
+      <span class="swipe-hint">Swipe →</span>
+    </div>
+    <div id="fullBodyExercises" class="exercise-list"></div>
+    <div class="carousel-dots" id="fullBodyCarouselDots"></div>
+  </div>
+  <div class="train-footer">
+    <button class="primary-cta" onclick="completeSession('fullBody')">Mark complete ✓</button>
+    <div class="train-footer-row">
+      <button class="ghost" onclick="confirmResetSession('fullBody')">Reset to default</button>
+      <button class="ghost" onclick="confirmClearTodayLog('fullBody')">Clear today's log</button>
     </div>
   </div>
 </section>
@@ -1915,6 +1955,13 @@ const PROGRAM = {
       "back_squat", "rdl", "bulgarian", "weighted_pullup",
       "db_row", "farmer_carry", "standing_calf", "zone2_cardio"
     ]
+  },
+  fullBody: {
+    title: "Full Body",
+    slots: [
+      "back_squat", "bench_press", "rdl", "weighted_pullup",
+      "db_shoulder_press", "hanging_leg_raise", "farmer_carry"
+    ]
   }
 };
 
@@ -1980,16 +2027,24 @@ function loadState() {
   return {
     gymALog: {},
     gymBLog: {},
+    fullBodyLog: {},
     customLog: {},
     climbLog: [],
     bodyweight: [],
     prs: DEFAULT_PRS,
     altIndex: {},        // exerciseId -> alternative cycle position
-    customSlots: { gymA: null, gymB: null }, // null means use default; otherwise custom array of IDs
+    customSlots: { gymA: null, gymB: null, fullBody: null }, // null means use default; otherwise custom array of IDs
     customSession: { groups: [], slots: [], duration: 60 },
     scheduleOrder: null  // null means default; otherwise array of indices
   };
 }
+
+// Backfill for users whose saved state predates fullBody — runs every load.
+(function migrateFullBody() {
+  if (!state.fullBodyLog) state.fullBodyLog = {};
+  if (!state.customSlots) state.customSlots = { gymA: null, gymB: null, fullBody: null };
+  if (!('fullBody' in state.customSlots)) state.customSlots.fullBody = null;
+})();
 
 function saveState() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
@@ -2017,7 +2072,7 @@ function switchView(v) {
 // Map a view ID → which bottom-nav group should highlight.
 function bnGroupForView(v) {
   if (v === "overview") return "home";
-  if (v === "gymA" || v === "gymB" || v === "custom" || v === "mobility") return "train";
+  if (v === "gymA" || v === "gymB" || v === "fullBody" || v === "custom" || v === "mobility") return "train";
   if (v === "climb") return "climb";
   if (v === "calendar" || v === "principles") return "calendar";
   if (v === "settings") return "settings";
@@ -2247,6 +2302,10 @@ function renderHistory() {
     if (d.startsWith("_") || !v || typeof v !== "object" || !v._completed) return;
     items.push({ date: d, view: "gymB", label: "Legs & Pull", detail: summarizeSessionLog(v) });
   });
+  Object.entries(state.fullBodyLog || {}).forEach(([d, v]) => {
+    if (d.startsWith("_") || !v || typeof v !== "object" || !v._completed) return;
+    items.push({ date: d, view: "fullBody", label: "Full Body", detail: summarizeSessionLog(v) });
+  });
   Object.entries(state.customLog || {}).forEach(([d, v]) => {
     if (d.startsWith("_") || !v || typeof v !== "object" || !v._completed) return;
     items.push({ date: d, view: "custom", label: "Custom", detail: summarizeSessionLog(v) });
@@ -2389,7 +2448,7 @@ function renderWorkout(key) {
   if (slots.length > 0) {
     const overview = document.createElement("div");
     overview.className = "exercise overview-card";
-    const sessionTitle = key === "gymA" ? "Push & Core" : key === "gymB" ? "Legs & Pull" : key === "custom" ? "Custom session" : "Today's session";
+    const sessionTitle = key === "gymA" ? "Push & Core" : key === "gymB" ? "Legs & Pull" : key === "fullBody" ? "Full Body" : key === "custom" ? "Custom session" : "Today's session";
     const doneCount = slots.reduce((n, _, i) => n + ((log[i] && log[i].done) ? 1 : 0), 0);
     const rowsHTML = slots.map((slotId, idx) => {
       const ex = getResolvedExercise(slotId, idx, key);
@@ -3066,7 +3125,7 @@ function getResolvedExerciseId(sessionKey, slotIdx) {
 function getLastSession(targetExId) {
   if (!targetExId) return null;
   const today = todayKey();
-  const allLogKeys = ['gymALog', 'gymBLog', 'customLog'];
+  const allLogKeys = ['gymALog', 'gymBLog', 'fullBodyLog', 'customLog'];
   let best = null;
   for (const lk of allLogKeys) {
     const log = state[lk] || {};
@@ -3094,7 +3153,7 @@ function getLastSession(targetExId) {
 function getBestE1RM(targetExId, beforeDate) {
   if (!targetExId) return null;
   const cutoff = beforeDate || todayKey();
-  const allLogKeys = ['gymALog', 'gymBLog', 'customLog'];
+  const allLogKeys = ['gymALog', 'gymBLog', 'fullBodyLog', 'customLog'];
   let best = null;
   for (const lk of allLogKeys) {
     const log = state[lk] || {};
@@ -3280,7 +3339,7 @@ function _runConfirm() {
 }
 
 function confirmResetSession(key) {
-  const label = key === "gymA" ? "Push & Core" : key === "gymB" ? "Legs & Pull" : key;
+  const label = key === "gymA" ? "Push & Core" : key === "gymB" ? "Legs & Pull" : key === "fullBody" ? "Full Body" : key;
   confirmDialog(
     "Reset to default?",
     "This will restore the default exercises for <strong>" + label + "</strong> and undo any alternative picks. Sets you've already logged today are kept.",
@@ -3290,7 +3349,7 @@ function confirmResetSession(key) {
 }
 
 function confirmClearTodayLog(key) {
-  const label = key === "gymA" ? "Push & Core" : key === "gymB" ? "Legs & Pull" : key === "custom" ? "Custom" : key;
+  const label = key === "gymA" ? "Push & Core" : key === "gymB" ? "Legs & Pull" : key === "fullBody" ? "Full Body" : key === "custom" ? "Custom" : key;
   confirmDialog(
     "Clear today's log?",
     "This will remove every set and note you've logged today for <strong>" + label + "</strong>. This can't be undone.",
@@ -3624,6 +3683,7 @@ const HERO_IMG_BASE = 'https://cdn.jsdelivr.net/gh/xander-netizen/boulder-fit@ma
 const HERO_IMAGES = {
   gymA:     'asset_64977ce5-c300-4743-bd68-82c1f0935600.webp',  // side plank — push/core
   gymB:     'asset_5d65fdee-2e35-4a7c-9779-d0abdf502b0a.webp',  // dead hang — pull/grip
+  fullBody: 'asset_8da54f77-05dd-4f4d-b8f1-91f55c1f1392.webp',  // sprint — reused for full body
   climb:    'asset_4e87d132-3dd5-43f2-a6cc-cd89075911af.webp',  // high leg lift — climbing
   custom:   'asset_8da54f77-05dd-4f4d-b8f1-91f55c1f1392.webp',  // sprint — anything-goes
   calendar: 'asset_cee4c0cd-5afa-4df8-96c1-49bbf19de59f.webp',  // superman — rest / free day
@@ -3642,7 +3702,7 @@ function renderHero(suggestion) {
 
   const s = suggestion || suggestSession();
   const v = s.view;
-  const ctaLabels = { gymA: "Start Push & Core", gymB: "Start Legs & Pull", climb: "Log climb", custom: "Build session" };
+  const ctaLabels = { gymA: "Start Push & Core", gymB: "Start Legs & Pull", fullBody: "Start Full Body", climb: "Log climb", custom: "Build session" };
 
   setAll("title", s.label || "Today's pick");
   setAll("sub", s.reason || "Choose a session below.");
@@ -3837,6 +3897,7 @@ function renderAll() {
   renderWeek();
   renderWorkout("gymA");
   renderWorkout("gymB");
+  renderWorkout("fullBody");
   if (state.customSession.slots && state.customSession.slots.length) {
     document.getElementById("customSessionCard").style.display = "";
     document.getElementById("customSessionTitle").textContent = `Your custom session (${state.customSession.duration} min, ${state.customSession.slots.length} exercises)`;
@@ -3960,6 +4021,10 @@ bootApp();
       <button class="restday-btn" data-view="gymB" onclick="pickRestDayWorkout('gymB')">
         <span class="rd-title">Legs &amp; Pull</span>
         <span class="rd-sub">Legs, pull power, grip · ~60 min</span>
+      </button>
+      <button class="restday-btn" data-view="fullBody" onclick="pickRestDayWorkout('fullBody')">
+        <span class="rd-title">Full Body</span>
+        <span class="rd-sub">Squat, press, hinge, pull · ~60 min</span>
       </button>
       <button class="restday-btn" data-view="climb" onclick="pickRestDayWorkout('climb')">
         <span class="rd-title">Climb</span>
